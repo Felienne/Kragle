@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scraper", "Scraper\Scraper.csproj", "{21E3FFC3-4829-49B4-9E42-EC0CBC5C8BB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kragle", "Kragle\Kragle.csproj", "{D1CBB285-9E7B-4A53-84ED-A741E9DAF70F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KragleCore", "Kragle\KragleCore.csproj", "{D1CBB285-9E7B-4A53-84ED-A741E9DAF70F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
