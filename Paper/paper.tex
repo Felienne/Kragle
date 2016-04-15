@@ -1,49 +1,59 @@
-\documentclass[times,10pt,twocolumn]{article}
-\usepackage{latex8}
-\usepackage{times}
+\documentclass{sig-alternate}
+
+\usepackage{url}
 \usepackage{graphicx}
 
-\usepackage{amsmath}
-\usepackage{tabularx}
-\usepackage{booktabs}
-\usepackage{colortbl}
-\usepackage{tikz}
-\usepackage{xcolor}
-\usepackage{url}
-\usepackage{balance}
-
-
-\newcommand{\ub}{user defined-block}
 \newcommand{\nPrograms}{250.166}
 \newcommand{\nemptyPrograms}{14.285}
 \newcommand{\nScriptPrograms}{233.514}
-
-\newcommand{\numkids}{61~}
-\newcommand{\lm}{\emph{Long Method}~}
+\newcommand{\nProgramsWithClones}{67.177}
 \newcommand{\dup}{\emph{Duplication}~}
 
 \newcommand{\todo}[1]{\textbf{#1}}
 
+\begin{document}
+%
+% --- Author Metadata here ---
+%\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
+% --- End of Author Metadata ---
 
+\title{How kids code and how we know it:\\An exploratory study in the Scratch project repository }
 
-\begin{document}   
-
-\title{Clones in Block-Based Languages: A Large Scale Analysis of Scratch Programs}
-
-\author{Felienne Hermans\\
-       {Delft University of Technology}\\
-      {Mekelweg 4}\\
-       {Delft, the Netherlands}\\
-       {f.f.j.hermans@tudelft.nl}
+\numberofauthors{1}
+\author{
+% 1st. author
+\alignauthor
+(anonymized submission)
+%Ben Trovato\titlenote{Dr.~Trovato insisted his name be first.}\\
+%       \affaddr{Institute for Clarity in Documentation}\\
+%       \affaddr{1932 Wallamaloo Lane}\\
+%       \affaddr{Wallamaloo, New Zealand}\\
+%       \email{trovato@corporation.com}
+% 2nd. author
+%\alignauthor
+%G.K.M. Tobin\titlenote{The secretary disavows
+%any knowledge of this author's actions.}\\
+%       \affaddr{Institute for Clarity in Documentation}\\
+%       \affaddr{P.O. Box 1212}\\
+%       \affaddr{Dublin, Ohio 43017-6221}\\
+%       \email{webmaster@marysville-ohio.com}
 }
 
+%\date{30 July 1999}
+
 \maketitle
-
-
-
 \begin{abstract}
 Recently, block-based programming languages like Alice, Scratch and Blockly have become popular tools for programming education. There is substantial research showing that block-based languages are suitable for early programming education. But do block-based programs suffer from code clones \emph{smelly} too? In a recent controlled experiment, we found that code clones in Scratch indeed hamper novice Scratch programmers. In this paper we explore how commonly code clones occur in Scratch. To that end we have scraped Scratch public repository and retrieved 250.000 programs. We have analyzed three types of clones within those programs': clones of entire scripts within sprites, clones of entire between sprites, and cloned conditions. We find that those clones occur in ... of programs.
 \end{abstract}
+
+% A category with the (minimum) three required fields
+%\category{H.4}{Information Systems Applications}{Miscellaneous}
+%A category including the fourth, optional field follows...
+%\category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
+
+\terms{terms}
+
+\keywords{keywords}
 
 \section{Introduction}
 
@@ -56,7 +66,7 @@ In this paper we explore code clones smells in the context of block-based langua
 Clones so far have mostly been studied in the contact of object-oriented, textual source code, but some other directions have been taken, including spreadsheets and SimuLink programs. 
 
 % Recently, it has been demonstrated that code smells occur in various alternative programming environments including spreadsheets~\cite{hermans_detecting_2012, hermans_detecting_2014}, Yahoo! Pipes~\cite{stolee_refactoring_2011} and LabView~\cite{chambers_smell-driven_2013}.
- 
+
 We ourselves have recently performed an experiment where we compared the performance of novice Scratch programmers between three 
 
 Knowing that code clones can be harmful, we now turn to the question of whether they are common. As such, the goal of this paper is to \textbf{investigate whether code clones are common in public Scratch programs}.  To address this goal we have obtained \nPrograms~public Scratch programs by scraping the list of recent programs \todo{link}. We investigate three types of clones: clones of entire scripts within sprites, clones of entire between sprites, and cloned conditions.
@@ -66,10 +76,12 @@ The results show that \todo{todo}
 The contributions of this paper are as follows:
 
 \begin{itemize}
-\item{A public data set of \nScriptPrograms~Scratch programs (Section \ref{dataset})}
-\item{A clone Scratch detection algorithm with an open source implementation (Section \ref{algo})}
-\item{An empirical evaluation of the occurrence of three types of clones in Scratch programs (Section \ref{results})}
+	\item{A public data set of \nScriptPrograms~Scratch programs (Section \ref{dataset})}
+	\item{A clone Scratch detection algorithm with an open source implementation (Section \ref{algo})}
+	\item{An empirical evaluation of the occurrence of three types of clones in Scratch programs (Section \ref{results})}
 \end{itemize}
+
+Research questions?
 
 \section{Background and Motivation}
 \label{sec:background}
@@ -93,15 +105,18 @@ Scratch is a block-based programming language aimed at children, developed by MI
 Scratch code is organized by `sprites': two-dimensional pictures each having their own associated code. Scratch allows users to bring their sprites to life in various ways, for example by moving them in the plane, having them say or think words or sentences via text balloons, but also by having them make sounds, grow, shrink and switch costumes. The Scratch program in Figure \ref{fig:ui}\footnote{\url{https://scratch.mit.edu/projects/97086781/}} consists of one sprite, the cat, which is Scratch's default sprite and logo. The code in the sprite will cause the cat to jump up, say ``hello'', and come back down, when the green flag is clicked, and to make the `meow' sound when the space bar is pressed.
 
 \begin{figure}
-  \begin{center}
-  \includegraphics[width=\columnwidth]{fig/ui.png}
-  \caption{The Scratch user interface consisting of the `cat' sprite on the left, the toolbox with available blocks in the category `motion' in the middle and the code associated with the sprite on the right. The upper right corner shows the actual location of the sprite.}
-  \label{fig:ui}
-  \end{center}
+	\begin{center}
+		\includegraphics[width=\columnwidth]{fig/ui.png}
+		\caption{The Scratch user interface consisting of the `cat' sprite on the left, the toolbox with available blocks in the category `motion' in the middle and the code associated with the sprite on the right. The upper right corner shows the actual location of the sprite.}
+		\label{fig:ui}
+	\end{center}
 \end{figure} 
 
+\subsection{Signals}
+\todo{uitleggen wat een signal is en evt ook al hoe het een kloon vervangt?}
+
 \subsection{Events}
-Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events. The canonical event is the `when Green Flag clicked', activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. In the Scratch code in Figure \ref{fig:ui} there are two events: `when Green Flag clicked' and `when space key pressed'
+Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events. The canonical event is the `when Green Flag clicked', activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. In the Scratch code in Figure \ref{fig:ui} there are two events: `when Green Flag clicked' and `when space key pressed'.
 
 \subsection{Scripts}
 Source code within sprites is organized in scripts: a script always starts with an event, followed by a number of blocks. The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously. For example, the code on the left of Figure \ref{fig:comparison} has five scripts associated with the `when Green Flag clicked' event.
@@ -111,19 +126,19 @@ Scratch programs can be shared by their creators in the global Scratch repositor
 
 
 \begin{figure}
-  \begin{center}
-  \includegraphics[width=6cm]{fig/makeBlockSmall.png}
-  \caption{}
-  \label{fig:makeBlock}
-  \end{center}
+	\begin{center}
+		\includegraphics[width=6cm]{fig/makeBlockSmall.png}
+		\caption{}
+		\label{fig:makeBlock}
+	\end{center}
 \end{figure} 
 
 \begin{figure}
-  \begin{center}
-  \includegraphics[width=6cm]{fig/useBlockSmall.png}
-  \caption{}
-  \label{fig:useBlock}
-  \end{center}
+	\begin{center}
+		\includegraphics[width=6cm]{fig/useBlockSmall.png}
+		\caption{}
+		\label{fig:useBlock}
+	\end{center}
 \end{figure} 
 
 
@@ -141,6 +156,8 @@ Also, interestingly enough, \nemptyPrograms~were empty (5.7\%), at least in term
 
 \subsection{Block Size}
 
+\subsection{Dead code}
+
 \subsection{User-defined Blocks}
 
 \subsection{Remixing}
@@ -148,29 +165,73 @@ Also, interestingly enough, \nemptyPrograms~were empty (5.7\%), at least in term
 \section{Clones Detection for Scratch programs}
 \label{algo}
 \label{clone_Detection}
-
+\todo{How it works, Fenia, I can write this if you want}
 
 
 \section{Results}
 \label{results}
-The overarching research question of this work is how common Scratch users clone in their programs. As explained in Section \ref{clone_Detection} we distinguish three different forms of clones: Exact clones within one sprite, exact clones between sprites of one program, clones of `wait' blocks.
+The overarching research question of this work is how common Scratch users clone in their programs. As explained in Section \ref{clone_Detection} we distinguish three different forms of clones: Exact clones within one sprite, exact clones between sprites of one program, clones of `wait' blocks. This section presents the results of our clone detection algorithm on the \nScriptPrograms~ with scripts.
+
+In total \nProgramsWithClones~(26.9\% of programs with scripts) exhibit one of the three types of cloning.The most common type of cloning is copying entire scripts between sprites. This occurs in 62.939 programs (25.2\%). In 8.220 programs (3.3\%) wait conditions are cloned and in 2.463 files there is a script cloned within a sprite.
 
 \subsection{Exact clones within one sprite}
+In total, we found \todo{x} cases of exact script clones within one sprite. Upon further inspection, we found that some of them consisted of unconnected blocks, as depicted in Figure \ref{fig:Unconnected_clones}. While this is technically a clone, as this is \emph{dead code} and will never be executed, this could be considered unharmful sketching. Looking only at clones starting with an event block, \todo{...} clones remain over \todo{?} files.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=6cm]{fig/Unconnected_clones.png}
+		\caption{Cloned blocks that are not connected to an event. Program id: 12237615}
+		\label{fig:Unconnected_clones}
+	\end{center}
+\end{figure} 
+
 
 \subsection{Exact clones between sprites of one program}
 
 \subsection{Clones of `wait' blocks}
+Previous work has established that the cloned `wait' blocks can be harmful when modifying Scratch code, which is the reason why we investigated this particular type of cloning. As outlined in section \todo{?} signals can replaced repeated wait blocks, by catching the condition in one place and broadcasting a signal to all other sprites. This is why we found it interesting to see in how many of the cases where a wait block was cloned, the creator of the program also used signals in their program. This indicates that the concept of signals is known, and hence the duplicate condition is not used because the user is not aware of the alternative. In \todo{...} of the cases the program with the duplicated wait block also contained one or more signals. 
 
-This section presents the results of our clone detection algorithm on the \nScriptPrograms~ with scripts.
+\subsection{Conclusion}
+
+\subsection{Implications}
+Our results have some interesting implications for designers of educational programming languages. 
+
+\subsubsection{Unconnected Blocks}
+In the whole dataset, not just in the programs with clones, we observe unconnected scripts, scripts without an event block and events without associated code. This is a form of \emph{dead code}, code that will never be executed. Because this dead code caused visual clutter, it would be better to have a separate workspace (much like the `backpack in Scratch' where users can store blocks temporarily and use them later. A programming interface could ask actively encourage users to move unconnected block when they exit the environment to encourage a `clean' working space. 
+
+\subsubsection{Code Clones Between Sprites}
+With occurrences in one quarter of the 250 thousand programs, the use of exactly identical clones between sprites is extremely common. In a sense, the Scratch users are not to blame here, Scratch does not support the sharing of \todo{right word? procedures} between scripts, only within them. So in many cases there is no other way to share the functionality than making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users needs this functionality. 
+
+\subsubsection{Refactoring support for duplicate wait blocks}
+In todo{...} of the cases, the programs with duplicate conditions, also signals were present. This means that it is feas
+
+\section{Discussion}
+
 
 
 
 \section{Related Work}
+\label{sec:related}
+
+\subsection{Code Smells}
+Efforts related to our research include works on code smells, initiated by the work by Fowler~\cite{fowler_refactoring:_1999}. His book gives an overview of code smells and corresponding refactorings. Fowler's work was followed by efforts focused on the automatic identification of code smells by means of metrics. Marinescu~\cite{marinescu_detecting_2001} for instance, uses metrics to identify \emph{suspect} classes: classes which could have design flaws. Lanza and Marinescu~\cite{lanza_object-oriented_2006} explain this methodology in more detail. Alves \emph{et al.}~\cite{alves_deriving_2010} focus on a strategy to obtain thresholds for metrics from a benchmark. Olbrich \emph{et al.} furthermore investigates the changes in smells over time, and discusses their impact~\cite{olbrich_evolution_2009}. Moha \emph{et al.}~\cite{moha_decor:_2010} designed the `DECOR' method which automatically generates a smell detection algorithms from specifications. The CCFinder tool~\cite{kamiya_ccfinder:_2002} finally, aims at detecting clones in source code, which are similar to our \dup smell.
+
+\subsection{Smells beyond the OO paradigm}
+In recent times, code smells have been applied to programs outside of the regular programming domain. In our past work, we have, for example, studied code smells within spreadsheets, both at the formula level~\cite{hermans_detecting_2014} and between worksheets~\cite{hermans_detecting_2012}.
+
+More recently, we compared two datasets: one containing spreadsheets which users found unmaintainable, and a version of the same spreadsheets rebuilt by professional spreadsheet developers. The results show that the improved versions suffered from smells to a lesser degree, increasing our confidence that presence of smells indeed coincides with users finding spreadsheets hard to maintain~\cite{jansen_code_2015}.
+
+In addition to spreadsheets, code smells have also been studied in the context of Yahoo! Pipes a web mashup tool. An experiment demonstrated that users preferred the non-smelly versions of Yahoo Pipes programs~\cite{stolee_refactoring_2011}. 
+
+%\subsection{Agile practices in education}
+%A third related line of work are research directions where other methods from agile development, like testing and refactoring, have been applied in education. For example, the use of test-driven development has been studied within the context of programming education at university level, using text-based languages in several studies. Most controlled experiments resulted in increased code quality for the group of students using TDD, for example [13] reported on a 35\% reduction in defects, while [14] found 45\%. For an extensive overview of TDD approaches in university programming courses, see [15]. \todo{referenties fixen}
+
+\subsection{Quality of Scratch programs}
+Finally, there are other works on the quality of Scratch programs. There is for example the Hairball Scratch extension~\cite{boe_hairball:_2013}, which is a lint-like static analysis tool for Scratch that can detect, for example, unmatched broadcast and receive blocks, infinite loops and duplication. An evaluation of 100 Scratch programs showed that Scratch programs indeed suffer from duplication and bad naming~\cite{moreno_automatic_2014}.
+
+Most related to our study is the work by Moreno \emph{et al.}~\cite{moreno-leon_dr._2015} who gave automated feedback on Scratch programs to 100 children aged 10 to 14. Their results demonstrated that feedback on code quality helped improve students' programming skills.
 
 
-
-\bibliographystyle{IEEEtran}
+\bibliographystyle{abbrv}
 \bibliography{zotero}
-
-
-\end{document}   
+\end{document}
