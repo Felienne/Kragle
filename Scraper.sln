@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scraper", "Scraper\Scraper.csproj", "{21E3FFC3-4829-49B4-9E42-EC0CBC5C8BB8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KragleCore", "Kragle\KragleCore.csproj", "{D1CBB285-9E7B-4A53-84ED-A741E9DAF70F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csvCleanup", "csvCleanup\csvCleanup.csproj", "{D4CDDFD1-C5D5-40DE-91E0-9AE37983AA44}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{D1CBB285-9E7B-4A53-84ED-A741E9DAF70F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1CBB285-9E7B-4A53-84ED-A741E9DAF70F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1CBB285-9E7B-4A53-84ED-A741E9DAF70F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4CDDFD1-C5D5-40DE-91E0-9AE37983AA44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4CDDFD1-C5D5-40DE-91E0-9AE37983AA44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4CDDFD1-C5D5-40DE-91E0-9AE37983AA44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4CDDFD1-C5D5-40DE-91E0-9AE37983AA44}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
