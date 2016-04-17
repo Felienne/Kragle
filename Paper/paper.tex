@@ -5,7 +5,7 @@
 
 \newcommand{\nPrograms}{250.166}
 \newcommand{\nemptyPrograms}{14.285}
-\newcommand{\nScriptPrograms}{233.514}
+\newcommand{\nScriptPrograms}{233.513}
 \newcommand{\nProgramsWithClones}{67.177}
 \newcommand{\dup}{\emph{Duplication}~}
 
@@ -61,27 +61,29 @@ Scratch is a programming language developed to teach children programming by ena
 
 Block-based languages have existed since the eighties, but have recently found adoption as tools for programming education. In addition to Scratch, also Alice~\cite{conway_alice:_1994}, Blockly\footnote{\url{https://developers.google.com/blockly/}} and App Inventor~\cite{wolber_app_2011} are block-languages aimed at novice programmers.
 
-In this paper we explore code clones smells in the context of block-based languages. \todo{hier nog wat background over clones, zie ICSE `13 uiteraard}
+refer to:
+Research on the effectiveness of those languages for programming education
+Research on programming habits
+Our research on smells
 
-Clones so far have mostly been studied in the contact of object-oriented, textual source code, but some other directions have been taken, including spreadsheets and SimuLink programs. 
+The goal of this paper is to obtain a deep understanding of how people program in Scratch and to analyze the characteristics of Scratch programs. Moreover, knowing that bad programming habits and code smells can be harmful, we also want to explore whether they are common. Specifically, the research questions that we are trying to answer are:
 
-% Recently, it has been demonstrated that code smells occur in various alternative programming environments including spreadsheets~\cite{hermans_detecting_2012, hermans_detecting_2014}, Yahoo! Pipes~\cite{stolee_refactoring_2011} and LabView~\cite{chambers_smell-driven_2013}.
+\begin{itemize}
+\item[RQ1] What are the size and complexity characteristics of Scratch programs?
+\item[RQ2] Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment?
+\item[RQ3] How are coding style conventions applied in Scratch?
+\item[RQ4] Which code smells and bad programming practices are common in Scratch programs?
+\end{itemize}
 
-We ourselves have recently performed an experiment where we compared the performance of novice Scratch programmers between three 
-
-Knowing that code clones can be harmful, we now turn to the question of whether they are common. As such, the goal of this paper is to \textbf{investigate whether code clones are common in public Scratch programs}.  To address this goal we have obtained \nPrograms~public Scratch programs by scraping the list of recent programs \todo{link}. We investigate three types of clones: clones of entire scripts within sprites, clones of entire between sprites, and cloned conditions.
-
-The results show that \todo{todo}
+Our study is based on data from the Scratch program repository. By scraping the list of recent programs \todo{link}, we have obtained \nPrograms~public Scratch programs and performed static analysis on them.
 
 The contributions of this paper are as follows:
 
 \begin{itemize}
 	\item{A public data set of \nScriptPrograms~Scratch programs (Section \ref{dataset})}
-	\item{A clone Scratch detection algorithm with an open source implementation (Section \ref{algo})}
-	\item{An empirical evaluation of the occurrence of three types of clones in Scratch programs (Section \ref{results})}
+	\item{An empirical evaluation of the data set for answering the aforementioned research questions}
 \end{itemize}
 
-Research questions?
 
 \section{Background and Motivation}
 \label{sec:background}
@@ -95,13 +97,13 @@ Most convincingly, Price and Barnes performed a controlled experiment in which s
 
 Summarizing the above, we conclude that block-based languages have a clear potential to be a great tool for introductory programming education, in some cases even outperforming text-based languages.
 
-\section{Relevant Scratch Concepts}
+\subsection{Relevant Scratch Concepts}
 \label{sec:scratch}
 This paper is by no means an introduction into Scratch programming, we refer the reader to \cite{brennan_creative_2014} for an extensive overview. To make this paper self-contained, however, we explain a number of relevant concepts in this section. 
 
 Scratch is a block-based programming language aimed at children, developed by MIT. Scratch can be used to create games and interactive animations, and is available both as a stand-alone application and as a web application. Figure \ref{fig:ui} shows the Scratch user interface in the Chrome browser.
 
-\subsection{Sprites}
+\subsubsection{Sprites}
 Scratch code is organized by `sprites': two-dimensional pictures each having their own associated code. Scratch allows users to bring their sprites to life in various ways, for example by moving them in the plane, having them say or think words or sentences via text balloons, but also by having them make sounds, grow, shrink and switch costumes. The Scratch program in Figure \ref{fig:ui}\footnote{\url{https://scratch.mit.edu/projects/97086781/}} consists of one sprite, the cat, which is Scratch's default sprite and logo. The code in the sprite will cause the cat to jump up, say ``hello'', and come back down, when the green flag is clicked, and to make the `meow' sound when the space bar is pressed.
 
 \begin{figure}
@@ -112,18 +114,17 @@ Scratch code is organized by `sprites': two-dimensional pictures each having the
 	\end{center}
 \end{figure} 
 
-\subsection{Signals}
+\subsubsection{Signals}
 \todo{uitleggen wat een signal is en evt ook al hoe het een kloon vervangt?}
 
-\subsection{Events}
+\subsubsection{Events}
 Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events. The canonical event is the `when Green Flag clicked', activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. In the Scratch code in Figure \ref{fig:ui} there are two events: `when Green Flag clicked' and `when space key pressed'.
 
-\subsection{Scripts}
+\subsubsection{Scripts}
 Source code within sprites is organized in scripts: a script always starts with an event, followed by a number of blocks. The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously. For example, the code on the left of Figure \ref{fig:comparison} has five scripts associated with the `when Green Flag clicked' event.
 
-\subsection{Remixing}
+\subsubsection{Remixing}
 Scratch programs can be shared by their creators in the global Scratch repository\footnote{\url{https://scratch.mit.edu/explore/projects/all/}}. Shared Scratch programs can be `remixed' by other Scratch users, which means that a copy of this program is placed in the user's own project collection, and can be then further changed. The `remix tree' of projects is public, so users can track which users remix their programs, a bit similar forking in GitHub. Contrary to forking though, changes upstream cannot be integrated back into the original project.
-
 
 \begin{figure}
 	\begin{center}
@@ -142,39 +143,71 @@ Scratch programs can be shared by their creators in the global Scratch repositor
 \end{figure} 
 
 
+\section{Research design and dataset}
+\label{researchDesign}
 
+The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch programs. To answer our research questions, we conducted an empirical quantitative evaluation of program data we collected from the Scratch repository. The dataset is described in Section \ref{dataset}. Below, we present how we approached each research question.
 
-\section{Dataset}
+\textbf{RQ1} What are the size and complexity characteristics of Scratch programs? quantitative analysis, provide and analyze descriptive statistics on the size, complexity metrics, statistical analysis . mentioned taht it was imported to db and done and statistical data from db queries? The outcomes are presented in Section...
+
+\textbf{RQ2} Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment? Using the code in the dataset, we perform a detailed statistical analysis of code characteristics to answer RQ2 (Section ??)
+
+\textbf{RQ3} How are coding style conventions applied in Scratch? to examine if coding style conventions are used, we qualitatively analyze..
+
+\textbf{RQ4} Which code smells and bad programming practices are common in Scratch programs?
+
+\subsection{Dataset}
 \label{dataset}
+
 We scraped all Scratch programs uploaded \todo{add date range?} from the Scratch website with a scraping program. This resulted in he JSON code for \nPrograms~Scratch programs. In addition to the programs themselves, we also gathered metadata including the numbers of views, loves, favorites and remixes. Out of the \nPrograms~, we failed to analyze 2.367 programs due to various technical difficulties \todo{add details?} 
 
-\subsection{Empty programs}
+describe:
+in what form is the dataset we analyzed and we are making available (json code + analysis.csv? what fields does it contain?)
+how we obtained the programs
+how we analyzed the programs to obtain analysis.csv
+
+\section{Results}
+
+\subsection{Program size and complexity}
+Size -per Project:sprites, blocks and locs, events/triggers
+nestendness	
+cyclomatic complexity	
+
+\subsubsection{Empty programs}
 
 Also, interestingly enough, \nemptyPrograms~were empty (5.7\%), at least in terms of scripts. So Scratch users were sharing program already that did not contain code yet. In some cases \todo{analyze too?} they contained scripts and costumes but no code and in others they were entirety empty apart from the Scratch cat added by default.
 
-\subsection{Block Usage}
+\subsection{Programming abstractions and concepts}
+loops	
+logic operations	
+variables	
+lists	
+user interativity	
+functions - arguments
+parallelism	- wait blocks, briadcast, receive
 
-\subsection{Block Size}
+\subsection{Coding style}
+naming -functions, sprites, variables
+positioning - overlapping /visibility	
 
-\subsection{Dead code}
 
-\subsection{User-defined Blocks}
+\subsection{Code smells}
+dead code
+duplicates/clones -graph, number of overlapping positioning, number of dead code duplicates
+long method
+large class
+conditional complexity
+Dublicated wait block-same trigger caught by more than 1
 
-\subsection{Remixing}
 
-\section{Clones Detection for Scratch programs}
-\label{algo}
+\subsubsection{Clones Detection for Scratch programs}
 \label{clone_Detection}
-\todo{How it works, Fenia, I can write this if you want}
 
-
-\section{Results}
-\label{results}
-The overarching research question of this work is how common Scratch users clone in their programs. As explained in Section \ref{clone_Detection} we distinguish three different forms of clones: Exact clones within one sprite, exact clones between sprites of one program, clones of `wait' blocks. This section presents the results of our clone detection algorithm on the \nScriptPrograms~ with scripts.
+We distinguish three different forms of clones: Exact clones within one sprite, exact clones between sprites of one program, clones of `wait' blocks. This section presents the results of our clone detection algorithm on the \nScriptPrograms~ with scripts.
 
 In total \nProgramsWithClones~(26.9\% of programs with scripts) exhibit one of the three types of cloning.The most common type of cloning is copying entire scripts between sprites. This occurs in 62.939 programs (25.2\%). In 8.220 programs (3.3\%) wait conditions are cloned and in 2.463 files there is a script cloned within a sprite.
 
-\subsection{Exact clones within one sprite}
+\paragraph{Exact clones within one sprite}
 In total, we found \todo{x} cases of exact script clones within one sprite. Upon further inspection, we found that some of them consisted of unconnected blocks, as depicted in Figure \ref{fig:Unconnected_clones}. While this is technically a clone, as this is \emph{dead code} and will never be executed, this could be considered unharmful sketching. Looking only at clones starting with an event block, \todo{...} clones remain over \todo{?} files.
 
 \begin{figure}
@@ -186,12 +219,14 @@ In total, we found \todo{x} cases of exact script clones within one sprite. Upon
 \end{figure} 
 
 
-\subsection{Exact clones between sprites of one program}
+\paragraph{Exact clones between sprites of one program}
 
-\subsection{Clones of `wait' blocks}
+\paragraph{Clones of `wait' blocks}
 Previous work has established that the cloned `wait' blocks can be harmful when modifying Scratch code, which is the reason why we investigated this particular type of cloning. As outlined in section \todo{?} signals can replaced repeated wait blocks, by catching the condition in one place and broadcasting a signal to all other sprites. This is why we found it interesting to see in how many of the cases where a wait block was cloned, the creator of the program also used signals in their program. This indicates that the concept of signals is known, and hence the duplicate condition is not used because the user is not aware of the alternative. In \todo{...} of the cases the program with the duplicated wait block also contained one or more signals. 
 
-\subsection{Conclusion}
+
+
+\section{Discussion}
 
 \subsection{Implications}
 Our results have some interesting implications for designers of educational programming languages. 
@@ -204,8 +239,6 @@ With occurrences in one quarter of the 250 thousand programs, the use of exactly
 
 \subsubsection{Refactoring support for duplicate wait blocks}
 In todo{...} of the cases, the programs with duplicate conditions, also signals were present. This means that it is feas
-
-\section{Discussion}
 
 
 

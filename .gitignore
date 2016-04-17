@@ -22,6 +22,9 @@ bld/
 [Oo]bj/
 
 KragleData/
+Paper/paper.bbl
+Paper/paper.blg
+Paper/paper.synctex.gz
 
 # Visual Studio 2015 cache/options directory
 .vs/
