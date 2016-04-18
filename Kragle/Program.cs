@@ -14,9 +14,9 @@ namespace Kragle
    {
       static void Main(string[] args)
       {
-         string param1 = args[0];
+         string param1 = "-p";//args[0];
 
-         string path = args[1];
+         string path = @"C:\Users\Felienne\Dropbox\Code\KragleData\testData\";//args[1];
 
          if (param1=="-p")
          {
