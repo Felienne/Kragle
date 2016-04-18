@@ -1,0 +1,15 @@
+1 size metrics
+select projectID, count(distinct spriteName) as spritesWithCodeNo, max(codeBlockRank) + 1 as codeBlocksNo, count(*) as linesNo, max(intent) as maxIndentation
+FROM code
+group by projectID
+
+
+2 lines per sprite type
+select projectID, spriteType, count(*) as linesNo
+FROM code
+group by projectID, spriteType
+
+3 cyclomatic complexity
+select projectID, codeBlockRank, count(*) + 1 from code
+where command in ('doifelse','doif')
+group by projectID, codeBlockRank
