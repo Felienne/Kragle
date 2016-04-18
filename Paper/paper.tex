@@ -158,13 +158,18 @@ The main focus of this study is to understand how people program in Scratch by a
 
 \subsection{Dataset}
 \label{dataset}
+\subsubsection{Obtaining Scratch programs}
+We obtained the set of Scratch programs by using a scraping program. Our scraping program called Kragle starts by reading \url{https://scratch.mit.edu/explore/projects/all/} and thus obtaining program ids of programs that were most recently shared. Subsequently, Kragle obtains the JSON code for each of the listed programs. In addition to the programs themselves, Kragle also gathers metadata including the numbers of views, loves, favorites and remixes.
 
-We scraped all Scratch programs uploaded \todo{add date range?} from the Scratch website with a scraping program. This resulted in he JSON code for \nPrograms~Scratch programs. In addition to the programs themselves, we also gathered metadata including the numbers of views, loves, favorites and remixes. Out of the \nPrograms~, we failed to analyze 2.367 programs due to various technical difficulties \todo{add details?} 
+ % For a given id $x$ a Scratch programs JSON representation can be obtained via \url{https://cdn.projects.scratch.mit.edu/internalapi/project/x/get}.  Does not fit on the page nicely and might also not be needed?
 
-describe:
-in what form is the dataset we analyzed and we are making available (json code + analysis.csv? what fields does it contain?)
-how we obtained the programs
-how we analyzed the programs to obtain analysis.csv
+We ran Kragle on March 2nd 2016 and let it running for 24 hours, when it had obtained a little over 250.000 programs.  Out of the \nPrograms~, we failed to analyze 2.367 programs due to various technical difficulties \todo{add details, I will check a few to see what went wrong - Felienne} 
+
+Kragle, as well as all scraped programs and our analysis files are available via \todo{url} \todo{I do not think we need to describe the fields in the paper, but we need a good readme with the data (I can do that)}
+
+\subsubsection{Analyzing the Scratch programs}
+Once we obtained the Scratch programs, we parsed the JSON files according to the specification of the format\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}}. This resulted in a list if used blocks per program, with the sprites and the stage of the program. We also assign types to all the blocks, both their shapes and the tab they originate from. For example, When Green Flag Clicked is a \emph{Hat block} from the \emph{Events category}.
+
 
 \section{Results}
 
