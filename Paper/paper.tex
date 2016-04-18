@@ -239,6 +239,12 @@ The lines of code metric was further analyzed to understand code placement. As s
 
 As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with cyclomatic complexity over 100 and up to 246.
 
+\noindent
+\fbox{
+	\begin{minipage}{0.46\textwidth}
+		\emph{RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. Few projects (7.7\%) use procedures, but they use them a lot. There exist surprisingly large and complex projects.}
+	\end{minipage}}
+
 \subsection{Programming abstractions and concepts}
 loops	
 logic operations	
