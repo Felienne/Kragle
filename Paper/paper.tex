@@ -5,7 +5,7 @@
 
 \newcommand{\nPrograms}{250.166}
 \newcommand{\nemptyPrograms}{14.285}
-\newcommand{\nScriptPrograms}{233.513}
+\newcommand{\nScriptPrograms}{233.491}
 \newcommand{\nProgramsWithClones}{67.177}
 \newcommand{\dup}{\emph{Duplication}~}
 
@@ -71,8 +71,7 @@ The goal of this paper is to obtain a deep understanding of how people program i
 \begin{itemize}
 \item[RQ1] What are the size and complexity characteristics of Scratch programs?
 \item[RQ2] Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment?
-\item[RQ3] How are coding style conventions applied in Scratch?
-\item[RQ4] Which code smells and bad programming practices are common in Scratch programs?
+\item[RQ3] How common are code smells and bad programming practices in Scratch programs?
 \end{itemize}
 
 Our study is based on data from the Scratch program repository. By scraping the list of recent programs \todo{link}, we have obtained \nPrograms~public Scratch programs and performed static analysis on them.
@@ -150,11 +149,9 @@ The main focus of this study is to understand how people program in Scratch by a
 
 \textbf{RQ1} What are the size and complexity characteristics of Scratch programs? quantitative analysis, provide and analyze descriptive statistics on the size, complexity metrics, statistical analysis . mentioned taht it was imported to db and done and statistical data from db queries? The outcomes are presented in Section...
 
-\textbf{RQ2} Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment? Using the code in the dataset, we perform a detailed statistical analysis of code characteristics to answer RQ2 (Section ??)
+\textbf{RQ2} Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment? Using the code in the dataset, we perform a detailed statistical analysis of code characteristics to answer RQ2 (Section ??). We manually assigned types to commands/blocks.
 
-\textbf{RQ3} How are coding style conventions applied in Scratch? to examine if coding style conventions are used, we qualitatively analyze..
-
-\textbf{RQ4} Which code smells and bad programming practices are common in Scratch programs?
+\textbf{RQ3} Which code smells and bad programming practices are common in Scratch programs?  to examine if coding style conventions are used, we qualitatively analyze..
 
 \subsection{Dataset}
 \label{dataset}
@@ -170,8 +167,14 @@ how we analyzed the programs to obtain analysis.csv
 
 \subsection{Program size and complexity}
 Size -per Project:sprites, blocks and locs, events/triggers
+lines in stage/sprites/procedures
 nestendness	
 cyclomatic complexity	
+
+lines do not count the ending line of enclosures
+only sprites with code are counted
+indentation: 1 for top-level, for nested (rest-1)/2 (goes 1,3,5, etc), for others normal
+
 
 \subsubsection{Empty programs}
 
@@ -184,11 +187,7 @@ variables
 lists	
 user interativity	
 functions - arguments
-parallelism	- wait blocks, briadcast, receive
-
-\subsection{Coding style}
-naming -functions, sprites, variables
-positioning - overlapping /visibility	
+parallelism	- wait blocks, briadcast, receive	
 
 
 \subsection{Code smells}
@@ -199,6 +198,8 @@ large class
 conditional complexity
 Dublicated wait block-same trigger caught by more than 1
 
+coding style -naming -functions, sprites, variables
+code block positioning - overlapping /visibility
 
 \subsubsection{Clones Detection for Scratch programs}
 \label{clone_Detection}
