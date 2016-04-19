@@ -89,3 +89,54 @@ from code
 where command  = 'call'
 and spriteType = 'procdef'
 and param1 = spriteName)
+
+8variablesperproject
+select projectid, count(distinct param1)
+from code
+where command in ('readVariable', 'setVar:to:', 'showVariable:', 'changeVar:by:', 'hideVariable:') 
+group by projectid
+'contentsOfList:',
+'1getLine:ofList:',
+'lineCountOfList:',
+'append:toList:',
+'deleteLine:ofList:',
+'insert:at:ofList:',
+'setLine:ofList:to:',
+'list:contains:',
+'showList:',
+'hideList:'
+variables not initialzed
+select distinct c.projectid, c.param1
+from code c
+where c.command in ('readVariable', 'showVariable:', 'changeVar:by:', 'hideVariable:') 
+and not exists(select * from code d where c.projectID = d.projectID and c.param1 = d.param1 and d.command = 'setVar:to:')
+code blocks
+select projectid, param1, count(distinct codeBlockRank)
+from code
+where command in ('readVariable', 'setVar:to:', 'showVariable:', 'changeVar:by:', 'hideVariable:') 
+group by projectid, param1
+
+9loops
+select projectid, count(*)
+from code
+where command in ('doIf', 'doIfElse') 
+group by projectid
+select projectid, count(*)
+from code
+where command in ('doRepeat', 'doForever', 'doUntil') 
+group by projectid
+
+10events
+select projectid, count(*)
+from code
+where command in ('broadcast:', 'doBroadcastAndWait', 'whenIReceive') 
+group by projectid
+select *
+from code a
+where a.command = 'whenIReceive'
+and not exists (select * from code b where a.projectID = b.projectID and a.param1 = b.param1 and b.command in ('broadcast:', 'doBroadcastAndWait'))
+(select distinct projectID
+from code a
+where a.command in ('broadcast:', 'doBroadcastAndWait')
+and not exists (select * from code b where a.projectID = b.projectID and a.param1 = b.param1 and b.command = 'whenIReceive')
+)
