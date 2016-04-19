@@ -32,3 +32,60 @@ lines of code in functions
 select count(*) as linesNo
 FROM code a
 where a.spriteType = 'procdef'
+
+USE [Kragle]
+GO
+/****** Object:  UserDefinedFunction [dbo].[CountOccurancesOfString]    Script Date: 4/19/2016 11:33:46 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER FUNCTION [dbo].[CountOccurancesOfString]
+(
+    @searchString nvarchar(max),
+    @searchTerm nvarchar(max)
+)
+RETURNS INT
+AS
+BEGIN
+    return (LEN(@searchString)-LEN(REPLACE(@searchString,@searchTerm,'')))/LEN(@searchTerm)
+END
+
+5 procedure arguments
+select distinct projectID, codeBlockRank, REPLACE(spriteName, ',','(comma)'), 
+dbo.CountOccurancesOfString(spritename, ' %n') as argsNumber, 
+dbo.CountOccurancesOfString(spritename, ' %s') as argsText, 
+dbo.CountOccurancesOfString(spritename, ' %b') as argsBoolean
+from code
+where [spriteType] = 'procdef'
+
+6 procedures per project
+select  projectID, count(distinct codeBlockRank)
+from code
+where [spriteType] = 'procdef'
+group by projectID
+
+7 function calls
+SELECT projectid, Replace(spriteName,',','') , replace(param1,',',''), count(distinct codeBlockRank) as codeBlocks, count(*) as calls
+from code
+where command  = 'call'
+group by projectid, spriteName, param1
+UNION
+select distinct projectid, Replace(spriteName,',','') , 'not used', 0, 0
+from code a
+where a.spriteType = 'procdef'
+and not exists (select * from code c
+where c.command  = 'call' and c.param1 = a.spriteName)
+recursion etc:
+(SELECT count(*)
+from code
+where command  = 'call'
+and spriteType = 'procdef')
+(SELECT count(*)
+from code
+where command  = 'call')
+(SELECT count(*)
+from code
+where command  = 'call'
+and spriteType = 'procdef'
+and param1 = spriteName)

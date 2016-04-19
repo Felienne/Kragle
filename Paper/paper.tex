@@ -189,14 +189,21 @@ The dataset is found to contain a relatively small number of projects without an
 		Scripts per project&17.35&1&2&5&12&3038\\
 		Maximum indentation per project&4.56&1&3&3&5&488\\
 		Lines of code (LOC) per project&154.55&1&12&29&76&34622\\
-		LOC in Stage&4.80&0&0&0&3&2613\\
-		LOC in Sprites&115.57&0&10&26&68&34613\\
-		LOC in Procedures&34.17&0&0&0&0&20552\\
+		LOC in Stage per project&4.80&0&0&0&3&2613\\
+		LOC in Sprites per project&115.57&0&10&26&68&34613\\
+		LOC in Procedures per project&34.17&0&0&0&0&20552\\
 		McCabe Cyclomatic Complexity (CC) per script&1.58&1&1&1&1&246\\
-		McCabe CC per Procedure script&3.75&1&1&2&4&183\\
+		McCabe CC per procedure script&3.75&1&1&2&4&183\\
+		Procedures per project with procedures&11.50&1&1&2&6&847\\
+		Arguments per Procedure&0.95&0&0&0&1&53\\
+		Numerical arguments per procedure with arguments&1.73&0&1&1&2&22\\
+		Text arguments per procedure with arguments&0.28&0&0&0&1&24\\
+		Boolean arguments per procedure with arguments&0.13&0&0&0&0&14\\
+		Calls per procedure&2.14&0&1&1&2&526\\
+		Scripts with calls per procedure&1.13&0&1&1&1&59\\
 		\hline
 	\end{tabular}
-	\caption{Size-related statistics from the dataset of \nScriptPrograms  non-empty Scratch projects}
+	\caption{Summary statistics from the dataset of \nScriptPrograms  non-empty Scratch projects}
 	\label{tbl-size}
 \end{table*}
 
@@ -248,13 +255,40 @@ As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCab
 
 \subsection{Programming abstractions and concepts}
 
+As a first programming abstraction we investigated the use of procedures. In the dataset we found 206,799 procedures in 17,979 projects. As summarized in Table \ref{tbl-size}, the projects that contain procedures have an average of 11.5 procedures, but with 53.59\% of those projects having up to 2. Figure \ref{fig:proceduresperproject} shows the distribution of procedures in projects. Regarding procedure arguments, we found that 55.57\% have no arguments and 19.48\%\% have only one (shown in Figure \ref{fig:procedurearguments}). The majority of procedure arguments (80.59\%) are numeric, and the least used argument type is the boolean one---6.23\% of the total procedure arguments, found in 5.32\% of the procedures.
 
-functions - arguments
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/6proceduresperproject}
+	\caption{Histogram of the number of procedures for the 17,979 projects that include at least one}
+	\label{fig:proceduresperproject}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/5arguments}
+	\caption{Histogram of the number of arguments for the procedures in the dataset}
+	\label{fig:procedurearguments}
+\end{figure}
+
+The use of procedures in projects was further investigated through the procedure calls, summarized in Figure \ref{fig:procedurecalls}. A significant number of the defined procedures (13,036 or 6.3\%) are not called in the projects. Most procedures are called exactly once (62.32\% of them) or twice (15.65\% ) and from exactly one script (85.92\% of them). Examining the origin of procedure calls, we found remarkable that most of the calls (56.09\%) originate from other procedures, and even 1.06\% originate from the same procedure, thus making it recursive. Those recursive procedures are found in 1052 projects.\footnote{list of recursive procedures published \todo{link}}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/7procedurecalls}
+	\caption{Histogram of the number of calls of each procedure in the dataset}
+	\label{fig:procedurecalls}
+\end{figure}
+
+
+
+
 variables
+lists
 
 loops	
 logic operations		
-lists	
+	
 user interativity	
 parallelism	- wait blocks, briadcast, receive	
 
