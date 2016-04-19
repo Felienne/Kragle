@@ -13,3 +13,22 @@ group by projectID, spriteType
 select projectID, codeBlockRank, count(*) + 1 from code
 where command in ('doifelse','doif')
 group by projectID, codeBlockRank
+procedures
+select projectID, codeBlockRank, count(*) + 1 from code
+where command in ('doifelse','doif')
+and spriteType = 'procdef'
+group by projectID, codeBlockRank
+
+4 projects with functions per spriteType
+select a.projectID, a.spriteType, count(*) as linesNo
+FROM code a
+where exists (select * from code c where c.projectID = a.projectID and c.spriteType = 'procdef')
+group by a.projectID, a.spriteType
+total loc in projects with functions
+select count(*) as linesNo
+FROM code a
+where exists (select * from code c where c.projectID = a.projectID and c.spriteType = 'procdef')
+lines of code in functions
+select count(*) as linesNo
+FROM code a
+where a.spriteType = 'procdef'

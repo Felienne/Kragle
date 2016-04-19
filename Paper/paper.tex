@@ -192,7 +192,8 @@ The dataset is found to contain a relatively small number of projects without an
 		LOC in Stage&4.80&0&0&0&3&2613\\
 		LOC in Sprites&115.57&0&10&26&68&34613\\
 		LOC in Procedures&34.17&0&0&0&0&20552\\
-		McCabe Cyclomatic Complexity per script&1.58&0&0&0&0&246\\
+		McCabe Cyclomatic Complexity (CC) per script&1.58&1&1&1&1&246\\
+		McCabe CC per Procedure script&3.75&1&1&2&4&183\\
 		\hline
 	\end{tabular}
 	\caption{Size-related statistics from the dataset of \nScriptPrograms  non-empty Scratch projects}
@@ -235,25 +236,32 @@ In Table \ref{tbl-size} we summarize statistics for metrics related to size and 
 
 We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) are found to have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code\footnote{The Scratch identifiers of those projects can be found in \todo{link}}.
 
-The lines of code metric was further analyzed to understand code placement. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects.
+The lines of code metric was further analyzed to understand code placement. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. Those projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
 
-As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with cyclomatic complexity over 100 and up to 246.
+As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of those projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
 
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-		\emph{RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. Few projects (7.7\%) use procedures, but they use them a lot. There exist surprisingly large and complex projects.}
+		\emph{RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. Few projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.}
 	\end{minipage}}
 
 \subsection{Programming abstractions and concepts}
+
+
+functions - arguments
+variables
+
 loops	
-logic operations	
-variables	
+logic operations		
 lists	
 user interativity	
-functions - arguments
 parallelism	- wait blocks, briadcast, receive	
 
+Control abstraction is the abstraction of actions while data abstraction is that of data structures.
+
+Control abstraction involves the use of subprograms and related concepts control flows
+Data abstraction allows handling data bits in meaningful ways. For example, it is the basic motivation behind datatype.
 
 \subsection{Code smells}
 dead code
