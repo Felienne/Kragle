@@ -135,30 +135,27 @@ Source code within sprites is organized in scripts: a script can start with an e
 
 The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously.
 
+\subsubsection{Procedures}
+Scratch users can define their own blocks, with a pop-up screen displayed in on the left hand side of Figure \ref{fig:twoBlocks}. As shown in this Figure, Scratch users can set the name of the sprite and define input parameters. The block in Figure \ref{fig:twoBlocks} uses two parameter, one textual (string1) and one numerical (number1). A user-created block is programmed using ordinary Scratch blocks as shown on the right hand side of Figure \ref{fig:twoBlocks}.
+
 \subsubsection{Remixing}
+\todo{maybe only useful with we will talk about remixing in the remainder?}
 Scratch programs can be shared by their creators in the global Scratch repository\footnote{\url{https://scratch.mit.edu/explore/projects/all/}}. Shared Scratch programs can be `remixed' by other Scratch users, which means that a copy of this program is placed in the user's own project collection, and can be then further changed. The `remix tree' of projects is public, so users can track which users remix their programs, a bit similar forking in GitHub. Contrary to forking though, changes upstream cannot be integrated back into the original project.
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=6cm]{fig/makeBlockSmall.png}
-		\caption{}
-		\label{fig:makeBlock}
+		\includegraphics[width=8cm]{fig/twoBlocks.png}
+		\caption{The user interface for creating and defining user-defined blocks \todo{could be nicer}}
+		\label{fig:twoBlocks}
 	\end{center}
 \end{figure} 
 
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=6cm]{fig/useBlockSmall.png}
-		\caption{}
-		\label{fig:useBlock}
-	\end{center}
-\end{figure} 
 
 
 \section{Research design and dataset}
 \label{researchDesign}
 
-The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch programs. To answer our research questions, we conducted an empirical quantitative evaluation of program data we collected from the Scratch repository. The dataset is described in Section \ref{dataset}. Below, we present how we approached each research question.
+The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch programs. To answer our research questions, we conducted an empirical quantitative evaluation of program data we collected from the Scratch repository. The dataset is described in Section \ref{dataset}. \todo{Below, we present how we approached each research question.}
 
 \textbf{RQ1} What are the size and complexity characteristics of Scratch programs? quantitative analysis, provide and analyze descriptive statistics on the size, complexity metrics, statistical analysis . mentioned taht it was imported to db and done and statistical data from db queries? The outcomes are presented in Section...
 
@@ -219,7 +216,7 @@ The dataset is found to contain a relatively small number of projects without an
 		Broadcast-receive statements per project&8.57&0&0&0&2&2460\\	
 		\hline
 	\end{tabular}
-	\caption{Summary statistics from the dataset of \nScriptPrograms  non-empty Scratch projects}
+	\caption{Summary statistics from the dataset of \nScriptPrograms~non-empty Scratch projects}
 	\label{tbl-size}
 \end{table*}
 
@@ -287,19 +284,19 @@ In Table \ref{tbl-size} we summarize statistics for metrics related to size and 
 
 We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) are found to have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code\footnote{The Scratch identifiers of those projects can be found in \todo{link}}.
 
-The lines of code metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. Those projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
+The lines of code metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. Those projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
 
 As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of those projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
 
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-		\emph{RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. Few projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.}
+		RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. A small number of projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.
 	\end{minipage}}
 
 \subsection{Programming abstractions and concepts}
 
-As a first programming abstraction we investigated the use of procedures. In the dataset we found 206,799 procedures in 17,979 projects. As summarized in Table \ref{tbl-size}, the projects that contain procedures have an average of 11.5 procedures, but with 53.59\% of those projects having up to 2. Figure \ref{fig:proceduresperproject} shows the distribution of procedures in projects. Regarding procedure arguments, we found that 55.57\% have no arguments and 19.48\%\% have only one (shown in Figure \ref{fig:procedurearguments}). The majority of procedure arguments (80.59\%) are numeric, and the least used argument type is the boolean one---6.23\% of the total procedure arguments, found in 5.32\% of the procedures.
+The first method for abstraction that we investigate is the use of procedures. In the dataset we found 206,799 procedures in 17,979 projects. As summarized in Table \ref{tbl-size}, the projects that contain procedures have an average of 11.5 procedures, but with 53.59\% of those projects having up to 2. Figure \ref{fig:proceduresperproject} shows the distribution of procedures in projects. Regarding procedure arguments, we found that 55.57\% have no arguments and 19.48\%\% have only one (shown in Figure \ref{fig:procedurearguments}). The majority of procedure arguments (80.59\%) are numeric, and the least used argument type is the boolean one---6.23\% of the total procedure arguments, found in 5.32\% of the procedures.
 
 \begin{figure}
 	\centering
@@ -342,7 +339,7 @@ Those blocks are utilized by 29.57\% of the projects. \texttt{broadcast and wait
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-		\emph{RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 29.57\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.}
+RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 29.57\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.}
 	\end{minipage}}
 
 \subsection{Code smells and bad programming practices}
@@ -414,12 +411,13 @@ Our results have some interesting implications for designers of educational prog
 In the whole dataset, not just in the programs with clones, we observe unconnected scripts, scripts without an event block and events without associated code. This is a form of \emph{dead code}, code that will never be executed. Because this dead code caused visual clutter, it would be better to have a separate workspace (much like the `backpack in Scratch' where users can store blocks temporarily and use them later. A programming interface could ask actively encourage users to move unconnected block when they exit the environment to encourage a `clean' working space. 
 
 \subsubsection{Code Clones Between Sprites}
-With occurrences in one quarter of the 250 thousand programs, the use of exactly identical clones between sprites is extremely common. In a sense, the Scratch users are not to blame here, Scratch does not support the sharing of procedures between scripts, only within them. So in many cases there is no other way to share the functionality than making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users needs this functionality. 
+With occurrences in one quarter of the 250 thousand programs, the use of exactly identical clones between sprites is extremely common. In a sense, the Scratch users are not to blame here, as Scratch does not support the sharing of procedures between scripts, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
 
 \subsubsection{Refactoring support for duplicate wait blocks}
 In todo{...} of the cases, the programs with duplicate conditions, also signals were present. This means that it is feas
 
-
+\subsection{Threads to validity}
+A thread to validity of this study is the fact that we did not scrap a random sample, but the most recent 250,000 programs. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a very large dataset. Furthermore, for some of the analyses we manually inspected programs \todo{Fenia, which ones?}
 
 
 \section{Related Work}
