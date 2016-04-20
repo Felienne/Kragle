@@ -106,24 +106,34 @@ This paper is by no means an introduction into Scratch programming, we refer the
 Scratch is a block-based programming language aimed at children, developed by MIT. Scratch can be used to create games and interactive animations, and is available both as a stand-alone application and as a web application. Figure \ref{fig:ui} shows the Scratch user interface in the Chrome browser.
 
 \subsubsection{Sprites}
-Scratch code is organized by `sprites': two-dimensional pictures each having their own associated code. Scratch allows users to bring their sprites to life in various ways, for example by moving them in the plane, having them say or think words or sentences via text balloons, but also by having them make sounds, grow, shrink and switch costumes. The Scratch program in Figure \ref{fig:ui} consists of one sprite, the cat, which is Scratch's default sprite and logo. The code in the sprite will cause the cat to jump up, say ``hello'', and come back down, when the green flag is clicked, and to make the `meow' sound when the space bar is pressed.
+Scratch code is organized by `sprites': two-dimensional pictures each having their own associated code. Scratch allows users to bring their sprites to life in various ways, for example by moving them in the plane, having them say or think words or sentences via text balloons, but also by having them make sounds, grow, shrink and switch costumes. The Scratch program in Figure \ref{fig:ui} consists two one sprites, the cat, which is Scratch's default sprite and logo and a Piano. The code in Sprite1 will cause the cat to move right when the right arrow is pressed, and when the green flag is clicked it will continuously sense touching the piano.
 
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=\columnwidth]{fig/ui.png}
-		\caption{The Scratch user interface consisting of the `cat' sprite on the left, the toolbox with available blocks in the category `motion' in the middle and the code associated with the sprite on the right. The upper right corner shows the actual location of the sprite.}
+		\caption{The Scratch user interface consisting of the `cat' sprite on the left, the toolbox with available blocks in the category `Events' in the middle and the code associated with the sprite on the right. The upper right corner shows the actual location of the sprite.}
 		\label{fig:ui}
 	\end{center}
 \end{figure} 
 
-\subsubsection{Signals}
-\todo{uitleggen wat een signal is en evt ook al hoe het een kloon vervangt?}
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=2cm]{fig/bump.png}
+		\caption{The script for the Piano sprite in Figure \ref{fig:ui}, causing a sound on receiving the `bump' signal.}
+		\label{fig:bump}
+	\end{center}
+\end{figure} 
 
 \subsubsection{Events}
-Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events. The canonical event is the `when Green Flag clicked', activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. In the Scratch code in Figure \ref{fig:ui} there are two events: `when Green Flag clicked' and `when space key pressed'.
+Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events. The canonical event is the `when Green Flag clicked', activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. The Scratch code in Sprite1 in Figure \ref{fig:ui} contains two events: `when Green Flag clicked' and `when right arrow key pressed', each with associated blocks.
+
+\subsubsection{Signals}
+Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the `when I receive' Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. The Piano reacts on that by making a sound, see Figure \ref{fig:bump}.
 
 \subsubsection{Scripts}
-Source code within sprites is organized in scripts: a script always starts with an event, followed by a number of blocks. The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously. For example, the code on the left of Figure \ref{fig:comparison} has five scripts associated with the `when Green Flag clicked' event.
+Source code within sprites is organized in scripts: a script can start with an event (a Hat block\footnote{\url{http://wiki.scratch.mit.edu/wiki/Hat_Block}}) which indicates when something should happen. A hat block can be followed by an arbitrary number of other blocks. 
+
+The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously.
 
 \subsubsection{Remixing}
 Scratch programs can be shared by their creators in the global Scratch repository\footnote{\url{https://scratch.mit.edu/explore/projects/all/}}. Shared Scratch programs can be `remixed' by other Scratch users, which means that a copy of this program is placed in the user's own project collection, and can be then further changed. The `remix tree' of projects is public, so users can track which users remix their programs, a bit similar forking in GitHub. Contrary to forking though, changes upstream cannot be integrated back into the original project.
