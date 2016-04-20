@@ -140,3 +140,148 @@ from code a
 where a.command in ('broadcast:', 'doBroadcastAndWait')
 and not exists (select * from code b where a.projectID = b.projectID and a.param1 = b.param1 and b.command = 'whenIReceive')
 )
+
+11clones
+flatten lines of code
+--without variables
+Select distinct ST2.projectID, ST2.spriteType, ST2.spriteName, ST2.codeBlockRank, count(*) as lines,
+    substring(
+        (
+            Select ','+ST1.command  AS [text()]
+            From dbo.code ST1
+            Where ST1.projectID = ST2.projectID and ST1.codeBlockRank = ST2.codeBlockRank
+			--and projectID = 13223646
+            ORDER BY ST1.codeBlockRank, St1.line
+            For XML PATH ('')
+        ), 2, 1000) [code]
+INTO clonesWithoutVariable
+From dbo.code ST2
+--where projectID = 13223646
+group by ST2.projectID, ST2.spriteType, ST2.spriteName, ST2.codeBlockRank
+order by codeBlockRank
+--with variables
+Select distinct ST2.projectID, ST2.spriteType, ST2.spriteName, ST2.codeBlockRank, count(*) as lines,
+    substring(
+        (
+            Select ','+ST1.command+' '+ST1.param1+' '+ST1.param2+' '+ST1.param3+' '+ST1.param4+' '+ST1.param5+' '+ST1.param6  AS [text()]
+            From dbo.code ST1
+            Where ST1.projectID = ST2.projectID and ST1.codeBlockRank = ST2.codeBlockRank
+			--and projectID = 13223646
+            ORDER BY ST1.codeBlockRank, St1.line
+            For XML PATH ('')
+        ), 2, 1000) [code]
+INTO clonesWithVariables
+From dbo.code ST2
+--where projectID = 13223646
+group by ST2.projectID, ST2.spriteType, ST2.spriteName, ST2.codeBlockRank
+order by codeBlockRank
+--without the first event
+Select distinct ST2.projectID, ST2.spriteType, ST2.spriteName, ST2.codeBlockRank, count(*) as lines,
+    substring(
+        (
+            Select ','+ST1.command  AS [text()]
+            From dbo.code ST1
+            Where ST1.projectID = ST2.projectID and ST1.codeBlockRank = ST2.codeBlockRank
+			and line > 0
+			--and projectID = 13223646
+            ORDER BY ST1.codeBlockRank, St1.line
+            For XML PATH ('')
+        ), 2, 1000) [code]
+INTO clonesWithoutEvent
+From dbo.code ST2
+--where projectID = 13223646
+group by ST2.projectID, ST2.spriteType, ST2.spriteName, ST2.codeBlockRank
+order by codeBlockRank
+  --without variables, whole blocks, accross sprites
+  select a.lines, count(*)
+  from
+  (select projectid, spriteType, lines, code, count(distinct spriteName) as differentSprites, count(*) as clonesNo
+  FROM [Kragle].[dbo].[clonesWithoutVariable]
+  group by projectid, spriteType, lines, code
+  having count(*) >1) a
+  group by a.lines
+  --without variables, whole blocks, same sprite
+  select a.lines, count(*)
+  from
+  (select projectid, spriteType, spriteName, lines, code, count(*) as clonesNo
+  FROM [Kragle].[dbo].[clonesWithoutVariable]
+  where spriteType != 'procDef'
+  group by projectid, spriteType, spriteName, lines, code
+  having count(*) >1) a
+  group by a.lines
+--for all three
+  delete from [Kragle].[dbo].[clonesWithVariables]
+  where lines < 5
+ --without variables, same sprites
+  select a.projectid, count(*)
+  from
+  (select projectid, spriteType, spriteName, lines, code, count(*) as clonesNo
+  FROM [Kragle].[dbo].[clonesWithoutVariable]
+  where spriteType != 'procDef'
+  group by projectid, spriteType, spriteName, lines, code
+  having count(*) >1) a
+  group by a.projectid
+--accrosss spites
+  select a.projectid, count(*)
+  from
+  (select projectid, spriteType, lines, code, count(*) as clonesNo
+  FROM [Kragle].[dbo].clonesWithVariables
+  group by projectid, spriteType, lines, code
+  having count(*) >1) a
+  group by a.projectid
+--cloned procedures
+  select a.projectid, count(*)
+  from
+  (select projectid, spriteType, lines, code, count(*) as clonesNo
+  FROM [Kragle].[dbo].[clonesWithoutVariable]
+  where spriteType = 'procDef'
+  group by projectid, spriteType, lines, code
+  having count(*) >1) a
+  group by a.projectid
+--clonescopies
+select projectid, spriteType, lines, count(*) as clonesNo
+  FROM [Kragle].[dbo].clonesWithVariables
+  group by projectid, spriteType, lines, code
+  having count(*) >1
+  select projectid, spriteType, lines, count(*) as clonesNo
+  FROM [Kragle].[dbo].[clonesWithoutVariable]
+  where spriteType != 'procDef'
+  group by projectid, spriteType, spriteName, lines, code
+  having count(*) >1
+---functionality blocks cloned
+(
+  select projectid, minCodeBlock
+  from
+  (select projectid, spriteType, lines, code, min(codeblockRank) as minCodeBlock, count(*) as clonesNo
+  FROM [Kragle].[dbo].[clonesWithoutVariable]
+  group by projectid, spriteType, lines, code
+  having count(*) >1) as a
+  )
+  except
+  (
+  select projectid, minCodeBlock
+  from
+  (select projectid, spriteType, lines, code, min(codeblockrank) as minCodeBlock, count(*) as clonesNo
+  FROM [Kragle].[dbo].[clonesWithoutEvent]
+  group by projectid, spriteType, lines, code
+  having count(*) >1) as a
+  )
+
+12 dead code
+select top 100 (select count(*) from code b where b.projectID = a.projectID and b.codeBlockRank = a.codeBlockRank), *
+from code a
+where a.spriteType!='procdef'
+and a.line = 0
+and a.command not in ('whenCloned',
+'whenGreenFlag',
+'whenKeyPressed',
+'whenClicked',
+'whenSceneStarts',
+'whenSensorGreaterThan',
+'whenIReceive',
+'LEGOWeDo\u001fwhenDistance',
+'LEGOWeDo\u001fwhenTilt',
+'LEGOWeDo2.0\u001fwhenDistance',
+'LEGOWeDo2.0\u001fwhenTilted',
+'PicoBoard\u001fwhenSensorConnected',
+'PicoBoard\u001fwhenSensorPass')

@@ -206,7 +206,7 @@ The dataset is found to contain a relatively small number of projects without an
 		Lists per project&0.55&0&0&0&0&319\\
 		Conditional statements per project&10.02&0&0&0&3&5950\\
 		Recursive loop statements per project&7.65&0&1&2&5&2503\\
-		Broadcast-receive statements per project&8.57&0&0&0&2&2460\\
+		Broadcast-receive statements per project&8.57&0&0&0&2&2460\\	
 		\hline
 	\end{tabular}
 	\caption{Summary statistics from the dataset of \nScriptPrograms  non-empty Scratch projects}
@@ -229,6 +229,12 @@ The dataset is found to contain a relatively small number of projects without an
 		Projects with recursive loop statements & 180,210 & 77.18\% \\
 		Projects with \texttt{repeat until <condition>} statements & 31,739 & 13.59\% \\
 		Projects with \texttt{broadcast} - \texttt{receive} statements & 69,039 & 29.57\%\\
+		Projects with cloned scripts (>=5 blocks) across sprites & 59,634 & 25.54\% \\
+		Projects with cloned scripts (>=5 blocks) within sprites & 23,671 & 10.14\%\\
+		Projects with cloned procedures (>=5 blocks) & 4,945 & 2.12\%\\
+		Projects with cloned functionality blocks (>=4 blocks) across sprites & 60,554 & 25.93\%\\
+		Projects with exact clones (>=5 blocks) across sprites & 27,574 & 11.81\%\\
+		Projects with exact clones (>=5 blocks) within sprites & 2,043 & 0.87\%\\
 		\hline
 	\end{tabular}
 	\caption{Characteristics in the projects in the dataset}
@@ -326,29 +332,55 @@ Those blocks are utilized by 29.57\% of the projects. \texttt{broadcast and wait
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-		\emph{RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 29.57\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist.}
+		\emph{RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 29.57\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.}
 	\end{minipage}}
 
-\subsection{Code smells}
-dead code
-duplicates/clones -graph, number of overlapping positioning, number of dead code duplicates
+\subsection{Code smells and bad programming practices}
+
+The duplicated code smell is the first smell that we examine. The first step for our analysis is to specify what we consider a code clone in the context of Scratch programming: a script that is composed of a set of blocks of the same type connected in the same way and is repeated within or across sprites of the same program. For the identification of clones we do not take into account the values of the parameters that may be used in the blocks, so that two blocks that only differ in the values of parameters are considered to be equal. We also examined the case of clones with the same parameter values, and we refer to them as \textit{exact clones}. The next step in the analysis is to determine the minimum size of the scripts that are considered clones instead of incidentally similar. For this, we examine the number of detected clones for different script sizes and present the results in Figure \ref{fig:cloneslines}. Based on this distribution, we opt to adopt the number also used by the authors in \cite{moreno_automatic_2014}, which is the minimum size of 5 blocks per script.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/11cloneslines}
+	\caption{Number of cloned scripts of different block sizes across and within sprites}
+	\label{fig:cloneslines}
+\end{figure}
+
+In total, in the dataset we found 170,532 scripts cloned across sprites in 59,634 (25.54\% of the total non-empty) projects. 726,316 copies of those scripts were found, making each clone being copied an average of 4.26 times. Figure \ref{fig:clonesprojects} plots the distribution of clones across projects. The majority of projects contain up to two cloned scripts; 7.24\% of the projects contain three or more. Figure \ref{fig:clonescopies} plots the number of copies of the identified clones. It is of interest that 79,378 (46.55\%) of the identified clones are copied three or more times, and even in 585 cases from 411 projects they are copied more than 50 times and up to 974 \footnote{\todo{link}}. Manual inspection of the mostly copied clones revealed that they were scripts used multiple times to cater for different parameter values, sometimes in multiple sprites.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/11clonesprojects}
+	\caption{Histogram of the number of cloned scripts found in the dataset projects}
+	\label{fig:clonesprojects}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/11clonescopies}
+	\caption{Histogram of the number of copies of the identified clones}
+	\label{fig:clonescopies}
+\end{figure}
+
+We further inspected which of the identified clones were duplicated only within the same sprite: 63,682 (37.34\% of the total) clones, in 10.14\% of the projects. These are duplication smells that could be avoided by using procedures, which in Scratch can only be defined for specific sprites. The lack of support for project-wide procedures could be the cause for procedure clones. These were measured to 12,878 (7.55\% of the total) clones, in 2.12\% of the projects.
+
+Exact clones were found in 11.81\% of the total projects. Their total number was 66,750 (39.14\% of the total) clones. Exact clones in the same sprite are cases of clearly redundant code. These were rare, found in only 0.87\% of the projects.
+
+Apart from whole scripts we also examined cases with only the first block being different. In first block is commonly the event block and, by separating this one from the subsequent functionality blocks, we could examine if programmers assign the same functionality to handle different events. Cloned functionality blocks
+
+
+
+dead code -unconnected blocks,
+previous section: A significant number of the defined procedures (13,036 or 6.3\%) are not called in the projects.
+This lack of wait-receive syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
+
 long method
 large class
-conditional complexity
-Dublicated wait block-same trigger caught by more than 1
+
 
 coding style -naming -functions, sprites, variables
 code block positioning - overlapping /visibility
 
-\subsubsection{Clones Detection for Scratch programs}
-\label{clone_Detection}
-
-We distinguish three different forms of clones: Exact clones within one sprite, exact clones between sprites of one program, clones of `wait' blocks. This section presents the results of our clone detection algorithm on the \nScriptPrograms~ with scripts.
-
-In total \nProgramsWithClones~(26.9\% of programs with scripts) exhibit one of the three types of cloning.The most common type of cloning is copying entire scripts between sprites. This occurs in 62.939 programs (25.2\%). In 8.220 programs (3.3\%) wait conditions are cloned and in 2.463 files there is a script cloned within a sprite.
-
-\paragraph{Exact clones within one sprite}
-In total, we found \todo{x} cases of exact script clones within one sprite. Upon further inspection, we found that some of them consisted of unconnected blocks, as depicted in Figure \ref{fig:Unconnected_clones}. While this is technically a clone, as this is \emph{dead code} and will never be executed, this could be considered unharmful sketching. Looking only at clones starting with an event block, \todo{...} clones remain over \todo{?} files.
 
 \begin{figure}
 	\begin{center}
@@ -359,11 +391,8 @@ In total, we found \todo{x} cases of exact script clones within one sprite. Upon
 \end{figure} 
 
 
-\paragraph{Exact clones between sprites of one program}
 
-\paragraph{Clones of `wait' blocks}
-Previous work has established that the cloned `wait' blocks can be harmful when modifying Scratch code, which is the reason why we investigated this particular type of cloning. As outlined in section \todo{?} signals can replaced repeated wait blocks, by catching the condition in one place and broadcasting a signal to all other sprites. This is why we found it interesting to see in how many of the cases where a wait block was cloned, the creator of the program also used signals in their program. This indicates that the concept of signals is known, and hence the duplicate condition is not used because the user is not aware of the alternative. In \todo{...} of the cases the program with the duplicated wait block also contained one or more signals. 
-
+Scratch programs are found to be particularly susceptible to the duplicate code smell: code clones were found in one fourth of the projects in the dataset.
 
 
 \section{Discussion}
