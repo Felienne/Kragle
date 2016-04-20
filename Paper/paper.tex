@@ -172,7 +172,7 @@ We obtained the set of Scratch programs by using a scraping program. Our scrapin
 
 We ran Kragle on March 2nd 2016 and let it running for 24 hours, when it had obtained a little over 250.000 programs.  Out of the \nPrograms~, we failed to analyze 2.367 programs due to various technical difficulties \todo{add details, I will check a few to see what went wrong - Felienne} 
 
-Kragle, as well as all scraped programs and our analysis files are available via \todo{url} \todo{I do not think we need to describe the fields in the paper, but we need a good readme with the data (I can do that)}
+Kragle, as well as all scraped programs and our analysis files are available\footnote{\url{https://github.com/ScratchLover42/ICER-Data-Code}}.
 
 \subsubsection{Analyzing the Scratch programs}
 Once we obtained the Scratch programs, we parsed the JSON files according to the specification of the format\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}}. This resulted in a list if used blocks per program, with the sprites and the stage of the program. We also assign types to all the blocks, both their shapes and the tab they originate from. For example, When Green Flag Clicked is a \emph{Hat block} from the \emph{Events category}.
@@ -339,8 +339,9 @@ Those blocks are utilized by 29.57\% of the projects. \texttt{broadcast and wait
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 29.57\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.}
-	\end{minipage}}
+RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 29.57\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
+	\end{minipage}
+	}
 
 \subsection{Code smells and bad programming practices}
 
