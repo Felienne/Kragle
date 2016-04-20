@@ -20,7 +20,7 @@
 %\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
 % --- End of Author Metadata ---
 
-\title{How kids code and how we know it:\\An exploratory study in the Scratch project repository }
+\title{How Kids Code and How We Know:\\An Exploratory Study on the Scratch Repository }
 
 \numberofauthors{1}
 \author{
@@ -173,11 +173,11 @@ Once we obtained the Scratch programs, we parsed the JSON files according to the
 
 \section{Results}
 
-In the following sections we describe the results obtained for each of the research questions through the analysis of the \nAnalyzedPrograms Scratch projects in our dataset.
+In the following sections we describe the results obtained for each of the research questions through the analysis of the \nAnalyzedPrograms~Scratch projects in our dataset.
 
 \subsection{Program size and complexity}
 
-The dataset is found to contain a relatively small number of projects without any code: \nemptyPrograms (5.77\%). Through random sampling we found that in some cases those projects contained sprites and costumes but no code and in others they were entirety empty apart from the Scratch cat added by default. Since those projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
+The dataset is found to contain a relatively small number of projects without any code: \nemptyPrograms (5.77\%). Through random manual sampling we found that in some cases those projects contained sprites and costumes but no code and in others they were entirety empty apart from the Scratch cat added by default. Since those projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
 
 \begin{table*}[ht]
 	\centering
@@ -268,18 +268,18 @@ The dataset is found to contain a relatively small number of projects without an
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/charts/3cyclomatic}
-	\caption{Histogram of the McCabe cyclomatic complexity of the \nscripts analyzed scripts}
+	\caption{Histogram of the McCabe cyclomatic complexity of the \nscripts~analyzed scripts}
 	\label{fig:cyclomatic}
 \end{figure}
 
 
-In Table \ref{tbl-size} we summarize statistics for metrics related to size and complexity. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project, where each script is a code-block of interconnected Scratch blocks. For example, in Figure \ref{fig:ui} the cat sprite contains 2 scripts. We further measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. The maximum code indentation level is used as a code complexity metric. It was calculated using the JSON array depth? \todo{felienne, how did we measure this?}. This corresponds to code indentation level returning 1 for all first-level blocks and increasing by 2 for block enclosures in loops or conditional statements. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and \ref{fig:size-indent} plot the distribution of those size metrics.
+In Table \ref{tbl-size} we summarize statistics for metrics related to size and complexity. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project, where each script is a code-block of interconnected Scratch blocks. For example, in Figure \ref{fig:ui} the cat sprite contains two scripts. We further measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. The maximum code indentation level is used as a code complexity metric. It was calculated using the JSON array depth? \todo{felienne, how did we measure this?}. This corresponds to code indentation level returning 1 for all first-level blocks and increasing by 2 for block enclosures in loops or conditional statements. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and \ref{fig:size-indent} plot the distribution of those size metrics.
 
 We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) are found to have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code\footnote{The Scratch identifiers of those projects can be found in \todo{link}}.
 
-The lines of code metric was further analyzed to understand code placement. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. Those projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
+The lines of code metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. Those projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
 
-As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of those projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
+As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of those projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
 
 \noindent
 \fbox{
@@ -404,7 +404,7 @@ Our results have some interesting implications for designers of educational prog
 In the whole dataset, not just in the programs with clones, we observe unconnected scripts, scripts without an event block and events without associated code. This is a form of \emph{dead code}, code that will never be executed. Because this dead code caused visual clutter, it would be better to have a separate workspace (much like the `backpack in Scratch' where users can store blocks temporarily and use them later. A programming interface could ask actively encourage users to move unconnected block when they exit the environment to encourage a `clean' working space. 
 
 \subsubsection{Code Clones Between Sprites}
-With occurrences in one quarter of the 250 thousand programs, the use of exactly identical clones between sprites is extremely common. In a sense, the Scratch users are not to blame here, Scratch does not support the sharing of \todo{right word? procedures} between scripts, only within them. So in many cases there is no other way to share the functionality than making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users needs this functionality. 
+With occurrences in one quarter of the 250 thousand programs, the use of exactly identical clones between sprites is extremely common. In a sense, the Scratch users are not to blame here, Scratch does not support the sharing of procedures between scripts, only within them. So in many cases there is no other way to share the functionality than making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users needs this functionality. 
 
 \subsubsection{Refactoring support for duplicate wait blocks}
 In todo{...} of the cases, the programs with duplicate conditions, also signals were present. This means that it is feas
