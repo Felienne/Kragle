@@ -324,3 +324,20 @@ from code
 where line = 0
 group by projectID, spriteName)  a
 group by a.projectID
+
+15 interactivity
+select projectID, count(*) as inputblocks
+from code, blockTypes
+where command = block
+and [IsInput?] = 'Yes'
+group by projectID
+select command, count(distinct projectid), count(*) as inputblocks
+from code, blockTypes
+where command = block
+and [IsInput?] = 'Yes'
+group by command
+
+select param1, count(*)
+from code
+where command = 'whenKeyPressed'
+group by param1

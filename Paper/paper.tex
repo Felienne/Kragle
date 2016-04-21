@@ -212,6 +212,7 @@ The dataset is found to contain a relatively small number of projects without an
 		Lists per project&0.55&0&0&0&0&319\\
 		Conditional statements per project&10.02&0&0&0&3&5950\\
 		Recursive loop statements per project&7.65&0&1&2&5&2503\\
+		User input blocks per project&4.77&0&0&1&4&1889\\
 		Broadcast-receive statements per project&8.57&0&0&0&2&2460\\	
 		\hline
 	\end{tabular}
@@ -232,6 +233,7 @@ The dataset is found to contain a relatively small number of projects without an
 		Projects utilizing variables & 73,577 & 31.51\% \\
 		Projects utilizing lists & 9,358 & 4.01\% \\
 		Projects with conditional statements & 92,959 & 39.81\% \\
+		Projects accepting user input & 131,314 & 56.24\% \\
 		Projects with recursive loop statements & 180,210 & 77.18\% \\
 		Projects with \texttt{repeat until <condition>} statements & 31,739 & 13.59\% \\
 		Projects with \texttt{broadcast} - \texttt{receive} statements & 69,039 & 29.57\%\\
@@ -336,6 +338,30 @@ The scope of variables was also analyzed: As shown in Table \ref{tbl-size}, each
 
 Regarding program control features, conditional statements (blocks \texttt{if <condition> then} and \texttt{if <condition> then else}) are used by 39.81\% of the projects. Recursive loops (blocks \texttt{repeat <times>}, \texttt{forever} and \texttt{repeat until <condition>}) are more common, used by 77.18\% of the projects. The most common of the three is the \texttt{forever} block, accounting for 51.86\% of all recursive loops and the least common one is the \texttt{repeat until <condition>} block, accounting for 11.57\% and used in 13.59\% of the total projects.
 	
+Investigating user interactivity functionality, we found that 56.24\% of the projects in the dataset contain user input blocks---an average of 8.48 blocks per such project. Table \ref{tbl-userinput} lists the frequency of use of user input controls. The most commonly used one is the \texttt{when key pressed}, found in 71,096 (30.45\% of the total) projects. The most frequently used parameter for the \texttt{key} attribute is the space key, followed by the arrows and then the letters and numbers.
+
+\begin{table}
+	\centering
+	\begin{tabular}{lrr}
+		\hline
+		\textbf{Block}&\textbf{Projects}&\textbf{Occurrences}\\
+		\hline
+	\texttt{when <> key pressed}&71,096&294,771\\
+	\texttt{when this sprite clicked}&39,179&198,342\\
+	(Sensing) \texttt{key <> pressed?}&37,919&291,657\\
+	(Sensing) \texttt{ask <> and wait}&19,039&66,850\\
+	(Sensing) \texttt{mouse down?}&9,115&54,079\\
+	(Sensing) \texttt{<attrib> of <>}&9,068&155,468\\
+	(Sensing) \texttt{mouse X}&5,977&27,321\\
+	(Sensing) \texttt{mouse Y}&3,940&22,035\\
+	\texttt{when <sensor> > <value>}&705&1,570\\
+	(Sensing) \texttt{video <> on <>}&434&1,397\\
+		\hline
+	\end{tabular}
+	\caption{Frequency of use of user input blocks in the \nScriptPrograms projects of the dataset}
+	\label{tbl-userinput}
+\end{table}
+
 For event management Scratch offers blocks \texttt{broadcast}, \texttt{broadcast and wait} and \texttt{when I receive}. 
 Those blocks are utilized by 29.57\% of the projects. \texttt{broadcast and wait} is rarely used, in only 3.87\% of the projects. The events are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
 
@@ -343,7 +369,7 @@ Those blocks are utilized by 29.57\% of the projects. \texttt{broadcast and wait
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 7.99\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
+RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. More than half of the projects are interactive. 29.57\% of the projects utilize broadcast and receive blocks, but in 7.99\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
 	\end{minipage}
 }
 
@@ -445,23 +471,18 @@ Furthermore we use the number of blocks in the Scratch programs as a measure for
 \section{Related Work}
 \label{sec:related}
 
-\subsection{Code Smells}
-Efforts related to our research include works on code smells, initiated by the work by Fowler~\cite{fowler_refactoring:_1999}. His book gives an overview of code smells and corresponding refactorings. Fowler's work was followed by efforts focused on the automatic identification of code smells by means of metrics. Marinescu~\cite{marinescu_detecting_2001} for instance, uses metrics to identify \emph{suspect} classes: classes which could have design flaws. Lanza and Marinescu~\cite{lanza_object-oriented_2006} explain this methodology in more detail. Alves \emph{et al.}~\cite{alves_deriving_2010} focus on a strategy to obtain thresholds for metrics from a benchmark. Olbrich \emph{et al.} furthermore investigates the changes in smells over time, and discusses their impact~\cite{olbrich_evolution_2009}. Moha \emph{et al.}~\cite{moha_decor:_2010} designed the `DECOR' method which automatically generates a smell detection algorithms from specifications. The CCFinder tool~\cite{kamiya_ccfinder:_2002} finally, aims at detecting clones in source code, which are similar to our \dup smell.
+The evaluation of block-based languages in general, and Scratch in particular, as tools for programming education has received significant research attention during the past years. A number of studies have been carried out on the programming practices of novice programmers in block-based environments, on the programming skills they develop, and on the quality of Scratch programs.
 
-\subsection{Smells beyond the OO paradigm}
-In recent times, code smells have been applied to programs outside of the regular programming domain. In our past work, we have, for example, studied code smells within spreadsheets, both at the formula level~\cite{hermans_detecting_2014} and between worksheets~\cite{hermans_detecting_2012}.
 
-More recently, we compared two datasets: one containing spreadsheets which users found unmaintainable, and a version of the same spreadsheets rebuilt by professional spreadsheet developers. The results show that the improved versions suffered from smells to a lesser degree, increasing our confidence that presence of smells indeed coincides with users finding spreadsheets hard to maintain~\cite{jansen_code_2015}.
 
-In addition to spreadsheets, code smells have also been studied in the context of Yahoo! Pipes a web mashup tool. An experiment demonstrated that users preferred the non-smelly versions of Yahoo Pipes programs~\cite{stolee_refactoring_2011}. 
 
-%\subsection{Agile practices in education}
-%A third related line of work are research directions where other methods from agile development, like testing and refactoring, have been applied in education. For example, the use of test-driven development has been studied within the context of programming education at university level, using text-based languages in several studies. Most controlled experiments resulted in increased code quality for the group of students using TDD, for example [13] reported on a 35\% reduction in defects, while [14] found 45\%. For an extensive overview of TDD approaches in university programming courses, see [15]. \todo{referenties fixen}
-
-\subsection{Quality of Scratch programs}
 Finally, there are other works on the quality of Scratch programs. There is for example the Hairball Scratch extension~\cite{boe_hairball:_2013}, which is a lint-like static analysis tool for Scratch that can detect, for example, unmatched broadcast and receive blocks, infinite loops and duplication. An evaluation of 100 Scratch programs showed that Scratch programs indeed suffer from duplication and bad naming~\cite{moreno_automatic_2014}.
 
 Most related to our study is the work by Moreno \emph{et al.}~\cite{moreno-leon_dr._2015} who gave automated feedback on Scratch programs to 100 children aged 10 to 14. Their results demonstrated that feedback on code quality helped improve students' programming skills.
+
+
+Efforts related to our research include works on code smells, initiated by the work by Fowler~\cite{fowler_refactoring:_1999}. His book gives an overview of code smells and corresponding refactorings. Fowler's work was followed by efforts focused on the automatic identification of code smells by means of metrics. Marinescu~\cite{marinescu_detecting_2001} for instance, uses metrics to identify \emph{suspect} classes: classes which could have design flaws. Lanza and Marinescu~\cite{lanza_object-oriented_2006} explain this methodology in more detail. Alves \emph{et al.}~\cite{alves_deriving_2010} focus on a strategy to obtain thresholds for metrics from a benchmark. Olbrich \emph{et al.} furthermore investigates the changes in smells over time, and discusses their impact~\cite{olbrich_evolution_2009}. Moha \emph{et al.}~\cite{moha_decor:_2010} designed the `DECOR' method which automatically generates a smell detection algorithms from specifications. The CCFinder tool~\cite{kamiya_ccfinder:_2002} finally, aims at detecting clones in source code, which are similar to our \dup smell.
+
 
 
 \bibliographystyle{abbrv}
