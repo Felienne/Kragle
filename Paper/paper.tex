@@ -240,6 +240,9 @@ The dataset is found to contain a relatively small number of projects without an
 		Projects with cloned functionality blocks (>=4 blocks) across sprites & 60,554 & 25.93\%\\
 		Projects with exact clones (>=5 blocks) across sprites & 27,574 & 11.81\%\\
 		Projects with exact clones (>=5 blocks) within sprites & 2,043 & 0.87\%\\
+		Projects containing dead code & 56,890	& 24.36\%\\
+		Projects containing large scripts & 69,521 & 29.77\%\\
+		Projects containing large sprites & 31,954 & 13.68\%\\		
 		\hline
 	\end{tabular}
 	\caption{Characteristics in the projects in the dataset}
@@ -310,7 +313,7 @@ The first method for abstraction that we investigate is the use of procedures. I
 	\label{fig:procedurearguments}
 \end{figure}
 
-The use of procedures in projects was further investigated through the procedure calls, summarized in Figure \ref{fig:procedurecalls}. A significant number of the defined procedures (13,036 or 6.3\%) are not called in the projects. Most procedures are called exactly once (62.32\% of them) or twice (15.65\% ) and from exactly one script (85.92\% of them). Examining the origin of procedure calls, we found remarkable that most of the calls (56.09\%) originate from other procedures, and even 1.06\% originate from the same procedure, thus making it recursive. Those recursive procedures are found in 1052 projects.\footnote{list of recursive procedures published \todo{link}}.
+The use of procedures in projects was further investigated through the procedure calls, summarized in Figure \ref{fig:procedurecalls}. A significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. Most procedures are called exactly once (62.32\% of them) or twice (14.30\%) and from exactly one script (85.92\% of them). Examining the origin of procedure calls, we found remarkable that most of the calls (56.09\%) originate from other procedures, and even 1.06\% originate from the same procedure, thus making it recursive. Those recursive procedures are found in 1,052 projects.\footnote{list of recursive procedures published \todo{link}}.
 
 \begin{figure}
 	\centering
@@ -341,7 +344,8 @@ Those blocks are utilized by 29.57\% of the projects. \texttt{broadcast and wait
 	\begin{minipage}{0.46\textwidth}
 RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. 29.57\% of the projects utilize broadcast and receive blocks, but in 29.57\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
 	\end{minipage}
-	}
+}
+
 
 \subsection{Code smells and bad programming practices}
 
@@ -374,21 +378,16 @@ We further inspected which of the identified clones were duplicated only within 
 
 Exact clones were found in 11.81\% of the total projects. Their total number was 66,750 (39.14\% of the total) clones. Exact clones in the same sprite are cases of clearly redundant code. These were rare, found in only 0.87\% of the projects.
 
-Apart from whole scripts we also examined cases with only the first block being different. In first block is commonly the event block and, by separating this one from the subsequent functionality blocks, we could examine if programmers assign the same functionality to handle different events. Cloned functionality blocks
+Apart from whole scripts we also examined cases with only the first block being different. In first block is commonly the event block and, by separating this one from the subsequent functionality blocks, we could examine if programmers assign the same functionality to handle different types of events. Cloned functionality blocks are found to be rare: without considering the first block, only 2,243 additional clones were found in 920 projects.
 
+The second smell that we examine is the dead code smell. Already in the previous section, Scratch projects were found to have two types of dead code: defined procedures that are not called (5.06\% of the defined procedures in 2,079 projects) and unmatched broadcast-receive messages (in 7.99\% of the projects). In this section we examine an additional case: scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, like in the example in Figure \ref{fig:Unconnected_clones}, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of those scripts (86.6\%) are scripts missing the starting block. Examining the size of those dead scripts, 72.34\% are composed of a single block. As shown in diagram \ref{fig:deadcode}, however, considerably large dead scripts exist; 2,358 of those scripts originating from 1,553 different projects have more than 30 blocks and up to 2,610\footnote{\todo{link}}.
 
-
-dead code -unconnected blocks,
-previous section: A significant number of the defined procedures (13,036 or 6.3\%) are not called in the projects.
-This lack of wait-receive syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
-
-long method
-large class
-
-
-coding style -naming -functions, sprites, variables
-code block positioning - overlapping /visibility
-
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/12deadcode}
+	\caption{Size of scripts that are identified as dead code}
+	\label{fig:deadcode}
+\end{figure}
 
 \begin{figure}
 	\begin{center}
@@ -398,9 +397,20 @@ code block positioning - overlapping /visibility
 	\end{center}
 \end{figure} 
 
+Finally, we examine the long method and the large class smell, considering them in the context of Scratch as large script and large sprite smells respectively. For those two smells we use the number of blocks as the size metric \todo{add this to threats to validity? many blocks do not increase the length of scripts in Scratch}. Figure \ref{fig:longmethod} presents the number of blocks in the scripts and the sprites of our dataset. We used those numbers to split the dataset and retrieve the top 10\% \todo{felienne, can we justify why 10 percent?} largest scripts and sprites, and in this way we found the thresholds to be used for the calculation of the large script and large sprite: it is 18 blocks and 59 blocks respectively. Using these thresholds, the number of projects exhibiting the large script smell, i.e., containing at least one script with 18 or more blocks, is 69,521 (29.77\% of the total projects) and the number of projects with the large sprite smell is 31,954 (13.68\%).
 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/13longmethod}
+	\caption{Size of sprites and scripts in number of blocks}
+	\label{fig:longmethod}
+\end{figure}
 
-Scratch programs are found to be particularly susceptible to the duplicate code smell: code clones were found in one fourth of the projects in the dataset.
+\noindent
+\fbox{
+	\begin{minipage}{0.46\textwidth}
+		\emph{RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clones copied three or more times, in the same or across sprites. 24.36\% of the projects contain scripts that are never invoked, and thus exhibit the dead code smell. In some cases those scripts are large. The large script smell is found in 29.77\% of the projects and the large sprite in 13.68\%.}
+	\end{minipage}}
 
 
 \section{Discussion}

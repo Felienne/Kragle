@@ -266,13 +266,22 @@ select projectid, spriteType, lines, count(*) as clonesNo
   group by projectid, spriteType, lines, code
   having count(*) >1) as a
   )
+---accross projects
+  select lines, code, count(*) as clonesNo, count(distinct projectid) as distinctProjects
+  FROM [Kragle].[dbo].clonesWithoutVariable
+  group by lines, code
+  having count(*) >100
+  order by distinctProjects desc
 
 12 dead code
-select top 100 (select count(*) from code b where b.projectID = a.projectID and b.codeBlockRank = a.codeBlockRank), *
-from code a
-where a.spriteType!='procdef'
-and a.line = 0
-and a.command not in ('whenCloned',
+select projectid, count(*)
+from code
+where (spriteType!='procdef' and line = 0 and totalLines = 1)
+or
+(
+spriteType!='procdef'
+and line = 0
+and command not in ('whenCloned',
 'whenGreenFlag',
 'whenKeyPressed',
 'whenClicked',
@@ -285,3 +294,33 @@ and a.command not in ('whenCloned',
 'LEGOWeDo2.0\u001fwhenTilted',
 'PicoBoard\u001fwhenSensorConnected',
 'PicoBoard\u001fwhenSensorPass')
+)
+group by projectID
+
+
+13longs
+select totalLines, count(*)
+from code
+where line = 0
+group by totalLines
+---lines in sprites
+select a.totalLinesInSprite, count(*)
+from
+(select projectID, spriteName, sum(totalLines) as totalLinesInSprite
+from code
+where line = 0
+group by projectID, spriteName)  a
+group by a.totalLinesInSprite
+
+
+select projectid, max(totalLines)
+from code
+group by projectID
+
+select a.projectID, max(a.totalLinesInSprite)
+from
+(select projectID, spriteName, sum(totalLines) as totalLinesInSprite
+from code
+where line = 0
+group by projectID, spriteName)  a
+group by a.projectID
