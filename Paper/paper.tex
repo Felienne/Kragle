@@ -77,13 +77,14 @@ The goal of this paper is to obtain a deep understanding of how people program i
 \item[RQ3] How common are code smells and bad programming practices in Scratch programs?
 \end{itemize}
 
-Our study is based on data from the Scratch program repository. By scraping the list of recent programs \todo{link}, we have obtained \nPrograms~public Scratch programs and performed static analysis on them.
+Our study is based on data from the Scratch program repository. By scraping the list of recent programs \footnote{\url{https://scratch.mit.edu/explore/projects/all/}}, we have obtained \nPrograms~public Scratch programs and performed analysis on them.
 
 The contributions of this paper are as follows:
 
 \begin{itemize}
 	\item{A public data set of \nScriptPrograms~Scratch programs (Section \ref{dataset})}
-	\item{An empirical evaluation of the data set for answering the aforementioned research questions}
+	\item{An evaluation of the data set in terms of (Section \ref{sec:results})}
+	\item{A discussion of implications of our findings for educational programming language designers (Section \ref{sec:discussion})}
 \end{itemize}
 
 
@@ -177,7 +178,7 @@ Once we obtained the Scratch programs, we parsed the JSON files according to the
 
 
 \section{Results}
-
+\label{sec:results}
 In the following sections we describe the results obtained for each of the research questions through the analysis of the \nAnalyzedPrograms~Scratch projects in our dataset.
 
 \subsection{Program size and complexity}
@@ -397,7 +398,7 @@ The second smell that we examine is the dead code smell. Already in the previous
 	\end{center}
 \end{figure} 
 
-Finally, we examine the long method and the large class smell, considering them in the context of Scratch as large script and large sprite smells respectively. For those two smells we use the number of blocks as the size metric \todo{add this to threats to validity? many blocks do not increase the length of scripts in Scratch}. Figure \ref{fig:longmethod} presents the number of blocks in the scripts and the sprites of our dataset. We used those numbers to split the dataset and retrieve the top 10\% \todo{felienne, can we justify why 10 percent?} largest scripts and sprites, and in this way we found the thresholds to be used for the calculation of the large script and large sprite: it is 18 blocks and 59 blocks respectively. Using these thresholds, the number of projects exhibiting the large script smell, i.e., containing at least one script with 18 or more blocks, is 69,521 (29.77\% of the total projects) and the number of projects with the large sprite smell is 31,954 (13.68\%).
+Finally, we examine the long method and the large class smell, considering them in the context of Scratch as large script and large sprite smells respectively. For those two smells we use the number of blocks as the size metric. Figure \ref{fig:longmethod} presents the number of blocks in the scripts and the sprites of our dataset. We used those numbers to split the dataset and retrieve the top 10\% \todo{felienne, can we justify why 10 percent?} largest scripts and sprites, and in this way we found the thresholds to be used for the calculation of the large script and large sprite: it is 18 blocks and 59 blocks respectively. Using these thresholds, the number of projects exhibiting the large script smell, i.e., containing at least one script with 18 or more blocks, is 69,521 (29.77\% of the total projects) and the number of projects with the large sprite smell is 31,954 (13.68\%).
 
 \begin{figure}
 	\centering
@@ -409,26 +410,36 @@ Finally, we examine the long method and the large class smell, considering them 
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-		\emph{RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clones copied three or more times, in the same or across sprites. 24.36\% of the projects contain scripts that are never invoked, and thus exhibit the dead code smell. In some cases those scripts are large. The large script smell is found in 29.77\% of the projects and the large sprite in 13.68\%.}
+RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clones copied three or more times, in the same or across sprites. 24.36\% of the projects contain scripts that are never invoked, and thus exhibit the dead code smell. In some cases those scripts are large. The large script smell is found in 29.77\% of the projects and the large sprite in 13.68\%.
 	\end{minipage}}
 
 
 \section{Discussion}
-
+\label{sec:discussion}
 \subsection{Implications}
 Our results have some interesting implications for designers of educational programming languages. 
 
-\subsubsection{Unconnected Blocks}
-In the whole dataset, not just in the programs with clones, we observe unconnected scripts, scripts without an event block and events without associated code. This is a form of \emph{dead code}, code that will never be executed. Because this dead code caused visual clutter, it would be better to have a separate workspace (much like the `backpack in Scratch' where users can store blocks temporarily and use them later. A programming interface could ask actively encourage users to move unconnected block when they exit the environment to encourage a `clean' working space. 
+\subsubsection{Dead Code}
+In our analysis, we find that almost one quarter of the Scratch programs contain dead `scripts': scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, like in the example in Figure \ref{fig:Unconnected_clones}, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. \todo{Fenia, this is correct, right, the 23\% is just these types and not also uncalled procs and unmatched broadcasts?}.
 
-\subsubsection{Code Clones Between Sprites}
-With occurrences in one quarter of the 250 thousand programs, the use of exactly identical clones between sprites is extremely common. In a sense, the Scratch users are not to blame here, as Scratch does not support the sharing of procedures between scripts, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
+In a sense, the dead scripts are harmless, as they are not executed, however, they do cause `visual clutter' and might be distracting to novice programmers, as it might be hard to see which scripts are dead. In contrast with other visual educational languages, Scratch does on indicate scripts are dead. LEGO Mindstorms, for example, does give the user feedback by making unconnected blocks gray. 
 
-\subsubsection{Refactoring support for duplicate wait blocks}
-In todo{...} of the cases, the programs with duplicate conditions, also signals were present. This means that it is feas
+Looking at the number of unconnected blocks, we hypothesize that Scratch programmers have a need for a separate workspace to store unconnected blocks temporarily. We envision that would be like the `backpack' meant to move scripts across sprites. In order to help novice programmers to keep their code clean, the programming interface could  actively encourage users to move unconnected blocks to that workspace when they exit the environment.
+
+\subsubsection{Exact Clones between Sprites}
+With occurrences in 11\% of the Scratch programs in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
+
+\subsubsection{Sharing of Scripts and Procedures}
+Investigating the use of clones between programs, we observe that there are 1700 scripts that are used in multiple programs, sometimes as often as in 1600 different programs. This seems to indicate that there are common patterns in Scratch programs. This again leads us to the idea that it might be very beneficial to Scratch programmers if they could not only share their programs, but also share some of their functionality, for others to use, like a library. An example of such a library could be: functions for platforming games, including the movement of a player, collision detection and the implementation of `lives'. This might empower new Scratch users to get started quicker.
+
+
+
+
 
 \subsection{Threads to validity}
 A thread to validity of this study is the fact that we did not scrap a random sample, but the most recent 250,000 programs. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a very large dataset. Furthermore, for some of the analyses we manually inspected programs \todo{Fenia, which ones?}
+
+Furthermore we use the number of blocks in the Scratch programs as a measure for the length of a program, while this does not exactly correspond to the `length' of a program in lines, and there can be multiple Scratch blocks on one line. For example, in Figure \ref{fig:ui} the `if' and `touching' blocks are present on the same `line'. We however believe that the number of blocks is a good proxy for size, and we plan a future experiment in which we will compare `lines of Scratch code' to `number of blocks'.
 
 
 \section{Related Work}
