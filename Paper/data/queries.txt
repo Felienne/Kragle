@@ -341,3 +341,9 @@ select param1, count(*)
 from code
 where command = 'whenKeyPressed'
 group by param1
+
+16categories
+select [Category], count(*)
+from code, blocktypes
+where code.command = blocktypes.Block
+group by category
