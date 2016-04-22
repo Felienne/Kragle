@@ -212,12 +212,11 @@ The dataset contains a relatively small number of projects without any code: \ne
 	\label{tbl-size}
 \end{table*}
 
-\begin{table*}[ht]
+\begin{table}[ht]
 	\centering
 	\begin{tabular}{lrr}
 		\hline
-		&\textbf{Number of}&\\
-		&\textbf{projects}&\textbf{Percentage}\\
+		&\textbf{\# projects}&\textbf{\%}\\
 		\hline
 		Retrieved & 250,166 & \\
 		Analyzed & 247,798 & \\
@@ -229,12 +228,12 @@ The dataset contains a relatively small number of projects without any code: \ne
 		Conditional statements & 92,959 & 39.81\% \\
 		User input blocks& 131,314 & 56.24\% \\
 		Loop statements & 180,210 & 77.18\% \\
-		\texttt{repeat until <condition>} statements & 31,739 & 13.59\% \\
-		\texttt{broadcast} - \texttt{receive} statements & 69,039 & 29.57\%\\
+		\texttt{repeat until <condition>} & 31,739 & 13.59\% \\
+		\texttt{broadcast} - \texttt{receive} & 69,039 & 29.57\%\\
 		Cloned scripts across sprites & 59,634 & 25.54\% \\
 		Cloned scripts within sprites & 23,671 & 10.14\%\\
 		Cloned procedures & 4,945 & 2.12\%\\
-		Cloned functionality blocks across sprites & 60,554 & 25.93\%\\
+		Cloned blocks across sprites & 60,554 & 25.93\%\\
 		Exact clones across sprites & 27,574 & 11.81\%\\
 		Exact clones within sprites & 2,043 & 0.87\%\\
 		Dead code & 56,890	& 24.36\%\\
@@ -244,7 +243,7 @@ The dataset contains a relatively small number of projects without any code: \ne
 	\end{tabular}
 	\caption{Characteristics in the projects in the dataset}
 	\label{tbl-characteristics}
-\end{table*}
+\end{table}
 
 \begin{figure}
 	\centering
@@ -298,6 +297,8 @@ We further analyzed the utilization frequency of the different block shapes and 
 	\caption{Number of blocks of each shape in the analyzed projects}
 	\label{fig:shapes}
 \end{figure}
+
+
 
 To understand the complexity of the Scratch programs in our dataset, we use the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts~scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of those projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
 
