@@ -62,7 +62,7 @@ Scratch is a programming language developed to teach children programming by ena
 
 Block-based languages have existed since the eighties, but have recently found adoption as tools for programming education. In addition to Scratch, also Alice~\cite{conway_alice:_1994}, Blockly\footnote{\url{https://developers.google.com/blockly/}} and App Inventor~\cite{wolber_app_2011} are block-languages aimed at novice programmers.
 
-Several studies have shown that block-based languages are powerful as a tool for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003}. Research works involving static analysis of Scratch programs \cite{Maloney_2008} \cite{moreno_automatic_2014} have evaluated the use of various programming concepts in 536 and 100 Scratch projects respectively. Recent work has focused on bad programming practices and habits within Scratch programs \cite{Meerbaum_habits_2011}, and automated quality assessment tools have been proposed for identifying code smells and bad programming practices \cite{boe_hairball:_2013}\cite{moreno_automatic_2014}. Ar recent controlled experiment found that long scripts and duplication decreases a novice programmer's ability to understand and modify Scratch programs \todo{cite}.
+Several studies have shown that block-based languages are powerful as a tool for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003}. Research works involving static analysis of Scratch programs \cite{Maloney_2008} \cite{moreno_automatic_2014} have evaluated the use of various programming concepts in 536 and 100 Scratch projects respectively. Recent work has focused on bad programming practices and habits within Scratch programs \cite{Meerbaum_habits_2011}, and automated quality assessment tools have been proposed for identifying code smells and bad programming practices \cite{boe_hairball:_2013}\cite{moreno_automatic_2014}. Ar recent controlled experiment found that long scripts and duplication decreases a novice programmer's ability to understand and modify Scratch programs \cite{hermans_2016}.
 
 The goal of this paper is to obtain a deep understanding of how people program in Scratch, to analyze the characteristics of Scratch programs, and to quantitatively evaluate the use of programming abstractions and concepts. Moreover, knowing that bad programming habits and code smells can be harmful, we also want to explore whether they are common. Specifically, the research questions that we are trying to answer are:
 
@@ -397,7 +397,7 @@ RQ2: One third of the projects use variables, sometimes without initializing the
 
 \subsection{Code smells}
 \label{RQ3}
-The duplicated code smell is the first smell that we examine. As explained in Section \ref{dataAnalysis}, we use 5 as the minimum number of blocks for the identified clones. In total, in the dataset we found 170,532 scripts cloned across sprites in 59,634 (25.54\% of the total non-empty) projects. 726,316 copies of these scripts were found, making each clone being copied an average of 4.26 times. Figure \ref{fig:clonesprojects} plots the distribution of clones across projects. The majority of projects contain up to two cloned scripts; 7.24\% of the projects contain three or more. Figure \ref{fig:clonescopies} plots the number of copies of the identified clones. It is of interest that 79,378 (46.55\%) of the identified clones are copied three or more times, and even in 585 cases from 411 projects they are copied more than 50 times and up to 974.\footnotemark[\ref{repo}] Manual inspection of the mostly copied clones revealed that they were scripts used multiple times to cater for different parameter values, sometimes in multiple sprites.
+The duplicated code smell is the first smell that we examine. As explained in Section \ref{dataAnalysis}, we use 5 as the minimum number of blocks for the identified clones. In total, in the dataset we found 170,532 scripts cloned across sprites in 59,634 (25.54\% of the total non-empty) projects. 726,316 copies of these scripts were found, making each clone being copied an average of 4.26 times. Figure \ref{fig:clonesprojects} plots the distribution of clones across projects. The majority of projects contain up to two cloned scripts; 7.24\% of the projects contain three or more. Figure \ref{fig:clonescopies} plots the number of copies of the identified clones. It is of interest that 79,378 (46.55\%) of the identified clones are copied three or more times, and even in 585 cases from 411 projects they are copied more than 50 times and up to 974.\footnotemark[\ref{repo}]
 
 \begin{figure}
 	\centering
@@ -413,7 +413,7 @@ The duplicated code smell is the first smell that we examine. As explained in Se
 	\label{fig:clonescopies}
 \end{figure}
 
-We further inspected which of the identified clones were duplicated only within the same sprite: 63,682 (37.34\% of the total) clones, in 10.14\% of the projects. These are duplication smells that could be avoided by using procedures, which in Scratch can only be defined for specific sprites. The lack of support for project-wide procedures could be the cause for procedure clones. These were measured to 12,878 (7.55\% of the total) clones, in 2.12\% of the projects.
+We further inspected which of the identified clones were duplicated only within the same sprite: 63,682 (37.34\% of the total) clones, in 10.14\% of all projects. Procedure clones were measured to 12,878 (7.55\% of the total) clones, in 2.12\% of the projects.
 
 Exact clones were found in 11.81\% of the total projects. Their total number was 66,750 (39.14\% of the total) clones. Exact clones in the same sprite are cases of clearly redundant code. These were rare, found in only 0.87\% of the projects.
 
@@ -449,7 +449,7 @@ Our results have some interesting implications for designers of educational prog
 
 
 \subsubsection{Popularity of Different Block Types}
-Our analysis shows that some categories of blocks are rarely used, like the `Pen' blocks, of which only \todo{x} occur within \todo{y} programs. When further evolving the Scratch programming language, this category might be less important to users, and hence our current analysis supports the language designers in making future investments.
+Our analysis shows that some categories of blocks are rarely used, like the `Pen' blocks, of which only 194,885 occur within 19,090 (8.17\% of the total) programs. When further evolving the Scratch programming language, this category might be less important to users, and hence our current analysis supports the language designers in making future investments.
 
 \subsubsection{Dead Code}
 In our analysis, we find that more than one quarter of the Scratch projects contain dead `scripts': scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, scripts that are comprised of only a \texttt{when <trigger>} block without any functionality, procedures that are not invoked, or unmatched broadcast-receive messages.
@@ -469,7 +469,7 @@ Investigating the use of clones between projects, we observe that there are 1700
 
 
 \subsection{Threads to validity}
-A thread to validity of this study is the fact that we did not scrap a random sample, but the most recent 250,000 projects. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a very large dataset. Furthermore, for some of the analyses we manually inspected projects \todo{Fenia, which ones?}
+A thread to validity of this study is the fact that we did not scrap a random sample, but the most recent 250,000 projects. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a very large dataset.
 
 Furthermore we use the number of blocks in the Scratch projects as a measure for the length of a program, while this does not exactly correspond to the `length' of a program in lines, and there can be multiple Scratch blocks on one line. For example, in Figure \ref{fig:ui} the `if' and `touching' blocks are present on the same `line'. We however believe that the number of blocks is a good proxy for size, and we plan a future experiment in which we will compare `lines of Scratch code' to `number of blocks'.
 

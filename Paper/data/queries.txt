@@ -347,3 +347,8 @@ select [Category], count(*)
 from code, blocktypes
 where code.command = blocktypes.Block
 group by category
+select category,count(*), count(distinct projectID)
+from code, blocktypes
+where code.command = blocktypes.Block
+and category = 'Pen'
+group by Category
