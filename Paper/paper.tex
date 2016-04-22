@@ -58,11 +58,11 @@ Block-based programming languages like Scratch, Alice and Blockly are becoming i
 
 \section{Introduction}
 
-Scratch is a programming language developed to teach children programming by enabling them to create games and interactive animations. The public repository of Scratch programs contains over 12 million projects. Scratch is a \emph{block-based} language: users manipulate blocks to program.
+Scratch ~\cite{resnick_scratch:_2009} is a programming language developed to teach children programming by enabling them to create games and interactive animations. The public repository of Scratch programs contains over 12 million projects. Scratch is a \emph{block-based} language: users manipulate blocks to program.
 
 Block-based languages have existed since the eighties, but have recently found adoption as tools for programming education. In addition to Scratch, also Alice~\cite{conway_alice:_1994}, Blockly\footnote{\url{https://developers.google.com/blockly/}} and App Inventor~\cite{wolber_app_2011} are block-languages aimed at novice programmers.
 
-Several studies have shown that block-based languages are powerful as a tool for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003}. Research works involving static analysis of Scratch programs \cite{Maloney_2008} \cite{moreno_automatic_2014} have evaluated the use of various programming concepts in 536 and 100 Scratch projects respectively. Recent work has focused on bad programming practices and habits within Scratch programs \cite{Meerbaum_habits_2011}, and automated quality assessment tools have been proposed for identifying code smells~\cite{fowler_refactoring:_1999}~and bad programming practices \cite{boe_hairball:_2013}\cite{moreno_automatic_2014}. Ar recent controlled experiment found that long scripts and duplication decreases a novice programmer's ability to understand and modify Scratch programs \cite{hermans_2016}.
+Several studies have shown that block-based languages are powerful as a tool for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003,price_comparing_2015}. Research works involving static analysis of Scratch programs \cite{Maloney_2008,moreno_automatic_2014} have evaluated the use of various programming concepts in 536 and 100 Scratch projects respectively. Recent work has focused on bad programming practices and habits within Scratch programs \cite{Meerbaum_habits_2011}, and automated quality assessment tools have been proposed for identifying code smells~\cite{fowler_refactoring:_1999}~and bad programming practices \cite{boe_hairball:_2013,moreno_automatic_2014}. Ar recent controlled experiment found that long scripts and duplication decreases a novice programmer's ability to understand and modify Scratch programs \cite{hermans_2016}.
 
 The goal of this paper is to obtain a deep understanding of how people program in Scratch, to analyze the characteristics of Scratch programs, and to quantitatively evaluate the use of programming abstractions and concepts. Moreover, knowing that bad programming habits and code smells can be harmful, we also want to explore whether they are common. Specifically, the research questions that we are trying to answer are:
 
@@ -82,26 +82,19 @@ The contributions of this paper are as follows:
 	\item{A discussion of implications of our findings for educational programming language designers (Section \ref{sec:discussion})}
 \end{itemize}
 
-
-\section{Background and Motivation}
-\label{sec:background}
-Recently new block-based languages have gained widespread popularity, especially powered by Scratch~\cite{resnick_scratch:_2009} and Blockly\footnote{\url{https://developers.google.com/blockly/}}. Over 100 million students have tried Blockly via Code.org, and the Scratch repository currently hosts over 12 million projects. 
-
-Since their introduction, studies have demonstrated the applicability of block-based languages as a tool for education. Scratch, for example, was evaluated with a two-hour introductory programming curriculum for 46 subjects aged 14~\cite{meerbaum-salant_learning_2010}. This study indicated that Scratch could be used to teach computer science concepts: analysis of the pre- and post-tests showed a significant improvement after the Scratch course, although some concepts like variables and concurrency remained hard for students.
-
-Moskal \emph{et al.}~\cite{b._moskal_evaluating_2005} compared computer science students who studied Alice before or during their first programming course to students that only took the introductory computer science course. Their results show that exposure to Alice significantly improved students' grades in the course, and their retention in computer science in general over a two year period. A follow-up study by Cooper \emph{et al.}~\cite{cooper_teaching_2003} obtained similar results, showing that a curriculum in Alice resulted in improved grades and higher retention in computer science.
-
-Most convincingly, Price and Barnes performed a controlled experiment in which students were randomly assigned to either a text-based or a block-based interface in  which they had to perform small programming tasks~\cite{price_comparing_2015}. Their experiment showed that students in the block-based interface were more focused and completed more of the activity's goals in less time.
-
-
-\subsection{Relevant Scratch Concepts}
+\section{Relevant Scratch Concepts}
 \label{sec:scratch}
 This paper is by no means an introduction into Scratch programming, we refer the reader to \cite{brennan_creative_2014} for an extensive overview. To make this paper self-contained, however, we explain a number of relevant concepts in this section. 
 
-Scratch is a block-based programming language aimed at children, developed by MIT. Scratch can be used to create games and interactive animations, and is available both as a stand-alone application and as a web application. Figure \ref{fig:ui} shows the Scratch user interface in the Chrome browser.
+Scratch is a block-based programming language aimed at children, developed by MIT. Scratch can be used to create games and interactive animations, and is available both as a stand-alone application and as a web application. Figure \ref{fig:ui} shows the Scratch user interface in the Chrome browser. The main concepts in the Scratch programming environment are:
 
-\subsubsection{Sprites}
-Scratch code is organized by `sprites': two-dimensional pictures each having their own associated code. Scratch allows users to bring their sprites to life in various ways, for example by moving them in the plane, having them say or think words or sentences via text balloons, but also by having them make sounds, grow, shrink and switch costumes. The Scratch program in Figure \ref{fig:ui} consists two one sprites, the cat, which is Scratch's default sprite and logo and a Piano. The code in Sprite1 will cause the cat to move right when the right arrow is pressed, and when the green flag is clicked it will continuously sense touching the piano.
+\begin{description}
+	\item [Sprites] Scratch code is organized by `sprites': two-dimensional pictures each having their own associated code. Scratch allows users to bring their sprites to life in various ways, for example by moving them in the plane, having them say or think words or sentences via text balloons, but also by having them make sounds, grow, shrink and switch costumes. The Scratch program in Figure \ref{fig:ui} consists two one sprites, the cat, which is Scratch's default sprite and logo and a Piano. The code in Sprite1 will cause the cat to move right when the right arrow is pressed, and when the green flag is clicked it will continuously sense touching the piano.
+	\item [Scripts]Sprites can have multiple code blocks, called `scripts'. The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously.
+	\item [Events] Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events called Hat blocks\footnote{\url{http://wiki.scratch.mit.edu/wiki/Hat_Block}}). The canonical event is the \texttt{when Green Flag clicked}, activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. The Scratch code in Sprite1 in Figure \ref{fig:ui} contains two events: \texttt{when Green Flag clicked} and \texttt{when right arrow key pressed}, each with associated blocks.
+	\item [Signals] Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the \texttt{when I receive} Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. 
+	\item[Custom blocks] Scratch users can define their own blocks, which users can name themselves, called custom blocks. The creation of custom blocks in Scratch is the equivalent of defining procedures in other languages \cite{moreno_automatic_2014}. Because the term `procedures' is common in the software engineering area, for readability we will refer to custom blocks as `procedures' in the following. Procedures can have input parameters of type string, number, and boolean. When a user defines a procedure, a new Hat block called \texttt{define} appears, which users can fill with the implementation of their block.
+\end{description}
 
 \begin{figure}
 	\begin{center}
@@ -110,36 +103,6 @@ Scratch code is organized by `sprites': two-dimensional pictures each having the
 		\label{fig:ui}
 	\end{center}
 \end{figure} 
-
-%\begin{figure}
-%	\begin{center}
-%		\includegraphics[width=2cm]{fig/bump.png}
-%		\caption{The script for the Piano sprite in Figure \ref{fig:ui}, causing a sound on receiving the `bump' signal.}
-%		\label{fig:bump}
-%	\end{center}
-%\end{figure} 
-
-\subsubsection{Scripts}
-Sprites can have multiple code blocks, called `scripts'. The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously.
-
-\subsubsection{Events}
-Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events called Hat blocks\footnote{\url{http://wiki.scratch.mit.edu/wiki/Hat_Block}}). The canonical event is the \texttt{when Green Flag clicked}, activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. The Scratch code in Sprite1 in Figure \ref{fig:ui} contains two events: \texttt{when Green Flag clicked} and \texttt{when right arrow key pressed}, each with associated blocks.
-
-\subsubsection{Signals}
-Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the \texttt{when I receive} Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. 
-
-\subsubsection{Custom Blocks}
-Scratch users can define their own blocks, which users can name themselves, called custom blocks. The creation of custom blocks in Scratch is the equivalent of defining procedures in other languages \cite{moreno_automatic_2014}. Because the term `procedures' is common in the software engineering area, for readability we will refer to custom blocks as `procedures' in the following. Procedures can have input parameters of type string, number, and boolean. When a user defines a procedure, a new Hat block called \texttt{define} appears, which users can fill with the implementation of their block.
-
-%\begin{figure}
-%	\begin{center}
-%		\includegraphics[width=8cm]{fig/twoBlocks.png}
-%		\caption{The user interface for creating (left) and defining (right) user-defined blocks.}
-%		\label{fig:twoBlocks}
-%	\end{center}
-%\end{figure} 
-
-
 
 \section{Research design and dataset}
 \label{researchDesign}
