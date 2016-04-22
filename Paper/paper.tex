@@ -72,7 +72,7 @@ The goal of this paper is to obtain a deep understanding of how people program i
 \item[RQ3] How common are code smells in Scratch programs?
 \end{itemize}
 
-Our study is based on data from the Scratch project repository. By scraping the list of recent projects \footnote{\url{https://scratch.mit.edu/explore/projects/all/}}, we have obtained \nPrograms~public Scratch projects and performed analysis on them. To the best of our knowledge, this is the first large-scale exploratory study on Scratch projects.
+Our study is based on data from the Scratch project repository. By scraping the list of recent projects \footnote{\label{scratchpublic}\url{https://scratch.mit.edu/explore/projects/all/}}, we have obtained \nPrograms~public Scratch projects and performed analysis on them. To the best of our knowledge, this is the first large-scale exploratory study on Scratch projects.
 
 The contributions of this paper are as follows:
 
@@ -112,7 +112,7 @@ The main focus of this study is to understand how people program in Scratch by a
 \subsection{Dataset}
 \label{dataset}
 
-We obtained the set of Scratch projects by using a scraping program. Our scraping program called Kragle starts by reading \url{https://scratch.mit.edu/explore/projects/all/} and thus obtaining project ids of projects that were most recently shared. Subsequently, Kragle obtains the JSON code for each of the listed projects. 
+We obtained the set of Scratch projects by using a scraping program. Our scraping program called Kragle starts by reading the Scratch projects page\footnotemark[\ref{scratchpublic}] and thus obtaining project ids of projects that were most recently shared. Subsequently, Kragle obtains the JSON code for each of the listed projects. 
 
 % For a given id $x$ a Scratch programs JSON representation can be obtained via \url{https://cdn.projects.scratch.mit.edu/internalapi/project/x/get}.  Does not fit on the page nicely and might also not be needed?
 
@@ -122,7 +122,7 @@ Once we obtained the Scratch projects, we parsed the JSON files according to the
 
 \subsection{Data analysis}
 \label{dataAnalysis}
-All scraped data, including the list of used blocks and parameters per project, was imported to a relational database. We used SQL queries, which are also made available,\footnotemark[\ref{repo}] for filtering, aggregating and extracting all statistical data required to address our three research questions. This data was then imported to spreadsheets for the calculation of statistics and the generation of graphical representations. We also randomly sampled and manually inspected edge cases in the results, for example empty or overly complex projects, lists of which we also provide as part of the dataset.\footnotemark[\ref{repo}]
+All scraped project data, including the list of used blocks and parameters, was imported to a relational database. We used SQL queries, which are also made available,\footnotemark[\ref{repo}] for filtering, aggregating and extracting all statistical data required to address our three research questions. This data was then imported to spreadsheets for the calculation of statistics and the generation of graphical representations. We also randomly sampled and manually inspected edge cases in the results, for example empty or overly complex projects, lists of which we also provide as part of the dataset.\footnotemark[\ref{repo}]
 
 For RQ1 we measured the size of projects based on the number of blocks in scripts and sprites and we calculated descriptive statistics, which are presented in Section \ref{RQ1}. We used the McCabe cyclomatic complexity metric\cite{mcCabe76} for measuring the complexity of the projects.
 
@@ -380,20 +380,18 @@ We further inspected which of the identified clones were duplicated only within 
 
 Exact clones were found in 11.81\% of the total projects. Their total number was 66,750 (39.14\% of the total) clones. Exact clones in the same sprite are cases of clearly redundant code. These were rare, found in only 0.87\% of the projects.
 
-Apart from whole scripts we also examined cases where scripts differed only in the first (Hat) block.This way we examine if Scratch programmers assign the same functionality to handle different types of events. Cloned functionality blocks are found to be rare: without considering the first block, only 2,243 additional clones were found in 920 projects.
+Apart from whole scripts we also examined cases where scripts differed only in the first (Hat) block. This way we examine if Scratch programmers assign the same functionality to handle different types of events. Cloned functionality blocks are found to be rare: without considering the first block, only 2,243 additional clones were found in 920 projects.
 
-The second smell that we examine is the dead code smell. We identify four types of dead code: (1) procedures that are not invoked, (2) unmatched broadcast-receive messages, (3) code that is not invoked and (4) empty event scripts. Investigating the first type, we find that a significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. This is also shown in Figure \ref{fig:procedurecalls} and it occurs in 2,079 projects. For the second type, we examined the broadcast-receive messages and found that they are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
+The second smell that we examine is the dead code smell. We identify four types of dead code: (1) procedures that are not invoked, (2) unmatched broadcast-receive messages, (3) code that is not invoked and (4) empty event scripts. Investigating the first type, we find that a significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. This is also shown in Figure \ref{fig:procedurecalls} and it occurs in 2,079 projects. For the second type, we examined the broadcast-receive messages and found that they are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronizations occurs in 18,669 (7.99\% of the total) projects.
 
-The third and fourth cases are detected in scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of these scripts (86.6\%) are scripts missing the starting block. Examining the size of these dead scripts, 72.34\% are composed of a single block. As shown in Figure \ref{fig:deadcode}, however, considerably large dead scripts exist; 2,358 of these scripts originating from 1,553 different projects have more than 30 blocks and up to 2,610.\footnotemark[\ref{repo}]
+The third and fourth cases are detected in scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of these scripts (86.6\%) are scripts missing the starting block. Examining the size of these dead scripts, 72.34\% are composed of a single block. As shown in Figure \ref{fig:deadcode}, however, considerably large dead scripts exist; 2,358 of these scripts originating from 1,553 different projects have more than 30 blocks and up to 2,610.\footnotemark[\ref{repo}] The number of projects exhibiting the dead code smell, considering all four types of dead code, is 65,760 (28.16\% of the total projects).
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/charts/12deadcode}
-	\caption{Size of scripts that are identified as dead code}
+	\caption{Size of scripts identified as dead code}
 	\label{fig:deadcode}
 \end{figure}
-
-The number of projects exhibiting the dead code smell, considering all four types of dead code, is 65,760 (28.16\% of the total projects).
 
 Finally, we examine the large script and the large sprite smells. The thresholds we use for the identification of large scripts and large sprites are 18 blocks and 59 blocks respectively, as calculated in Section \ref{dataAnalysis}. The number of projects exhibiting the large script smell, i.e., containing at least one script with 18 or more blocks, is 69,521 (29.77\% of the total projects) and the number of projects with the large sprite smell is 31,954 (13.68\%).
 
@@ -409,31 +407,26 @@ RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clone
 \subsection{Implications}
 We believe a large scale study of programs like ours can help language designers to tailor their language. In this section we highlight directions in which our study could support language design. 
 
-\subsubsection{Popularity of Different Block Types}
+\subsubsection{Popularity of different block types}
 Our analysis shows that some categories of blocks are rarely used, like the `Pen' blocks, of which only 194,885 occur within 19,090 (8.17\% of the total) programs. Hence, in future changes to the language, `Pen' blocks might be less important to users to support or maintain. 
 
-\subsubsection{Dead Code}
+\subsubsection{Dead code}
 In our analysis, we find that more than one quarter of the Scratch projects contain dead `scripts': scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, scripts that are comprised of only a \texttt{when <trigger>} block without any functionality, procedures that are not invoked, or unmatched broadcast-receive messages.
 
 In a sense, the dead scripts are harmless, as they are not executed, however, they do cause `visual clutter' and might be distracting to novice programmers, as it might be hard to see which scripts are dead. In contrast with other visual educational languages, Scratch does on indicate scripts are dead. LEGO Mindstorms, for example, does give the user feedback by making unconnected blocks gray. 
 
 Looking at the number of unconnected blocks, we hypothesize that Scratch programmers have a need for a separate workspace to store unconnected blocks temporarily. We envision that would be like the `backpack' meant to move scripts across sprites. In order to help novice programmers to keep their code clean, the programming interface could actively encourage users to move unconnected blocks to that workspace when they exit the environment.
 
-\subsubsection{Exact Clones Between Sprites}
+\subsubsection{Exact clones between sprites}
 With occurrences in 11\% of the Scratch projects in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
 
-\subsubsection{Sharing of Scripts and Procedures}
+\subsubsection{Sharing of scripts and procedures}
 Investigating the use of clones between projects, we observe that there are 1700 scripts that are used in multiple projects, sometimes as often as in 1600 different projects. This seems to indicate that there are common patterns in Scratch projects, which means it might be very beneficial to Scratch programmers if they could not only share their projects, but also share some of their functionality, for others to use, like a library. An example of such a library could be: functions for platforming games, including the movement of a player, collision detection and the implementation of `lives'. This might empower new Scratch users to get started quicker.
-
-
-
-
 
 \subsection{Threads to validity}
 A thread to validity of this study is the fact that we did not scrape a random sample, but the most recent 250,000 projects. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a large dataset which comprises of around 2\% of all 14 million shared Scratch programs.\footnote{\url{https://scratch.mit.edu/statistics/}}.
 
 Furthermore we use the number of blocks in the Scratch projects as a measure for the length of a program, while this does not exactly correspond to the `length' of a program in lines, and there can be multiple Scratch blocks on one line. For example, in Figure \ref{fig:ui} the `if' and `touching' blocks are present on the same `line'. We however believe that the number of blocks is a good proxy for size, and we plan a future experiment in which we will compare `lines of Scratch code' to `number of blocks'.
-
 
 \section{Related Work}
 \label{sec:related}
