@@ -407,12 +407,10 @@ RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clone
 \section{Discussion}
 \label{sec:discussion}
 \subsection{Implications}
-Our results have some interesting implications for designers of educational programming languages. 
-
-
+We believe a large scale study of programs like ours can help language designers to tailor their language. In this section we highlight directions in which our study could support language design. 
 
 \subsubsection{Popularity of Different Block Types}
-Our analysis shows that some categories of blocks are rarely used, like the `Pen' blocks, of which only 194,885 occur within 19,090 (8.17\% of the total) programs. When further evolving the Scratch programming language, this category might be less important to users, and hence our current analysis supports the language designers in making future investments.
+Our analysis shows that some categories of blocks are rarely used, like the `Pen' blocks, of which only 194,885 occur within 19,090 (8.17\% of the total) programs. Hence, in future changes to the language, `Pen' blocks might be less important to users to support or maintain. 
 
 \subsubsection{Dead Code}
 In our analysis, we find that more than one quarter of the Scratch projects contain dead `scripts': scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, scripts that are comprised of only a \texttt{when <trigger>} block without any functionality, procedures that are not invoked, or unmatched broadcast-receive messages.
@@ -421,7 +419,7 @@ In a sense, the dead scripts are harmless, as they are not executed, however, th
 
 Looking at the number of unconnected blocks, we hypothesize that Scratch programmers have a need for a separate workspace to store unconnected blocks temporarily. We envision that would be like the `backpack' meant to move scripts across sprites. In order to help novice programmers to keep their code clean, the programming interface could  actively encourage users to move unconnected blocks to that workspace when they exit the environment.
 
-\subsubsection{Exact Clones between Sprites}
+\subsubsection{Exact Clones Between Sprites}
 With occurrences in 11\% of the Scratch projects in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
 
 \subsubsection{Sharing of Scripts and Procedures}
@@ -432,7 +430,7 @@ Investigating the use of clones between projects, we observe that there are 1700
 
 
 \subsection{Threads to validity}
-A thread to validity of this study is the fact that we did not scrap a random sample, but the most recent 250,000 projects. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a very large dataset.
+A thread to validity of this study is the fact that we did not scrape a random sample, but the most recent 250,000 projects. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a large dataset which comprises of around 2\% of all 14 million shared Scratch programs.\footnote{\url{https://scratch.mit.edu/statistics/}}.
 
 Furthermore we use the number of blocks in the Scratch projects as a measure for the length of a program, while this does not exactly correspond to the `length' of a program in lines, and there can be multiple Scratch blocks on one line. For example, in Figure \ref{fig:ui} the `if' and `touching' blocks are present on the same `line'. We however believe that the number of blocks is a good proxy for size, and we plan a future experiment in which we will compare `lines of Scratch code' to `number of blocks'.
 
