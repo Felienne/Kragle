@@ -46,7 +46,7 @@
 
 \maketitle
 \begin{abstract}
-Block-based programming languages like Scratch, Alice and Blockly are becoming increasingly common as introductory languages in programming education. There is substantial research showing that those visual programming environments are suitable for teaching programming concepts. In this paper we explore the characteristics of Scratch programs. To that end we have scraped the Scratch public repository and retrieved 250.000 projects. We present an analysis of those projects in terms of complexity, used abstractions and programming concepts, and coding style. We found that programming abstraction concepts like functions are not commonly used. We further investigate the presence of code smells and bad programming practices, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially code duplication.
+Block-based programming languages like Scratch, Alice and Blockly are becoming increasingly common as introductory languages in programming education. There is substantial research showing that those visual programming environments are suitable for teaching programming concepts. But, what do people do when they use Scratch? In this paper we explore the characteristics of Scratch programs. To that end we have scraped the Scratch public repository and retrieved 250.000 projects. We present an analysis of those projects in three different dimensions. Firstly, we look at the types of blocks used and the size of the programs. We then investigate complexity, used abstractions and programming concepts. Finally we look at coding style and detect \emph{code smells and clones}. We find that programming abstraction concepts like functions are not commonly used. We further investigate the presence of code smells and bad programming practices, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially code duplication.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -60,14 +60,13 @@ Block-based programming languages like Scratch, Alice and Blockly are becoming i
 
 \section{Introduction}
 
-Scratch is a programming language developed to teach children programming by enabling them to create games and interactive animations. The public repository of Scratch programs contains over 12 million projects. Scratch is a \emph{block-based} language: users manipulate blocks to program. Block-based languages are visual languages, but also use some successful aspects of text-based languages such as limited text-entry and indentation, and as such are closer to `real', textual programming than other forms of visual programming, like dataflow languages are.
+Scratch is a programming language developed to teach children programming by enabling them to create games and interactive animations. The public repository of Scratch programs contains over 12 million projects. Scratch is a \emph{block-based} language: users manipulate blocks to program.
 
 Block-based languages have existed since the eighties, but have recently found adoption as tools for programming education. In addition to Scratch, also Alice~\cite{conway_alice:_1994}, Blockly\footnote{\url{https://developers.google.com/blockly/}} and App Inventor~\cite{wolber_app_2011} are block-languages aimed at novice programmers.
 
-refer to:
-Research on the effectiveness of those languages for programming education
-Research on programming habits
-Our research on smells
+Several studies have shown that block-based languages are powerful as a tool for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003}. \todo{Fenia, do you have some work on Research on programming habits}
+
+Recent work has focused on \emph{code smells} within Scratch programs, parts of a program that are not designed in the best possible way. \todo{add dr. scratch papers here} Ar recent controlled experiment found that long scripts and duplication decreases a novice programmer's ability to understand and modify Scratch programs \todo{cite}.
 
 The goal of this paper is to obtain a deep understanding of how people program in Scratch and to analyze the characteristics of Scratch programs. Moreover, knowing that bad programming habits and code smells can be harmful, we also want to explore whether they are common. Specifically, the research questions that we are trying to answer are:
 
@@ -90,7 +89,7 @@ The contributions of this paper are as follows:
 
 \section{Background and Motivation}
 \label{sec:background}
-Block-based languages go back to 1986, when Glinert introduced the BLOX language~\cite{e._glinert_towards_1986}. BLOX consists of puzzle-like programming statements that can be combined into programs by combining them both vertically and horizontally. After a decade of little activity into block-based languages, they became a research topic again, starting with Alice~\cite{conway_alice:_1994}. More recently, new block-based languages have gained widespread popularity, especially powered by Scratch~\cite{resnick_scratch:_2009} and Blockly\footnote{\url{https://developers.google.com/blockly/}}. Over 100 million students have tried Blockly via Code.org, and the Scratch repository currently hosts over 12 million projects. Unlike in BLOX, in these new block-based languages the programming blocks can only be combined vertically, resembling textual code more.
+Recently new block-based languages have gained widespread popularity, especially powered by Scratch~\cite{resnick_scratch:_2009} and Blockly\footnote{\url{https://developers.google.com/blockly/}}. Over 100 million students have tried Blockly via Code.org, and the Scratch repository currently hosts over 12 million projects. 
 
 Since their introduction, studies have demonstrated the applicability of block-based languages as a tool for education. Scratch, for example, was evaluated with a two-hour introductory programming curriculum for 46 subjects aged 14~\cite{meerbaum-salant_learning_2010}. This study indicated that Scratch could be used to teach computer science concepts: analysis of the pre- and post-tests showed a significant improvement after the Scratch course, although some concepts like variables and concurrency remained hard for students.
 
@@ -98,7 +97,6 @@ Moskal \emph{et al.}~\cite{b._moskal_evaluating_2005} compared computer science 
 
 Most convincingly, Price and Barnes performed a controlled experiment in which students were randomly assigned to either a text-based or a block-based interface in  which they had to perform small programming tasks~\cite{price_comparing_2015}. Their experiment showed that students in the block-based interface were more focused and completed more of the activity's goals in less time.
 
-Summarizing the above, we conclude that block-based languages have a clear potential to be a great tool for introductory programming education, in some cases even outperforming text-based languages.
 
 \subsection{Relevant Scratch Concepts}
 \label{sec:scratch}
@@ -125,28 +123,25 @@ Scratch code is organized by `sprites': two-dimensional pictures each having the
 	\end{center}
 \end{figure} 
 
+\subsubsection{Scripts}
+Sprites can have multiple code blocks, called `scripts'. The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously.
+
 \subsubsection{Events}
-Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events. The canonical event is the `when Green Flag clicked', activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. The Scratch code in Sprite1 in Figure \ref{fig:ui} contains two events: `when Green Flag clicked' and `when right arrow key pressed', each with associated blocks.
+Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events called Hat blocks\footnote{\url{http://wiki.scratch.mit.edu/wiki/Hat_Block}}). The canonical event is the \texttt{when Green Flag clicked}, activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. The Scratch code in Sprite1 in Figure \ref{fig:ui} contains two events: \texttt{when Green Flag clicked} and \texttt{when right arrow key pressed}, each with associated blocks.
 
 \subsubsection{Signals}
-Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the `when I receive' Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. The Piano reacts on that by making a sound, see Figure \ref{fig:bump}.
+Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the \texttt{when I receive} Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. The Piano reacts on that by making a sound, see Figure \ref{fig:bump}.
 
-\subsubsection{Scripts}
-Source code within sprites is organized in scripts: a script can start with an event (a Hat block\footnote{\url{http://wiki.scratch.mit.edu/wiki/Hat_Block}}) which indicates when something should happen. A hat block can be followed by an arbitrary number of other blocks. 
 
-The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously.
 
 \subsubsection{Procedures}
-Scratch users can define their own blocks, with a pop-up screen displayed in on the left hand side of Figure \ref{fig:twoBlocks}. As shown in this Figure, Scratch users can set the name of the sprite and define input parameters. The block in Figure \ref{fig:twoBlocks} uses two parameter, one textual (string1) and one numerical (number1). A user-created block is programmed using ordinary Scratch blocks as shown on the right hand side of Figure \ref{fig:twoBlocks}.
+Scratch users can define their own blocks, with a pop-up screen displayed in on the left hand side of Figure \ref{fig:twoBlocks}. As shown in this figure, Scratch users can enter the name of the sprite and define input parameters. The block in Figure \ref{fig:twoBlocks} uses two parameter, one textual (string1) and one numerical (number1). A user-created block is programmed using ordinary Scratch blocks as shown on the right hand side of Figure \ref{fig:twoBlocks}.
 
-\subsubsection{Remixing}
-\todo{maybe only useful with we will talk about remixing in the remainder?}
-Scratch programs can be shared by their creators in the global Scratch repository\footnote{\url{https://scratch.mit.edu/explore/projects/all/}}. Shared Scratch programs can be `remixed' by other Scratch users, which means that a copy of this program is placed in the user's own project collection, and can be then further changed. The `remix tree' of projects is public, so users can track which users remix their programs, a bit similar forking in GitHub. Contrary to forking though, changes upstream cannot be integrated back into the original project.
 
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=8cm]{fig/twoBlocks.png}
-		\caption{The user interface for creating and defining user-defined blocks \todo{could be nicer}}
+		\caption{The user interface for creating (left) and defining (right) user-defined blocks.}
 		\label{fig:twoBlocks}
 	\end{center}
 \end{figure} 
@@ -156,7 +151,7 @@ Scratch programs can be shared by their creators in the global Scratch repositor
 \section{Research design and dataset}
 \label{researchDesign}
 
-The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch programs. To answer our research questions, we conducted an empirical quantitative evaluation of program data we collected from the Scratch repository. The dataset is described in Section \ref{dataset}. \todo{Below, we present how we approached each research question.}
+The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch programs. To answer our three research questions, we conducted an empirical quantitative evaluation of program data we collected from the Scratch repository. The dataset is described in Section \ref{dataset}. \todo{Below, we present how we approached each research question.}
 
 \textbf{RQ1} What are the size and complexity characteristics of Scratch programs? quantitative analysis, provide and analyze descriptive statistics on the size, complexity metrics, statistical analysis . mentioned taht it was imported to db and done and statistical data from db queries? The outcomes are presented in Section...
 
@@ -167,23 +162,23 @@ The main focus of this study is to understand how people program in Scratch by a
 \subsection{Dataset}
 \label{dataset}
 \subsubsection{Obtaining Scratch programs}
-We obtained the set of Scratch programs by using a scraping program. Our scraping program called Kragle starts by reading \url{https://scratch.mit.edu/explore/projects/all/} and thus obtaining program ids of programs that were most recently shared. Subsequently, Kragle obtains the JSON code for each of the listed programs. In addition to the programs themselves, Kragle also gathers metadata including the numbers of views, loves, favorites and remixes.
+We obtained the set of Scratch programs by using a scraping program. Our scraping program called Kragle starts by reading \url{https://scratch.mit.edu/explore/projects/all/} and thus obtaining program ids of programs that were most recently shared. Subsequently, Kragle obtains the JSON code for each of the listed programs. 
 
  % For a given id $x$ a Scratch programs JSON representation can be obtained via \url{https://cdn.projects.scratch.mit.edu/internalapi/project/x/get}.  Does not fit on the page nicely and might also not be needed?
 
-We ran Kragle on March 2nd 2016 and let it running for 24 hours, when it had obtained a little over 250.000 programs.  Out of the \nPrograms~, we failed to parse and further analyze 2.367 programs due technical difficulties with the provided JSON files. Kragle, as well as all scraped programs and our analysis files are available\footnote{\url{https://github.com/ScratchLover42/ICER-Data-Code}}.
+We ran Kragle on March 2nd 2016 for 24 hours, when it had obtained a little over 250.000 programs. Out of the \nPrograms~, we failed to parse and further analyze 2.367 programs due technical difficulties with the provided JSON files. Kragle, as well as all scraped programs and our analysis files are available\footnote{\url{https://github.com/ScratchLover42/ICER-Data-Code}}.
 
 \subsubsection{Analyzing the Scratch programs}
-Once we obtained the Scratch programs, we parsed the JSON files according to the specification of the format\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}}. This resulted in a list if used blocks per program, with the sprites and the stage of the program. We also assign types to all the blocks, both their shapes and the tab they originate from. For example, When Green Flag Clicked is a \emph{Hat block} from the \emph{Events category}.
+Once we obtained the Scratch programs, we parsed the JSON files according to the specification of the format\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}}. This resulted in a list of used blocks per program, with the sprites and the stage of the program. We cross referenced also all blocks with the Scratch wiki so we have the shapes and the category of all blocks. For example, When Green Flag Clicked is a \emph{Hat block} from the \emph{Events category}.
 
 
 \section{Results}
 \label{sec:results}
 In the following sections we describe the results obtained for each of the research questions through the analysis of the \nAnalyzedPrograms~Scratch projects in our dataset.
 
-\subsection{Program size and complexity}
+\subsection{Program Size and Complexity}
 
-The dataset is found to contain a relatively small number of projects without any code: \nemptyPrograms (5.77\%). Through random manual sampling we found that in some cases those projects contained sprites and costumes but no code and in others they were entirety empty apart from the Scratch cat added by default. Since those projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
+The dataset contains a relatively small number of projects without any code: \nemptyPrograms (5.77\%). Through random manual sampling we found that in some cases those projects contains only sprites and costumes, but no code, while in other programs they were entirety empty apart from the Scratch cat added by default. Since those projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
 
 \begin{table*}[ht]
 	\centering
@@ -286,11 +281,11 @@ The dataset is found to contain a relatively small number of projects without an
 \end{figure}
 
 
-In Table \ref{tbl-size} we summarize statistics for metrics related to size and complexity. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project, where each script is a code-block of interconnected Scratch blocks. For example, in Figure \ref{fig:ui} the cat sprite contains two scripts. We further measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. Furthermore, we measure the nestedness of program, which is the number of times blocks are placed within each other. For example, the program in Figure \ref{fig:ui} has a maximum indentation of 3 in the `Wgen Green flag clicked' script, as that has a broadcast block within an if, within a forever\todo{for Felienne: double check}. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and \ref{fig:size-indent} plot the distribution of those size metrics.
+In Table \ref{tbl-size} we summarize statistics for metrics related to size and complexity. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project. We furthermore measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and \ref{fig:size-indent} plot the distribution of those size metrics.
 
-We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) are found to have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code\footnote{The Scratch identifiers of those projects can be found in \todo{link}}.
+We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code\footnote{The Scratch identifiers of those projects can be found in \todo{link}}.
 
-The lines of code metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. Those projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
+The lines of code metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. The projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
 
 We further analyzed the utilization frequency of the different block shapes and categories, as defined in the Scratch documentation. Figures \ref{fig:categories} and \ref{fig:shapes} present the results in terms of number of blocks from the total \nLOC blocks in the dataset projects. The most commonly used blocks are from the Control and Data categories. The Others category includes the blocks related to procedure calls and arguments.
 
@@ -307,7 +302,7 @@ We further analyzed the utilization frequency of the different block shapes and 
 	\label{fig:shapes}
 \end{figure}
 
-As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of those projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
+To understand the complexity of the Scratch programs in our dataset, we use the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts~scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of those projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
 
 \noindent
 \fbox{
@@ -315,9 +310,9 @@ As a complexity metric we also used the McCabe cyclomatic complexity \cite{mcCab
 		RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. A small number of projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.
 	\end{minipage}}
 
-\subsection{Programming abstractions and concepts}
+\subsection{Programming Abstractions and Concepts}
 
-The first method for abstraction that we investigate is the use of procedures. In the dataset we found 206,799 procedures in 17,979 projects. As summarized in Table \ref{tbl-size}, the projects that contain procedures have an average of 11.5 procedures, but with 53.59\% of those projects having up to 2. Figure \ref{fig:proceduresperproject} shows the distribution of procedures in projects. Regarding procedure arguments, we found that 55.57\% have no arguments and 19.48\%\% have only one (shown in Figure \ref{fig:procedurearguments}). The majority of procedure arguments (80.59\%) are numeric, and the least used argument type is the boolean one---6.23\% of the total procedure arguments, found in 5.32\% of the procedures.
+The first method for abstraction that we investigate is the use of procedures. In the dataset we found 206,799 procedures in 17,979 (7.7\%) projects. As summarized in Table \ref{tbl-size}, the projects that contain procedures have an average of 11.5 procedures, but with 53.59\% of those projects having up to 2. Figure \ref{fig:proceduresperproject} shows the distribution of procedures in projects. Regarding procedure arguments, we found that 55.57\% have no arguments and 19.48\% have only one (shown in Figure \ref{fig:procedurearguments}). The majority of procedure arguments (80.59\%) are numeric, and the least used argument type is the boolean one---6.23\% of the total procedure arguments, found in 5.32\% of the procedures.
 
 \begin{figure}
 	\centering
@@ -333,7 +328,7 @@ The first method for abstraction that we investigate is the use of procedures. I
 	\label{fig:procedurearguments}
 \end{figure}
 
-The use of procedures in projects was further investigated through the procedure calls, summarized in Figure \ref{fig:procedurecalls}. A significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. Most procedures are called exactly once (62.32\% of them) or twice (14.30\%) and from exactly one script (85.92\% of them). Examining the origin of procedure calls, we found remarkable that most of the calls (56.09\%) originate from other procedures, and even 1.06\% originate from the same procedure, thus making it recursive. Those recursive procedures are found in 1,052 projects.\footnote{list of recursive procedures published \todo{link}}.
+The use of procedures in projects was further investigated through the procedure calls, summarized in Figure \ref{fig:procedurecalls}. A significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. Most procedures are called exactly once (62.32\% of them) or twice (14.30\%) and from exactly one script (85.92\% of them). Examining the origin of procedure calls, we observed that most of the calls (56.09\%) originate from other procedures, and even 1.06\% originate from the same procedure, making them recursive calls. Those recursive procedures are found in 1,052 projects\footnote{list of recursive procedures published \todo{link}}.
 
 \begin{figure}
 	\centering
@@ -342,20 +337,21 @@ The use of procedures in projects was further investigated through the procedure
 	\label{fig:procedurecalls}
 \end{figure}
 
-As shown in table \ref{tbl-characteristics}, almost one-third of the projects utilize variables and a small number (4.01\%) utilize lists. The number of variables that is being used is also limited, with only 7.48\% of the projects having 5 or more variables. The distribution of variable and list utilization is shown in Figure \ref{fig:variables}. Exceptional cases exist: the analysis highlighted 842 projects with more than 100 variables and up to 340. Examining the initialization of variables through the \texttt{set <variable> to <value>} blocks, we found that for 4.83\% of all variables this was missing. While failing to initialize a variable in Scratch will not result in a runtime error as in some other programming languages, it is considered bad style \todo{citation needed}.
+As shown in Table \ref{tbl-characteristics}, almost one-third of the projects use variables and a small number (4.01\%) use lists. The number of variables that is being used is also limited, with only 7.48\% of the projects having 5 or more variables. The distribution of variable and list utilization is shown in Figure \ref{fig:variables}. Exceptional cases exist: the analysis highlighted 842 projects with more than 100 variables and up to 340. Examining the initialization of variables through the \texttt{set <variable> to <value>} blocks, we found that for 4.83\% of all variables this was missing. While failing to initialize a variable in Scratch will not result in a runtime error as in some other programming languages, it is considered bad style \todo{citation needed}.
 
-The scope of variables was also analyzed: As shown in Table \ref{tbl-size}, each variable is used by an average of 4.97 different scripts, with a median value of 3. However, we must note that this measurement might not be entirely accurate, because variables might be defined in the scope of specific sprites. With our dataset we cannot differentiate global from local variables and we would consider local variables defined with the same name in different sprites as global variables.
+%commented by Felienne: 1) this is not really scope and 2) we cannot distinguish, so why mention it?
+%The scope of variables was also analyzed: As shown in Table \ref{tbl-size}, each variable is used by an average of 4.97 different scripts, with a median value of 3. However, we must note that this measurement might not be entirely accurate, because variables might be defined in the scope of specific sprites. With our dataset we cannot differentiate global from local variables and we would consider local variables defined with the same name in different sprites as global variables.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/charts/8variableslists}
-	\caption{Histogram of the number of variables and lists utilized in the projects}
+	\caption{Histogram of the number of variables and lists used in the projects}
 	\label{fig:variables}
 \end{figure}
 
 Regarding program control features, conditional statements (blocks \texttt{if <condition> then} and \texttt{if <condition> then else}) are used by 39.81\% of the projects. Recursive loops (blocks \texttt{repeat <times>}, \texttt{forever} and \texttt{repeat until <condition>}) are more common, used by 77.18\% of the projects. The most common of the three is the \texttt{forever} block, accounting for 51.86\% of all recursive loops and the least common one is the \texttt{repeat until <condition>} block, accounting for 11.57\% and used in 13.59\% of the total projects.
 	
-Investigating user interactivity functionality, we found that 56.24\% of the projects in the dataset contain user input blocks---an average of 8.48 blocks per such project. Table \ref{tbl-userinput} lists the frequency of use of user input controls. The most commonly used one is the \texttt{when key pressed}, found in 71,096 (30.45\% of the total) projects. The most frequently used parameter for the \texttt{key} attribute is the space key, followed by the arrows and then the letters and numbers.
+Investigating user interactivity functionality, we found that 56.24\% of the projects in the dataset contain user input blocks---an average of 8.48 blocks per such project. Table \ref{tbl-userinput} lists the frequency of use of user input controls. We do not include the \texttt{when Green flag pressed} block here, as this is just used to start a Scratch program and hence cannot really be considered input into the program. The most commonly used user input block is the \texttt{when key pressed}, found in 71,096 (30.45\% of the total) projects. The most frequently used parameter for the \texttt{key} attribute is the space key, followed by the arrows and then the letters and numbers.
 
 \begin{table}
 	\centering
@@ -379,14 +375,14 @@ Investigating user interactivity functionality, we found that 56.24\% of the pro
 	\label{tbl-userinput}
 \end{table}
 
-For event management Scratch offers blocks \texttt{broadcast}, \texttt{broadcast and wait} and \texttt{when I receive}. 
-Those blocks are utilized by 29.57\% of the projects. \texttt{broadcast and wait} is rarely used, in only 3.87\% of the projects. The events are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
+Users can define their own events, using the blocks \texttt{broadcast}, \texttt{broadcast and wait} and \texttt{when I receive}. 
+Those blocks are used by 29.57\% of the projects. \texttt{broadcast and wait} is rarely used, in only 3.87\% of the projects. The events are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
 
 %user interativity		
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-RQ2: One third of the projects utilize variables, sometimes without initializing them. 39.81\% of the projects utilize conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. More than half of the projects are interactive. 29.57\% of the projects utilize broadcast and receive blocks, but in 7.99\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
+RQ2: One third of the projects use variables, sometimes without initializing them. 39.81\% of the projects contain conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. More than half of the projects are interactive. 29.57\% of the projects use broadcast and receive blocks, but in 7.99\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
 	\end{minipage}
 }
 
@@ -407,7 +403,7 @@ In total, in the dataset we found 170,532 scripts cloned across sprites in 59,63
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/charts/11clonesprojects}
-	\caption{Histogram of the number of cloned scripts found in the dataset projects}
+	\caption{Histogram of the number of cloned scripts}
 	\label{fig:clonesprojects}
 \end{figure}
 
