@@ -455,6 +455,11 @@ RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clone
 \subsection{Implications}
 Our results have some interesting implications for designers of educational programming languages. 
 
+
+
+\subsubsection{Popularity of Different Block Types}
+Our analysis shows that some categories of blocks are rarely used, like the `Pen' blocks, of which only \todo{x} occur within \todo{y} programs. When further evolving the Scratch programming language, this category might be less important to users, and hence our current analysis supports the language designers in making future investments.
+
 \subsubsection{Dead Code}
 In our analysis, we find that almost one quarter of the Scratch programs contain dead `scripts': scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, like in the example in Figure \ref{fig:Unconnected_clones}, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. \todo{Fenia, this is correct, right, the 23\% is just these types and not also uncalled procs and unmatched broadcasts?}.
 
@@ -464,12 +469,6 @@ Looking at the number of unconnected blocks, we hypothesize that Scratch program
 
 \subsubsection{Exact Clones between Sprites}
 With occurrences in 11\% of the Scratch programs in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
-
-\subsubsection{Sharing of Scripts and Procedures}
-Investigating the use of clones between programs, we observe that there are 1700 scripts that are used in multiple programs, sometimes as often as in 1600 different programs. This seems to indicate that there are common patterns in Scratch programs, which means it might be very beneficial to Scratch programmers if they could not only share their programs, but also share some of their functionality, for others to use, like a library. An example of such a library could be: functions for platforming games, including the movement of a player, collision detection and the implementation of `lives'. This might empower new Scratch users to get started quicker.
-
-
-
 
 
 \subsection{Threads to validity}
