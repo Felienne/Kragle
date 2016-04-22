@@ -7,10 +7,8 @@
 \newcommand{\nAnalyzedPrograms}{247,798}
 \newcommand{\nemptyPrograms}{14,307}
 \newcommand{\nScriptPrograms}{233,491}
-\newcommand{\nProgramsWithClones}{67,177}
 \newcommand{\nLOC}{36,085,654}
 \newcommand{\nscripts}{4,049,356}
-\newcommand{\dup}{\emph{Duplication}~}
 
 \newcommand{\todo}[1]{\textbf{#1}}
 
@@ -157,7 +155,7 @@ We obtained the set of Scratch projects by using a scraping program. Our scrapin
 
 We ran Kragle on March 2nd 2016 for 24 hours, when it had obtained a little over 250.000 projects. Out of the \nPrograms~, we failed to parse and further analyze 2.367 projects due technical difficulties with the provided JSON files. Kragle, as well as all scraped projects and our analysis files are available.\footnote{\label{repo}\url{https://github.com/ScratchLover42/ICER-Data-Code}}
 
-Once we obtained the Scratch projects, we parsed the JSON files according to the specification of the format.\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}} This resulted in a list of used blocks per project, with the sprites and the stage of the project. We cross referenced also all blocks with the Scratch wiki so we have the shapes and the category of all blocks. For example, When Green Flag Clicked is a \emph{Hat block} from the \emph{Events category}.
+Once we obtained the Scratch projects, we parsed the JSON files according to the specification of the format.\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}} This resulted in a list of used blocks per project, with the sprites and the stage of the project. We cross referenced also all blocks with the Scratch wiki so we have the shapes and the category of all blocks. For example, \texttt{When Green Flag Clicked} is a \emph{Hat block} from the \emph{Events category}.
 
 \subsection{Data analysis}
 \label{dataAnalysis}
@@ -191,36 +189,38 @@ In the following sections we describe the results obtained for each of the resea
 
 \subsection{Program Size and Complexity}
 \label{RQ1}
-The dataset contains a relatively small number of projects without any code: \nemptyPrograms (5.77\%). Through random manual sampling we found that in some cases these projects contains only sprites and costumes, but no code, while in other projects they were entirety empty apart from the Scratch cat added by default. Since these projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
+The dataset contains a relatively small number of projects without any code: \nemptyPrograms~ (5.77\%). Through random manual sampling we found that in some cases these projects contains only sprites and costumes, but no code, while in other projects they were entirety empty apart from the Scratch cat added by default. Since these projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
 
 \begin{table*}[ht]
 	\centering
-	\begin{tabular}{lrrrrrr}
+	\begin{tabular}{llrrrrrr}
+		&&\textbf{mean}&\textbf{min}&\textbf{Q1}&\textbf{median}&\textbf{Q3}&\textbf{max}\\
 		\hline
-		&\textbf{mean}&\textbf{min}&\textbf{Q1}&\textbf{median}&\textbf{Q3}&\textbf{max}\\
+		Size&Sprites with code per project&5.68&1&1&2&5&525\\
+		&Scripts per project&17.35&1&2&5&12&3,038\\
+		&Number of blocks per project&154.55&1&12&29&76&34,622\\
+		&Blocks in Stage per project&4.80&0&0&0&3&2,613\\
+		&Blocks in Sprites per project&115.57&0&10&26&68&34,613\\
+		&Blocks in Procedures per project&34.17&0&0&0&0&20,552\\
 		\hline
-		Sprites with code per project&5.68&1&1&2&5&525\\
-		Scripts per project&17.35&1&2&5&12&3038\\
-		Number of blocks per project&154.55&1&12&29&76&34622\\
-		Blocks in Stage per project&4.80&0&0&0&3&2613\\
-		Blocks in Sprites per project&115.57&0&10&26&68&34613\\
-		Blocks in Procedures per project&34.17&0&0&0&0&20552\\
-		McCabe Cyclomatic Complexity (CC) per script&1.58&1&1&1&1&246\\
-		McCabe CC per procedure script&3.75&1&1&2&4&183\\
-		Procedures per project with procedures&11.50&1&1&2&6&847\\
-		Arguments per Procedure&0.95&0&0&0&1&53\\
-		Numerical arguments per procedure with arguments&1.73&0&1&1&2&22\\
-		Text arguments per procedure with arguments&0.28&0&0&0&1&24\\
-		Boolean arguments per procedure with arguments&0.13&0&0&0&0&14\\
-		Calls per procedure&2.14&0&1&1&2&526\\
-		Scripts with calls per procedure&1.13&0&1&1&1&59\\
-		Variables per project&2.06&0&0&0&1&340\\
-		Scripts utilizing variable&4.97&1&1&3&5&1127\\
-		Lists per project&0.55&0&0&0&0&319\\
-		Conditional statements per project&10.02&0&0&0&3&5950\\
-		Loop statements per project&7.65&0&1&2&5&2503\\
-		User input blocks per project&4.77&0&0&1&4&1889\\
-		Broadcast-receive statements per project&8.57&0&0&0&2&2460\\	
+		Complexity&McCabe Cyclomatic Complexity (CC) per script&1.58&1&1&1&1&246\\
+		&McCabe CC per procedure script&3.75&1&1&2&4&183\\
+		\hline
+		Procedures&Procedures per project with procedures&11.50&1&1&2&6&847\\
+		&Arguments per Procedure&0.95&0&0&0&1&53\\
+		&Numerical arguments per procedure with arguments&1.73&0&1&1&2&22\\
+		&Text arguments per procedure with arguments&0.28&0&0&0&1&24\\
+		&Boolean arguments per procedure with arguments&0.13&0&0&0&0&14\\
+		&Calls per procedure&2.14&0&1&1&2&526\\
+		&Scripts with calls per procedure&1.13&0&1&1&1&59\\
+		\hline
+		Programming&Variables per project&2.06&0&0&0&1&340\\
+		concepts&Scripts utilizing variable&4.97&1&1&3&5&1,127\\
+		&Lists per project&0.55&0&0&0&0&319\\
+		&Conditional statements per project&10.02&0&0&0&3&5,950\\
+		&Loop statements per project&7.65&0&1&2&5&2,503\\
+		&User input blocks per project&4.77&0&0&1&4&1,889\\
+		&Broadcast-receive statements per project&8.57&0&0&0&2&2,460\\	
 		\hline
 	\end{tabular}
 	\caption{Summary statistics from the dataset of \nScriptPrograms~non-empty Scratch projects}
@@ -296,7 +296,7 @@ We find that the majority of Scratch projects are small; 75\% of the projects ha
 
 The number of blocks metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~blocks---is written within sprites. An additional 3.1\% of the total blocks are found in the stage class. More interestingly, the remaining 22.11\% are blocks within defined procedures, which are found in only 7.7\% (17,979) of the projects. The projects that contain procedures use them a lot; almost half of their total blocks (48.81\%) are within procedures.
 
-We further analyzed the utilization frequency of the different block shapes and categories, as defined in the Scratch documentation. Figures \ref{fig:categories} and \ref{fig:shapes} present the results in terms of number of blocks from the total \nLOC blocks in the dataset projects. The most commonly used blocks are from the Control and Data categories. The Others category includes the blocks related to procedure calls and arguments.
+We further analyzed the utilization frequency of the different block shapes and categories, as defined in the Scratch documentation. Figures \ref{fig:categories} and \ref{fig:shapes} present the results in terms of number of blocks from the total \nLOC~blocks in the dataset projects. The most commonly used blocks are from the Control and Data categories. The Others category includes the blocks related to procedure calls and arguments.
 
 \begin{figure}
 	\centering
@@ -380,7 +380,7 @@ Investigating user interactivity functionality, we found that 56.24\% of the pro
 	(Sensing) \texttt{video <> on <>}&434&1,397\\
 		\hline
 	\end{tabular}
-	\caption{Frequency of use of user input blocks in the \nScriptPrograms projects of the dataset}
+	\caption{Frequency of use of user input blocks in the \nScriptPrograms~projects of the dataset}
 	\label{tbl-userinput}
 \end{table}
 
@@ -489,7 +489,7 @@ Also related to our research are works on code smells, initiated by the work by 
 
 \section{Conclusions}
 \label{sec:conclusion}
-In this paper we presented a large scale study on \nAnalyzedPrograms projects we scraped from the Scratch repository. We analyzed these projects in terms of size, complexity, application of programming abstractions and utilization of programming concepts including procedures, variables, conditional statements, loops, and broadcast-receive functionality. We found that procedures and conditional loops are not commonly used. We further investigated the presence of code smells, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially dead code and code duplication.
+In this paper we presented a large scale study on \nAnalyzedPrograms~projects we scraped from the Scratch repository. We analyzed these projects in terms of size, complexity, application of programming abstractions and utilization of programming concepts including procedures, variables, conditional statements, loops, and broadcast-receive functionality. We found that procedures and conditional loops are not commonly used. We further investigated the presence of code smells, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially dead code and code duplication.
 
 In addition to the findings presented in this paper, we provide as contributions the dataset that we used for our study, as well as information on the edge cases that we found in the dataset in terms of size and number of procedures, variables, cyclomatic complexity, clones and dead code.\footnotemark[\ref{repo}]
 
