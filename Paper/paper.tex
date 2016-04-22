@@ -115,13 +115,13 @@ Scratch code is organized by `sprites': two-dimensional pictures each having the
 	\end{center}
 \end{figure} 
 
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=2cm]{fig/bump.png}
-		\caption{The script for the Piano sprite in Figure \ref{fig:ui}, causing a sound on receiving the `bump' signal.}
-		\label{fig:bump}
-	\end{center}
-\end{figure} 
+%\begin{figure}
+%	\begin{center}
+%		\includegraphics[width=2cm]{fig/bump.png}
+%		\caption{The script for the Piano sprite in Figure \ref{fig:ui}, causing a sound on receiving the `bump' signal.}
+%		\label{fig:bump}
+%	\end{center}
+%\end{figure} 
 
 \subsubsection{Scripts}
 Sprites can have multiple code blocks, called `scripts'. The Scratch code in Figure \ref{fig:ui} has two distinct scripts, one started by clicking on the green flag and one by pressing the space bar. It is possible for a single sprite to have multiple scripts initiated by the same event. In that case, all scripts will be executed simultaneously.
@@ -130,21 +130,18 @@ Sprites can have multiple code blocks, called `scripts'. The Scratch code in Fig
 Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of sprites are initiated by events called Hat blocks\footnote{\url{http://wiki.scratch.mit.edu/wiki/Hat_Block}}). The canonical event is the \texttt{when Green Flag clicked}, activated by clicking the green flag at the top of the user interface. In addition to the green flag, there are a number of other events possible, including key presses, mouse clicks and input from a computer's microphone or webcam. The Scratch code in Sprite1 in Figure \ref{fig:ui} contains two events: \texttt{when Green Flag clicked} and \texttt{when right arrow key pressed}, each with associated blocks.
 
 \subsubsection{Signals}
-Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the \texttt{when I receive} Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. The Piano reacts on that by making a sound, see Figure \ref{fig:bump}.
+Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the \texttt{when I receive} Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. 
 
+\subsubsection{Custom Blocks}
+Scratch users can define their own blocks, which users can name themselves, called custom blocks. To align with other papers on this topic \todo{Fenia, a reference?} we will refer to them as `procedures' in the following. Procedures can have input parameters of type string, number, and boolean. When a user defines a procedure, a new Hat block called \texttt{define} appears, which users can fill with the implementation of their block.
 
-
-\subsubsection{Procedures}
-Scratch users can define their own blocks, with a pop-up screen displayed in on the left hand side of Figure \ref{fig:twoBlocks}. As shown in this figure, Scratch users can enter the name of the sprite and define input parameters. The block in Figure \ref{fig:twoBlocks} uses two parameter, one textual (string1) and one numerical (number1). A user-created block is programmed using ordinary Scratch blocks as shown on the right hand side of Figure \ref{fig:twoBlocks}.
-
-
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=8cm]{fig/twoBlocks.png}
-		\caption{The user interface for creating (left) and defining (right) user-defined blocks.}
-		\label{fig:twoBlocks}
-	\end{center}
-\end{figure} 
+%\begin{figure}
+%	\begin{center}
+%		\includegraphics[width=8cm]{fig/twoBlocks.png}
+%		\caption{The user interface for creating (left) and defining (right) user-defined blocks.}
+%		\label{fig:twoBlocks}
+%	\end{center}
+%\end{figure} 
 
 
 
@@ -403,9 +400,9 @@ We further inspected which of the identified clones were duplicated only within 
 
 Exact clones were found in 11.81\% of the total projects. Their total number was 66,750 (39.14\% of the total) clones. Exact clones in the same sprite are cases of clearly redundant code. These were rare, found in only 0.87\% of the projects.
 
-Apart from whole scripts we also examined cases with only the first block being different. In first block is commonly the event block and, by separating this one from the subsequent functionality blocks, we could examine if programmers assign the same functionality to handle different types of events. Cloned functionality blocks are found to be rare: without considering the first block, only 2,243 additional clones were found in 920 projects.
+Apart from whole scripts we also examined cases where scripts differed only in the first (Hat) block.This way we examine if Scratch programmers assign the same functionality to handle different types of events. Cloned functionality blocks are found to be rare: without considering the first block, only 2,243 additional clones were found in 920 projects.
 
-The second smell that we examine is the dead code smell. Already in the previous section, Scratch projects were found to have two types of dead code: defined procedures that are not called (5.06\% of the defined procedures in 2,079 projects) and unmatched broadcast-receive messages (in 7.99\% of the projects). In this section we examine an additional case: scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, like in the example in Figure \ref{fig:Unconnected_clones}, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of those scripts (86.6\%) are scripts missing the starting block. Examining the size of those dead scripts, 72.34\% are composed of a single block. As shown in diagram \ref{fig:deadcode}, however, considerably large dead scripts exist; 2,358 of those scripts originating from 1,553 different projects have more than 30 blocks and up to 2,610\footnote{\todo{link}}.
+The second smell that we examine is the dead code smell. Already in the previous section, Scratch projects were found to have two types of dead code: defined procedures that are not called (5.06\% of the defined procedures in 2,079 projects) and unmatched broadcast-receive messages (in 7.99\% of the projects). In this section we examine an additional case: scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, like in the example in Figure \ref{fig:Unconnected_clones}, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of those scripts (86.6\%) are scripts missing the starting block. Examining the size of those dead scripts, 72.34\% are composed of a single block. As shown in Figure \ref{fig:deadcode}, however, considerably large dead scripts exist; 2,358 of those scripts originating from 1,553 different projects have more than 30 blocks and up to 2,610\footnote{\todo{link}}.
 
 \begin{figure}
 	\centering
@@ -454,7 +451,7 @@ Looking at the number of unconnected blocks, we hypothesize that Scratch program
 With occurrences in 11\% of the Scratch programs in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
 
 \subsubsection{Sharing of Scripts and Procedures}
-Investigating the use of clones between programs, we observe that there are 1700 scripts that are used in multiple programs, sometimes as often as in 1600 different programs. This seems to indicate that there are common patterns in Scratch programs. This again leads us to the idea that it might be very beneficial to Scratch programmers if they could not only share their programs, but also share some of their functionality, for others to use, like a library. An example of such a library could be: functions for platforming games, including the movement of a player, collision detection and the implementation of `lives'. This might empower new Scratch users to get started quicker.
+Investigating the use of clones between programs, we observe that there are 1700 scripts that are used in multiple programs, sometimes as often as in 1600 different programs. This seems to indicate that there are common patterns in Scratch programs, which means it might be very beneficial to Scratch programmers if they could not only share their programs, but also share some of their functionality, for others to use, like a library. An example of such a library could be: functions for platforming games, including the movement of a player, collision detection and the implementation of `lives'. This might empower new Scratch users to get started quicker.
 
 
 
