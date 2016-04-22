@@ -46,7 +46,7 @@
 
 \maketitle
 \begin{abstract}
-Block-based programming languages like Scratch, Alice and Blockly are becoming increasingly common as introductory languages in programming education. There is substantial research showing that these visual programming environments are suitable for teaching programming concepts. But, what do people do when they use Scratch? In this paper we explore the characteristics of Scratch programs. To that end we have scraped the Scratch public repository and retrieved 250.000 projects. We present an analysis of these projects in three different dimensions. Firstly, we look at the types of blocks used and the size of the programs. We then investigate complexity, used abstractions and programming concepts. Finally we look at coding style and detect \emph{code smells and clones}. We find that programming abstraction concepts like functions are not commonly used. We further investigate the presence of code smells and bad programming practices, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially code duplication.
+Block-based programming languages like Scratch, Alice and Blockly are becoming increasingly common as introductory languages in programming education. There is substantial research showing that these visual programming environments are suitable for teaching programming concepts. But, what do people do when they use Scratch? In this paper we explore the characteristics of Scratch programs. To that end we have scraped the Scratch public repository and retrieved 250.000 projects. We present an analysis of these projects in three different dimensions. Firstly, we look at the types of blocks used and the size of the projects. We then investigate complexity, used abstractions and programming concepts. Finally we detect \emph{code smells and clones}. We find that programming abstraction concepts like procedures are not commonly used. We further investigate the presence of code smells, namely code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially code duplication.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -64,24 +64,22 @@ Scratch is a programming language developed to teach children programming by ena
 
 Block-based languages have existed since the eighties, but have recently found adoption as tools for programming education. In addition to Scratch, also Alice~\cite{conway_alice:_1994}, Blockly\footnote{\url{https://developers.google.com/blockly/}} and App Inventor~\cite{wolber_app_2011} are block-languages aimed at novice programmers.
 
-Several studies have shown that block-based languages are powerful as a tool for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003}. \todo{Fenia, do you have some work on Research on programming habits}
+Several studies have shown that block-based languages are powerful as a tool for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003}. Research works involving static analysis of Scratch programs \cite{Maloney_2008} \cite{moreno_automatic_2014} have evaluated the use of various programming concepts in 536 and 100 Scratch projects respectively. Recent work has focused on bad programming practices and habits within Scratch programs \cite{Meerbaum_habits_2011}, and automated quality assessment tools have been proposed for identifying code smells and bad programming practices \cite{boe_hairball:_2013}\cite{moreno_automatic_2014}. Ar recent controlled experiment found that long scripts and duplication decreases a novice programmer's ability to understand and modify Scratch programs \todo{cite}.
 
-Recent work has focused on \emph{code smells} within Scratch programs, parts of a program that are not designed in the best possible way. \todo{add dr. scratch papers here} Ar recent controlled experiment found that long scripts and duplication decreases a novice programmer's ability to understand and modify Scratch programs \todo{cite}.
-
-The goal of this paper is to obtain a deep understanding of how people program in Scratch and to analyze the characteristics of Scratch programs. Moreover, knowing that bad programming habits and code smells can be harmful, we also want to explore whether they are common. Specifically, the research questions that we are trying to answer are:
+The goal of this paper is to obtain a deep understanding of how people program in Scratch, to analyze the characteristics of Scratch programs, and to quantitatively evaluate the use of programming abstractions and concepts. Moreover, knowing that bad programming habits and code smells can be harmful, we also want to explore whether they are common. Specifically, the research questions that we are trying to answer are:
 
 \begin{itemize}
 \item[RQ1] What are the size and complexity characteristics of Scratch programs?
 \item[RQ2] Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment?
-\item[RQ3] How common are code smells and bad programming practices in Scratch programs?
+\item[RQ3] How common are code smells in Scratch programs?
 \end{itemize}
 
-Our study is based on data from the Scratch program repository. By scraping the list of recent programs \footnote{\url{https://scratch.mit.edu/explore/projects/all/}}, we have obtained \nPrograms~public Scratch programs and performed analysis on them.
+Our study is based on data from the Scratch project repository. By scraping the list of recent projects \footnote{\url{https://scratch.mit.edu/explore/projects/all/}}, we have obtained \nPrograms~public Scratch projects and performed analysis on them. To the best of our knowledge, this is the first large-scale exploratory study on Scratch projects.
 
 The contributions of this paper are as follows:
 
 \begin{itemize}
-	\item{A public data set of \nScriptPrograms~Scratch programs (Section \ref{dataset})}
+	\item{A public data set of \nScriptPrograms~Scratch projects (Section \ref{dataset})}
 	\item{An evaluation of the data set in terms of (Section \ref{sec:results})}
 	\item{A discussion of implications of our findings for educational programming language designers (Section \ref{sec:discussion})}
 \end{itemize}
@@ -133,7 +131,7 @@ Scratch is \emph{event-driven}: all motions, sounds and changes in the looks of 
 Events within Scratch can be user generated too: users can broadcast a message, for example when two sprites touch each other, like in Figure \ref{fig:ui}. All other sprites can then react by using the \texttt{when I receive} Hat block. In Figure \ref{fig:ui}, Sprite1 broadcasts `bump' when the cat touches the Piano. 
 
 \subsubsection{Custom Blocks}
-Scratch users can define their own blocks, which users can name themselves, called custom blocks. To align with other papers on this topic \todo{Fenia, a reference?} we will refer to them as `procedures' in the following. Procedures can have input parameters of type string, number, and boolean. When a user defines a procedure, a new Hat block called \texttt{define} appears, which users can fill with the implementation of their block.
+Scratch users can define their own blocks, which users can name themselves, called custom blocks. The creation of custom blocks in Scratch is the equivalent of defining procedures in other languages \cite{moreno_automatic_2014}. Because the term `procedures' is common in the software engineering area, for readability we will refer to custom blocks as `procedures' in the following. Procedures can have input parameters of type string, number, and boolean. When a user defines a procedure, a new Hat block called \texttt{define} appears, which users can fill with the implementation of their block.
 
 %\begin{figure}
 %	\begin{center}
@@ -148,34 +146,52 @@ Scratch users can define their own blocks, which users can name themselves, call
 \section{Research design and dataset}
 \label{researchDesign}
 
-The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch programs. To answer our three research questions, we conducted an empirical quantitative evaluation of program data we collected from the Scratch repository. The dataset is described in Section \ref{dataset}. \todo{Below, we present how we approached each research question.}
-
-\textbf{RQ1} What are the size and complexity characteristics of Scratch programs? quantitative analysis, provide and analyze descriptive statistics on the size, complexity metrics, statistical analysis . mentioned taht it was imported to db and done and statistical data from db queries? The outcomes are presented in Section...
-
-\textbf{RQ2} Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment? Using the code in the dataset, we perform a detailed statistical analysis of code characteristics to answer RQ2 (Section ??). We manually assigned types to commands/blocks.
-
-\textbf{RQ3} Which code smells and bad programming practices are common in Scratch programs?  to examine if coding style conventions are used, we qualitatively analyze..
+The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch projects. To answer our three research questions, we conducted an empirical quantitative evaluation of project data we collected from the Scratch project repository. In the following paragraphs we describe the dataset, the  process and the tools we used for analyzing it, and the methods we followed for detecting code smells.
 
 \subsection{Dataset}
 \label{dataset}
-\subsubsection{Obtaining Scratch programs}
-We obtained the set of Scratch programs by using a scraping program. Our scraping program called Kragle starts by reading \url{https://scratch.mit.edu/explore/projects/all/} and thus obtaining program ids of programs that were most recently shared. Subsequently, Kragle obtains the JSON code for each of the listed programs. 
 
- % For a given id $x$ a Scratch programs JSON representation can be obtained via \url{https://cdn.projects.scratch.mit.edu/internalapi/project/x/get}.  Does not fit on the page nicely and might also not be needed?
+We obtained the set of Scratch projects by using a scraping program. Our scraping program called Kragle starts by reading \url{https://scratch.mit.edu/explore/projects/all/} and thus obtaining project ids of projects that were most recently shared. Subsequently, Kragle obtains the JSON code for each of the listed projects. 
 
-We ran Kragle on March 2nd 2016 for 24 hours, when it had obtained a little over 250.000 programs. Out of the \nPrograms~, we failed to parse and further analyze 2.367 programs due technical difficulties with the provided JSON files. Kragle, as well as all scraped programs and our analysis files are available\footnote{\url{https://github.com/ScratchLover42/ICER-Data-Code}}.
+% For a given id $x$ a Scratch programs JSON representation can be obtained via \url{https://cdn.projects.scratch.mit.edu/internalapi/project/x/get}.  Does not fit on the page nicely and might also not be needed?
 
-\subsubsection{Analyzing the Scratch programs}
-Once we obtained the Scratch programs, we parsed the JSON files according to the specification of the format\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}}. This resulted in a list of used blocks per program, with the sprites and the stage of the program. We cross referenced also all blocks with the Scratch wiki so we have the shapes and the category of all blocks. For example, When Green Flag Clicked is a \emph{Hat block} from the \emph{Events category}.
+We ran Kragle on March 2nd 2016 for 24 hours, when it had obtained a little over 250.000 projects. Out of the \nPrograms~, we failed to parse and further analyze 2.367 projects due technical difficulties with the provided JSON files. Kragle, as well as all scraped projects and our analysis files are available.\footnote{\label{repo}\url{https://github.com/ScratchLover42/ICER-Data-Code}}
 
+Once we obtained the Scratch projects, we parsed the JSON files according to the specification of the format.\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}} This resulted in a list of used blocks per project, with the sprites and the stage of the project. We cross referenced also all blocks with the Scratch wiki so we have the shapes and the category of all blocks. For example, When Green Flag Clicked is a \emph{Hat block} from the \emph{Events category}.
+
+\subsection{Data analysis}
+\label{dataAnalysis}
+All scraped data, including the list of used blocks and parameters per project, was imported to a relational database. We used SQL queries, which are also made available,\footnotemark[\ref{repo}] for filtering, aggregating and extracting all statistical data required to address our three research questions. This data was then imported to spreadsheets for the calculation of statistics and the generation of graphical representations. We also randomly sampled and manually inspected edge cases in the results, for example empty or overly complex projects, lists of which we also provide as part of the dataset.\footnotemark[\ref{repo}]
+
+For RQ1 we measured the size of projects based on the number of blocks in scripts and sprites and we calculated descriptive statistics, which are presented in Section \ref{RQ1}. We used the McCabe cyclomatic complexity metric\cite{mcCabe76} for measuring the complexity of the projects.
+
+For RQ2, we used the data on the code blocks and their categories to perform a detailed statistical analysis of applied programming abstractions and concepts. Similarly to \cite{Maloney_2008}, we consider the use of certain blocks to indicate that a programming abstraction or concept is being used in a certain project. In Section \ref{RQ2} we present the results related to the utilization of procedures, variables, loops, conditional statements, user interactivity and synchronization.
+
+For RQ3, we focused on four types of code smells: duplicated code, dead code, large script and large sprite. For the duplicated code smell analysis, our first step was to specify what we consider a code clone in the context of Scratch programming: a script that is composed of a set of blocks of the same type connected in the same way and is repeated within or across sprites of the same project. For the identification of clones we did not take into account the values of the parameters that may be used in the blocks, so that two blocks that only differ in the values of parameters are considered to be equal. We also examined the case of clones with the same parameter values, and we refer to them as \textit{exact clones}. The next step in the analysis was to determine the minimum size of the scripts that are considered clones instead of incidentally similar. For this, we examined the number of detected clones for different script sizes and present the results in Figure \ref{fig:cloneslines}. Based on this distribution, we opted to adopt the number also used by the authors in \cite{moreno_automatic_2014}, which is the minimum size of 5 blocks per script.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/11cloneslines}
+	\caption{Number of cloned scripts of different block sizes across and within sprites}
+	\label{fig:cloneslines}
+\end{figure}
+
+To examine the long method and the large class smells, we consider them in the context of Scratch as large script and large sprite smells respectively. For these two smells we use the number of blocks as the size metric. Figure \ref{fig:longmethod} presents the number of blocks in the scripts and the sprites of our dataset. We used these numbers to split the dataset and retrieve the top 10\% \todo{felienne, can we justify why 10 percent?} largest scripts and sprites, and in this way we found the thresholds to be used for the calculation of the large script and large sprite: it is 18 blocks and 59 blocks respectively. The results we obtained using these thresholds are presented in Section \ref{RQ3}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{fig/charts/13longmethod}
+	\caption{Size of sprites and scripts in number of blocks}
+	\label{fig:longmethod}
+\end{figure}
 
 \section{Results}
 \label{sec:results}
 In the following sections we describe the results obtained for each of the research questions through the analysis of the \nAnalyzedPrograms~Scratch projects in our dataset.
 
 \subsection{Program Size and Complexity}
-
-The dataset contains a relatively small number of projects without any code: \nemptyPrograms (5.77\%). Through random manual sampling we found that in some cases these projects contains only sprites and costumes, but no code, while in other programs they were entirety empty apart from the Scratch cat added by default. Since these projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
+\label{RQ1}
+The dataset contains a relatively small number of projects without any code: \nemptyPrograms (5.77\%). Through random manual sampling we found that in some cases these projects contains only sprites and costumes, but no code, while in other projects they were entirety empty apart from the Scratch cat added by default. Since these projects are empty in terms of code we excluded them from further analysis, leaving the final number of analyzed non-empty projects to \nScriptPrograms.
 
 \begin{table*}[ht]
 	\centering
@@ -185,11 +201,10 @@ The dataset contains a relatively small number of projects without any code: \ne
 		\hline
 		Sprites with code per project&5.68&1&1&2&5&525\\
 		Scripts per project&17.35&1&2&5&12&3038\\
-		Maximum indentation per project&4.56&1&3&3&5&488\\
-		Lines of code (LOC) per project&154.55&1&12&29&76&34622\\
-		LOC in Stage per project&4.80&0&0&0&3&2613\\
-		LOC in Sprites per project&115.57&0&10&26&68&34613\\
-		LOC in Procedures per project&34.17&0&0&0&0&20552\\
+		Number of blocks per project&154.55&1&12&29&76&34622\\
+		Blocks in Stage per project&4.80&0&0&0&3&2613\\
+		Blocks in Sprites per project&115.57&0&10&26&68&34613\\
+		Blocks in Procedures per project&34.17&0&0&0&0&20552\\
 		McCabe Cyclomatic Complexity (CC) per script&1.58&1&1&1&1&246\\
 		McCabe CC per procedure script&3.75&1&1&2&4&183\\
 		Procedures per project with procedures&11.50&1&1&2&6&847\\
@@ -203,7 +218,7 @@ The dataset contains a relatively small number of projects without any code: \ne
 		Scripts utilizing variable&4.97&1&1&3&5&1127\\
 		Lists per project&0.55&0&0&0&0&319\\
 		Conditional statements per project&10.02&0&0&0&3&5950\\
-		Recursive loop statements per project&7.65&0&1&2&5&2503\\
+		Loop statements per project&7.65&0&1&2&5&2503\\
 		User input blocks per project&4.77&0&0&1&4&1889\\
 		Broadcast-receive statements per project&8.57&0&0&0&2&2460\\	
 		\hline
@@ -216,11 +231,14 @@ The dataset contains a relatively small number of projects without any code: \ne
 	\centering
 	\begin{tabular}{lrr}
 		\hline
-		&\textbf{\# projects}&\textbf{\%}\\
+		&\textbf{Number of}&\\
+		&\textbf{projects}& \textbf{Percentage}\\
 		\hline
 		Retrieved & 250,166 & \\
 		Analyzed & 247,798 & \\
 		Non-empty (used for statistics) & \textbf{233,491} & \\
+
+		\textit{Projects with:} & & \\
 		\hline
 		Procedures & 17,979 & 7.70\%\\
 		Recursive procedures &  1,052 & 0.45\%\\
@@ -237,12 +255,12 @@ The dataset contains a relatively small number of projects without any code: \ne
 		Cloned blocks across sprites & 60,554 & 25.93\%\\
 		Exact clones across sprites & 27,574 & 11.81\%\\
 		Exact clones within sprites & 2,043 & 0.87\%\\
-		Dead code & 56,890	& 24.36\%\\
+		Dead code & 65,760 & 28.16\%\\
 		Large scripts & 69,521 & 29.77\%\\
 		Large sprites & 31,954 & 13.68\%\\		
 		\hline
 	\end{tabular}
-	\caption{Characteristics in the projects in the dataset}
+	\caption{Elements and characteristics of the projects in the dataset}
 	\label{tbl-characteristics}
 \end{table}
 
@@ -261,14 +279,8 @@ The dataset contains a relatively small number of projects without any code: \ne
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/charts/1locs}
-	\caption{Histogram of the lines of code in the analyzed projects}
+	\caption{Histogram of the number of blocks in the analyzed projects}
 	\label{fig:size-locs}
-\end{figure}
-\begin{figure}
-	\centering
-	\includegraphics[width=0.45\textwidth]{fig/charts/1indent}
-	\caption{Histogram of the maximum code indentation level in the analyzed projects}
-	\label{fig:size-indent}
 \end{figure}
 \begin{figure}
 	\centering
@@ -278,11 +290,11 @@ The dataset contains a relatively small number of projects without any code: \ne
 \end{figure}
 
 
-In Table \ref{tbl-size} we summarize statistics for metrics related to size and complexity. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project. We furthermore measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and \ref{fig:size-indent} plot the distribution of these size metrics.
+In Table \ref{tbl-size} we summarize statistics for the analyzed metrics. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts and blocks per project. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and plot the distribution of these size metrics.
 
-We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code\footnote{The Scratch identifiers of these projects can be found in \todo{link}}.
+We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 blocks, while one fourth of the projects have up to 12 blocks. On the other end, 5\% of the projects (11,712) have more than 18 sprites and 4.8\% (11,214) consist of more than 500 blocks. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 blocks, whose Scratch identifiers are made available for further inspection.\footnotemark[\ref{repo}]
 
-The lines of code metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. The projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
+The number of blocks metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~blocks---is written within sprites. An additional 3.1\% of the total blocks are found in the stage class. More interestingly, the remaining 22.11\% are blocks within defined procedures, which are found in only 7.7\% (17,979) of the projects. The projects that contain procedures use them a lot; almost half of their total blocks (48.81\%) are within procedures.
 
 We further analyzed the utilization frequency of the different block shapes and categories, as defined in the Scratch documentation. Figures \ref{fig:categories} and \ref{fig:shapes} present the results in terms of number of blocks from the total \nLOC blocks in the dataset projects. The most commonly used blocks are from the Control and Data categories. The Others category includes the blocks related to procedure calls and arguments.
 
@@ -299,16 +311,16 @@ We further analyzed the utilization frequency of the different block shapes and 
 	\label{fig:shapes}
 \end{figure}
 
-To understand the complexity of the Scratch programs in our dataset, we use the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts~scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246\footnote{The Scratch identifiers of these projects can be found in \todo{link}}. Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
+To understand the complexity of the Scratch projects in our dataset, we use the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts~scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246.\footnotemark[\ref{repo}] Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
 
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-		RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. A small number of projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.
+		RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 blocks and no decision points. Most code is written in sprites. A small number of projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.
 	\end{minipage}}
 
 \subsection{Programming Abstractions and Concepts}
-
+\label{RQ2}
 The first method for abstraction that we investigate is the use of procedures. In the dataset we found 206,799 procedures in 17,979 (7.7\%) projects. As summarized in Table \ref{tbl-size}, the projects that contain procedures have an average of 11.5 procedures, but with 53.59\% of these projects having up to 2. Figure \ref{fig:proceduresperproject} shows the distribution of procedures in projects. Regarding procedure arguments, we found that 55.57\% have no arguments and 19.48\% have only one (shown in Figure \ref{fig:procedurearguments}). The majority of procedure arguments (80.59\%) are numeric, and the least used argument type is the boolean one---6.23\% of the total procedure arguments, found in 5.32\% of the procedures.
 
 \begin{figure}
@@ -325,7 +337,7 @@ The first method for abstraction that we investigate is the use of procedures. I
 	\label{fig:procedurearguments}
 \end{figure}
 
-The use of procedures in projects was further investigated through the procedure calls, summarized in Figure \ref{fig:procedurecalls}. A significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. Most procedures are called exactly once (62.32\% of them) or twice (14.30\%) and from exactly one script (85.92\% of them). Examining the origin of procedure calls, we observed that most of the calls (56.09\%) originate from other procedures, and even 1.06\% originate from the same procedure, making them recursive calls. These recursive procedures are found in 1,052 projects\footnote{list of recursive procedures published \todo{link}}.
+The use of procedures in projects was further investigated through the procedure calls, summarized in Figure \ref{fig:procedurecalls}. Most procedures are called exactly once (62.32\% of them) or twice (14.30\%) and from exactly one script (85.92\% of them). Examining the origin of procedure calls, we observed that most of the calls (56.09\%) originate from other procedures, and even 1.06\% originate from the same procedure, making them recursive calls. These recursive procedures are found in 1,052 projects, whose identifiers are made available.\footnotemark[\ref{repo}]
 
 \begin{figure}
 	\centering
@@ -334,7 +346,7 @@ The use of procedures in projects was further investigated through the procedure
 	\label{fig:procedurecalls}
 \end{figure}
 
-As shown in Table \ref{tbl-characteristics}, almost one-third of the projects use variables and a small number (4.01\%) use lists. The number of variables that is being used is also limited, with only 7.48\% of the projects having 5 or more variables. The distribution of variable and list utilization is shown in Figure \ref{fig:variables}. Exceptional cases exist: the analysis highlighted 842 projects with more than 100 variables and up to 340. Examining the initialization of variables through the \texttt{set <variable> to <value>} blocks, we found that for 4.83\% of all variables this was missing. While failing to initialize a variable in Scratch will not result in a runtime error as in some other programming languages, it is considered bad style \todo{citation needed}.
+As shown in Table \ref{tbl-characteristics}, almost one-third of the projects use variables and a small number (4.01\%) use lists. The number of variables that is being used is also limited, with only 7.48\% of the projects having 5 or more variables. The distribution of variable and list utilization is shown in Figure \ref{fig:variables}. Exceptional cases exist: the analysis highlighted 842 projects with more than 100 variables and up to 340. Examining the initialization of variables through the \texttt{set <variable> to <value>} blocks, we found that for 4.83\% of all variables this was missing. While failing to initialize a variable in Scratch will not result in a runtime error as in some other programming languages, correctly setting the initial state of the program is important \cite{boe_hairball:_2013}.
 
 %commented by Felienne: 1) this is not really scope and 2) we cannot distinguish, so why mention it?
 %The scope of variables was also analyzed: As shown in Table \ref{tbl-size}, each variable is used by an average of 4.97 different scripts, with a median value of 3. However, we must note that this measurement might not be entirely accurate, because variables might be defined in the scope of specific sprites. With our dataset we cannot differentiate global from local variables and we would consider local variables defined with the same name in different sprites as global variables.
@@ -346,7 +358,7 @@ As shown in Table \ref{tbl-characteristics}, almost one-third of the projects us
 	\label{fig:variables}
 \end{figure}
 
-Regarding program control features, conditional statements (blocks \texttt{if <condition> then} and \texttt{if <condition> then else}) are used by 39.81\% of the projects. Recursive loops (blocks \texttt{repeat <times>}, \texttt{forever} and \texttt{repeat until <condition>}) are more common, used by 77.18\% of the projects. The most common of the three is the \texttt{forever} block, accounting for 51.86\% of all recursive loops and the least common one is the \texttt{repeat until <condition>} block, accounting for 11.57\% and used in 13.59\% of the total projects.
+Regarding program control features, conditional statements (blocks \texttt{if <condition> then} and \texttt{if <condition> then else}) are used by 39.81\% of the projects. Loops (blocks \texttt{repeat <times>}, \texttt{forever} and \texttt{repeat until <condition>}) are more common, used by 77.18\% of the projects. The most common of the three is the \texttt{forever} block, accounting for 51.86\% of all loops and the least common one is the \texttt{repeat until <condition>} block, accounting for 11.57\% and used in 13.59\% of the total projects.
 	
 Investigating user interactivity functionality, we found that 56.24\% of the projects in the dataset contain user input blocks---an average of 8.48 blocks per such project. Table \ref{tbl-userinput} lists the frequency of use of user input controls. We do not include the \texttt{when Green flag pressed} block here, as this is just used to start a Scratch program and hence cannot really be considered input into the program. The most commonly used user input block is the \texttt{when key pressed}, found in 71,096 (30.45\% of the total) projects. The most frequently used parameter for the \texttt{key} attribute is the space key, followed by the arrows and then the letters and numbers.
 
@@ -372,30 +384,20 @@ Investigating user interactivity functionality, we found that 56.24\% of the pro
 	\label{tbl-userinput}
 \end{table}
 
-Users can define their own events, using the blocks \texttt{broadcast}, \texttt{broadcast and wait} and \texttt{when I receive}. 
-These blocks are used by 29.57\% of the projects. \texttt{broadcast and wait} is rarely used, in only 3.87\% of the projects. The events are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
+Users can define their own events, using the blocks \texttt{broadcast}, \texttt{broadcast and wait} and \texttt{when I receive}.These blocks are used by 29.57\% of the projects. \texttt{broadcast and wait} is rarely used, in only 3.87\% of the projects.
 
 %user interativity		
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-RQ2: One third of the projects use variables, sometimes without initializing them. 39.81\% of the projects contain conditional statements and 77.18\% recursive loops, but conditional recursion is rarely used. More than half of the projects are interactive. 29.57\% of the projects use broadcast and receive blocks, but in 7.99\% of the projects they are not synchronized. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
+RQ2: One third of the projects use variables, sometimes without initializing them. 39.81\% of the projects contain conditional statements and 77.18\% contain loops, but conditional loops are rarely used. More than half of the projects are interactive. 29.57\% of the projects use broadcast and receive blocks. Most procedures are called once or twice, from a single script which, in more than half of the cases, is another procedure. Recursive procedure calls exist in 1052 (0.45\% of the total) projects.
 	\end{minipage}
 }
 
 
-\subsection{Code smells and bad programming practices}
-
-The duplicated code smell is the first smell that we examine. The first step for our analysis is to specify what we consider a code clone in the context of Scratch programming: a script that is composed of a set of blocks of the same type connected in the same way and is repeated within or across sprites of the same program. For the identification of clones we do not take into account the values of the parameters that may be used in the blocks, so that two blocks that only differ in the values of parameters are considered to be equal. We also examined the case of clones with the same parameter values, and we refer to them as \textit{exact clones}. The next step in the analysis is to determine the minimum size of the scripts that are considered clones instead of incidentally similar. For this, we examine the number of detected clones for different script sizes and present the results in Figure \ref{fig:cloneslines}. Based on this distribution, we opt to adopt the number also used by the authors in \cite{moreno_automatic_2014}, which is the minimum size of 5 blocks per script.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.45\textwidth]{fig/charts/11cloneslines}
-	\caption{Number of cloned scripts of different block sizes across and within sprites}
-	\label{fig:cloneslines}
-\end{figure}
-
-In total, in the dataset we found 170,532 scripts cloned across sprites in 59,634 (25.54\% of the total non-empty) projects. 726,316 copies of these scripts were found, making each clone being copied an average of 4.26 times. Figure \ref{fig:clonesprojects} plots the distribution of clones across projects. The majority of projects contain up to two cloned scripts; 7.24\% of the projects contain three or more. Figure \ref{fig:clonescopies} plots the number of copies of the identified clones. It is of interest that 79,378 (46.55\%) of the identified clones are copied three or more times, and even in 585 cases from 411 projects they are copied more than 50 times and up to 974 \footnote{\todo{link}}. Manual inspection of the mostly copied clones revealed that they were scripts used multiple times to cater for different parameter values, sometimes in multiple sprites.
+\subsection{Code smells}
+\label{RQ3}
+The duplicated code smell is the first smell that we examine. As explained in Section \ref{dataAnalysis}, we use 5 as the minimum number of blocks for the identified clones. In total, in the dataset we found 170,532 scripts cloned across sprites in 59,634 (25.54\% of the total non-empty) projects. 726,316 copies of these scripts were found, making each clone being copied an average of 4.26 times. Figure \ref{fig:clonesprojects} plots the distribution of clones across projects. The majority of projects contain up to two cloned scripts; 7.24\% of the projects contain three or more. Figure \ref{fig:clonescopies} plots the number of copies of the identified clones. It is of interest that 79,378 (46.55\%) of the identified clones are copied three or more times, and even in 585 cases from 411 projects they are copied more than 50 times and up to 974.\footnotemark[\ref{repo}] Manual inspection of the mostly copied clones revealed that they were scripts used multiple times to cater for different parameter values, sometimes in multiple sprites.
 
 \begin{figure}
 	\centering
@@ -417,7 +419,9 @@ Exact clones were found in 11.81\% of the total projects. Their total number was
 
 Apart from whole scripts we also examined cases where scripts differed only in the first (Hat) block.This way we examine if Scratch programmers assign the same functionality to handle different types of events. Cloned functionality blocks are found to be rare: without considering the first block, only 2,243 additional clones were found in 920 projects.
 
-The second smell that we examine is the dead code smell. Already in the previous section, Scratch projects were found to have two types of dead code: defined procedures that are not called (5.06\% of the defined procedures in 2,079 projects) and unmatched broadcast-receive messages (in 7.99\% of the projects). In this section we examine an additional case: scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, like in the example in Figure \ref{fig:Unconnected_clones}, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of these scripts (86.6\%) are scripts missing the starting block. Examining the size of these dead scripts, 72.34\% are composed of a single block. As shown in Figure \ref{fig:deadcode}, however, considerably large dead scripts exist; 2,358 of these scripts originating from 1,553 different projects have more than 30 blocks and up to 2,610\footnote{\todo{link}}.
+The second smell that we examine is the dead code smell. We identify four types of dead code: (1) procedures that are not invoked, (2) unmatched broadcast-receive messages, (3) code that is not invoked and (4) empty event scripts. Investigating the first type, we find that a significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. This is also shown in Figure \ref{fig:procedurecalls} and it occurs in 2,079 projects. For the second type, we examined the broadcast-receive messages and found that they are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronizations occurs in 18,669 projects (7.99\% of the total non-empty ones).
+
+The third and fourth cases are detected in scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of these scripts (86.6\%) are scripts missing the starting block. Examining the size of these dead scripts, 72.34\% are composed of a single block. As shown in Figure \ref{fig:deadcode}, however, considerably large dead scripts exist; 2,358 of these scripts originating from 1,553 different projects have more than 30 blocks and up to 2,610.\footnotemark[\ref{repo}]
 
 \begin{figure}
 	\centering
@@ -426,27 +430,14 @@ The second smell that we examine is the dead code smell. Already in the previous
 	\label{fig:deadcode}
 \end{figure}
 
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=6cm]{fig/Unconnected_clones.png}
-		\caption{Cloned blocks that are not connected to an event. Program id: 12237615}
-		\label{fig:Unconnected_clones}
-	\end{center}
-\end{figure} 
+The number of projects exhibiting the dead code smell, considering all four types of dead code, is 65,760 (28.16\% of the total projects).
 
-Finally, we examine the long method and the large class smell, considering them in the context of Scratch as large script and large sprite smells respectively. For these two smells we use the number of blocks as the size metric. Figure \ref{fig:longmethod} presents the number of blocks in the scripts and the sprites of our dataset. We used these numbers to split the dataset and retrieve the top 10\% \todo{felienne, can we justify why 10 percent?} largest scripts and sprites, and in this way we found the thresholds to be used for the calculation of the large script and large sprite: it is 18 blocks and 59 blocks respectively. Using these thresholds, the number of projects exhibiting the large script smell, i.e., containing at least one script with 18 or more blocks, is 69,521 (29.77\% of the total projects) and the number of projects with the large sprite smell is 31,954 (13.68\%).
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.45\textwidth]{fig/charts/13longmethod}
-	\caption{Size of sprites and scripts in number of blocks}
-	\label{fig:longmethod}
-\end{figure}
+Finally, we examine the large script and the large sprite smells. The thresholds we use for the identification of large scripts and large sprites are 18 blocks and 59 blocks respectively, as calculated in Section \ref{dataAnalysis}. The number of projects exhibiting the large script smell, i.e., containing at least one script with 18 or more blocks, is 69,521 (29.77\% of the total projects) and the number of projects with the large sprite smell is 31,954 (13.68\%).
 
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clones copied three or more times, in the same or across sprites. 24.36\% of the projects contain scripts that are never invoked, and thus exhibit the dead code smell. In some cases these scripts are large. The large script smell is found in 29.77\% of the projects and the large sprite in 13.68\%.
+RQ3: Code clones are found in 25.54\% of the projects, with 46.55\% of the clones copied three or more times, in the same or across sprites. 28.16\% of the projects contain code that is never invoked, and thus exhibit the dead code smell. In some cases these scripts are large. The large script smell is found in 29.77\% of the projects and the large sprite in 13.68\%.
 	\end{minipage}}
 
 
@@ -461,20 +452,26 @@ Our results have some interesting implications for designers of educational prog
 Our analysis shows that some categories of blocks are rarely used, like the `Pen' blocks, of which only \todo{x} occur within \todo{y} programs. When further evolving the Scratch programming language, this category might be less important to users, and hence our current analysis supports the language designers in making future investments.
 
 \subsubsection{Dead Code}
-In our analysis, we find that almost one quarter of the Scratch programs contain dead `scripts': scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, like in the example in Figure \ref{fig:Unconnected_clones}, or scripts that are comprised of only a \texttt{when <trigger>} block without any functionality. \todo{Fenia, this is correct, right, the 23\% is just these types and not also uncalled procs and unmatched broadcasts?}.
+In our analysis, we find that more than one quarter of the Scratch projects contain dead `scripts': scripts that are never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, scripts that are comprised of only a \texttt{when <trigger>} block without any functionality, procedures that are not invoked, or unmatched broadcast-receive messages.
 
 In a sense, the dead scripts are harmless, as they are not executed, however, they do cause `visual clutter' and might be distracting to novice programmers, as it might be hard to see which scripts are dead. In contrast with other visual educational languages, Scratch does on indicate scripts are dead. LEGO Mindstorms, for example, does give the user feedback by making unconnected blocks gray. 
 
 Looking at the number of unconnected blocks, we hypothesize that Scratch programmers have a need for a separate workspace to store unconnected blocks temporarily. We envision that would be like the `backpack' meant to move scripts across sprites. In order to help novice programmers to keep their code clean, the programming interface could  actively encourage users to move unconnected blocks to that workspace when they exit the environment.
 
 \subsubsection{Exact Clones between Sprites}
-With occurrences in 11\% of the Scratch programs in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
+With occurrences in 11\% of the Scratch projects in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
+
+\subsubsection{Sharing of Scripts and Procedures}
+Investigating the use of clones between projects, we observe that there are 1700 scripts that are used in multiple projects, sometimes as often as in 1600 different projects. This seems to indicate that there are common patterns in Scratch projects, which means it might be very beneficial to Scratch programmers if they could not only share their projects, but also share some of their functionality, for others to use, like a library. An example of such a library could be: functions for platforming games, including the movement of a player, collision detection and the implementation of `lives'. This might empower new Scratch users to get started quicker.
+
+
+
 
 
 \subsection{Threads to validity}
-A thread to validity of this study is the fact that we did not scrap a random sample, but the most recent 250,000 programs. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a very large dataset. Furthermore, for some of the analyses we manually inspected programs \todo{Fenia, which ones?}
+A thread to validity of this study is the fact that we did not scrap a random sample, but the most recent 250,000 projects. It could be the case that programming habits of Scratch users are changing over time. However, we counterbalanced that by using a very large dataset. Furthermore, for some of the analyses we manually inspected projects \todo{Fenia, which ones?}
 
-Furthermore we use the number of blocks in the Scratch programs as a measure for the length of a program, while this does not exactly correspond to the `length' of a program in lines, and there can be multiple Scratch blocks on one line. For example, in Figure \ref{fig:ui} the `if' and `touching' blocks are present on the same `line'. We however believe that the number of blocks is a good proxy for size, and we plan a future experiment in which we will compare `lines of Scratch code' to `number of blocks'.
+Furthermore we use the number of blocks in the Scratch projects as a measure for the length of a program, while this does not exactly correspond to the `length' of a program in lines, and there can be multiple Scratch blocks on one line. For example, in Figure \ref{fig:ui} the `if' and `touching' blocks are present on the same `line'. We however believe that the number of blocks is a good proxy for size, and we plan a future experiment in which we will compare `lines of Scratch code' to `number of blocks'.
 
 
 \section{Related Work}
@@ -492,9 +489,9 @@ Also related to our research are works on code smells, initiated by the work by 
 
 \section{Conclusions}
 \label{sec:conclusion}
-In this paper we presented a large scale study on \nAnalyzedPrograms projects we scraped from the Scratch repository. We analyzed these projects in terms of size, complexity, application of programming abstractions and utilization of programming concepts including procedures, variables, conditional statements, loops, and broadcast-receive functionality. We found that functions and conditional loops are not commonly used. We further investigated the presence of code smells, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially dead code and code duplication.
+In this paper we presented a large scale study on \nAnalyzedPrograms projects we scraped from the Scratch repository. We analyzed these projects in terms of size, complexity, application of programming abstractions and utilization of programming concepts including procedures, variables, conditional statements, loops, and broadcast-receive functionality. We found that procedures and conditional loops are not commonly used. We further investigated the presence of code smells, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially dead code and code duplication.
 
-In addition to the findings presented in this paper, we provide as contributions the dataset that we used for our study \todo{do we?}, as well as information on the edge cases that we found in the dataset in terms of size and number of procedures, variables, cyclomatic complexity, clones and dead code.
+In addition to the findings presented in this paper, we provide as contributions the dataset that we used for our study, as well as information on the edge cases that we found in the dataset in terms of size and number of procedures, variables, cyclomatic complexity, clones and dead code.\footnotemark[\ref{repo}]
 
 \bibliographystyle{abbrv}
 \bibliography{zotero}
