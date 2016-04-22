@@ -117,7 +117,7 @@ We obtained the set of Scratch projects by using a scraping program. Our scrapin
 
 % For a given id $x$ a Scratch programs JSON representation can be obtained via \url{https://cdn.projects.scratch.mit.edu/internalapi/project/x/get}.  Does not fit on the page nicely and might also not be needed?
 
-We ran Kragle on March 2nd 2016 for 24 hours and, in that time, it obtained a little over 250,000 projects. Out of the \nPrograms, we failed to parse and further analyze 2,367 projects due to technical difficulties with the provided JSON files. Kragle, as well as all scraped projects and our analysis files are available.\footnote{\label{repo}\url{https://github.com/ScratchLover42/ICER-Data-Code}}
+We ran Kragle on March 2nd 2016 for 24 hours and, in that time, it obtained a little over 250,000 projects. Out of the \nPrograms, we failed to parse and further analyze 2,367 projects due to technical difficulties with the provided JSON files. Kragle, as well as all scraped projects and our analysis files are available.\footnote{\label{repo}\url{https://github.com/ScratchLover42/ICER-Data-Code} (temporary link to protect the anonymity of the authors)}
 
 Once we obtained the Scratch projects, we parsed the JSON files according to the specification of the format.\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}} This resulted in a list of used blocks per project, with the sprites and the stage of the project. We cross referenced also all blocks with the Scratch wiki to determine the shapes and the category of all blocks. For example, \texttt{When Green Flag Clicked} is a \emph{Hat block} from the \emph{Events category}.
 
