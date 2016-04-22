@@ -234,11 +234,13 @@ The dataset contains a relatively small number of projects without any code: \ne
 	\begin{tabular}{lrr}
 		\hline
 		&\textbf{Number of}&\\
-		&\textbf{projects}&\textbf{Percentage}\\
+		&\textbf{projects}& \textbf{Percentage}\\
 		\hline
 		Retrieved & 250,166 & \\
 		Analyzed & 247,798 & \\
 		Non-empty (used for statistics) & \textbf{233,491} & \\
+
+		\textit{Projects with:} & & \\
 		\hline
 		Procedures & 17,979 & 7.70\%\\
 		Recursive procedures &  1,052 & 0.45\%\\
@@ -260,7 +262,7 @@ The dataset contains a relatively small number of projects without any code: \ne
 		Large sprites & 31,954 & 13.68\%\\		
 		\hline
 	\end{tabular}
-	\caption{Characteristics in the projects in the dataset}
+	\caption{Elements and characteristics of the projects in the dataset}
 	\label{tbl-characteristics}
 \end{table*}
 
@@ -290,7 +292,7 @@ The dataset contains a relatively small number of projects without any code: \ne
 \end{figure}
 
 
-In Table \ref{tbl-size} we summarize statistics for metrics related to size and complexity. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project. We furthermore measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and plot the distribution of these size metrics.
+In Table \ref{tbl-size} we summarize statistics for the analyzed metrics. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project. We furthermore measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and plot the distribution of these size metrics.
 
 We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code, whose Scratch identifiers are made available for further inspection.\footnotemark[\ref{repo}]
 
