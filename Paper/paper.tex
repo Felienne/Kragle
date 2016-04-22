@@ -491,7 +491,11 @@ The Scratch automated quality analysis tools Hairball \cite{boe_hairball:_2013} 
 
 Also related to our research are works on code smells, initiated by the work by Fowler~\cite{fowler_refactoring:_1999}. His book gives an overview of code smells and corresponding refactorings. Fowler's work was followed by efforts focused on the automatic identification of code smells by means of metrics. Marinescu~\cite{marinescu_detecting_2001} for instance, uses metrics to identify \emph{suspect} classes: classes which could have design flaws. Alves \emph{et al.}~\cite{alves_deriving_2010} focus on a strategy to obtain thresholds for metrics from a benchmark Moha \emph{et al.}~\cite{moha_decor:_2010} designed the `DECOR' method which automatically generates a smell detection algorithms from specifications. The CCFinder tool~\cite{kamiya_ccfinder:_2002} finally, aims at detecting clones in source code, which are similar to our code duplication smell.
 
+\section{Conclusions}
+\label{sec:conclusion}
+In this paper we presented a large scale study on \nAnalyzedPrograms projects we scraped from the Scratch repository. We analyzed those projects in terms of size, complexity, application of programming abstractions and utilization of programming concepts including procedures, variables, conditional statements, loops, and broadcast-receive functionality. We found that functions and conditional loops are not commonly used. We further investigated the presence of code smells, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially dead code and code duplication.
 
+In addition to the findings presented in this paper, we provide as contributions the dataset that we used for our study \todo{do we?}, as well as information on the edge cases that we found in the dataset in terms of size and number of procedures, variables, cyclomatic complexity, clones and dead code.
 
 \bibliographystyle{abbrv}
 \bibliography{zotero}
