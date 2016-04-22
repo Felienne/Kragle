@@ -107,7 +107,7 @@ Scratch is a block-based programming language aimed at children, developed by MI
 \section{Research design and dataset}
 \label{researchDesign}
 
-The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch projects. To answer our three research questions, we conducted an empirical quantitative evaluation of project data we collected from the Scratch project repository. In the following paragraphs we describe the dataset, the  process and the tools we used for analyzing it, and the methods we followed for detecting code smells.
+The main focus of this study is to understand how people program in Scratch by analyzing the characteristics of Scratch projects. To answer our three research questions, we conducted an empirical quantitative evaluation of project data we collected from the Scratch project repository. In the following paragraphs we describe the dataset, the process and the tools we used for analyzing it, and the methods we followed for detecting code smells.
 
 \subsection{Dataset}
 \label{dataset}
@@ -274,7 +274,7 @@ We further analyzed the utilization frequency of the different block shapes and 
 	\label{fig:shapes}
 \end{figure}
 
-To understand the complexity of the Scratch projects in our dataset, we use the McCabe cyclomatic complexity \cite{mcCabe76},  a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts~scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246.\footnotemark[\ref{repo}] Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
+To understand the complexity of the Scratch projects in our dataset, we use the McCabe cyclomatic complexity \cite{mcCabe76}, a quantitative measure of the number of linearly independent paths through a program's source code. This is calculated per script by counting the number of decision points in the script plus one. In Scratch, decision points can be the \texttt{if} and \texttt{if else} blocks. The results of the cyclomatic complexity metric per script are plotted in Figure \ref{fig:cyclomatic}. The majority (78.33\%) of \nscripts~scripts contain no decision points, while 13.08\% have a cyclomatic complexity of 2, containing exactly one decision point. The complexity is higher, over 4, for 3.67\% of the scripts. The analysis also highlighted 209 scripts with a cyclomatic complexity over 100 and up to 246.\footnotemark[\ref{repo}] Cyclomatic complexity was greater (mean value of 3.32\%) in defined procedures, with 56.46\% of the procedures having at least one decision point.
 
 \noindent
 \fbox{
@@ -419,7 +419,7 @@ In our analysis, we find that more than one quarter of the Scratch projects cont
 
 In a sense, the dead scripts are harmless, as they are not executed, however, they do cause `visual clutter' and might be distracting to novice programmers, as it might be hard to see which scripts are dead. In contrast with other visual educational languages, Scratch does on indicate scripts are dead. LEGO Mindstorms, for example, does give the user feedback by making unconnected blocks gray. 
 
-Looking at the number of unconnected blocks, we hypothesize that Scratch programmers have a need for a separate workspace to store unconnected blocks temporarily. We envision that would be like the `backpack' meant to move scripts across sprites. In order to help novice programmers to keep their code clean, the programming interface could  actively encourage users to move unconnected blocks to that workspace when they exit the environment.
+Looking at the number of unconnected blocks, we hypothesize that Scratch programmers have a need for a separate workspace to store unconnected blocks temporarily. We envision that would be like the `backpack' meant to move scripts across sprites. In order to help novice programmers to keep their code clean, the programming interface could actively encourage users to move unconnected blocks to that workspace when they exit the environment.
 
 \subsubsection{Exact Clones between Sprites}
 With occurrences in 11\% of the Scratch projects in our dataset, the use of exactly identical clones between sprites is relatively common. In a sense, the Scratch users are not to blame here, as Scratch does not support procedure calls between sprites, only within them. So in many cases there is no other way to share the functionality than by making a copy. We are not aware of the underlying rationale of the Scratch team that lead to this decision, however it seems that a large part of the Scratch users would use the functionality to call procedures between sprites.
