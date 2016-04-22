@@ -223,28 +223,30 @@ The dataset is found to contain a relatively small number of projects without an
 	\centering
 	\begin{tabular}{lrr}
 		\hline
-		&\textbf{number}&\textbf{percentage}\\
+		&\textbf{Number of}&\\
+		&\textbf{projects}&\textbf{Percentage}\\
 		\hline
-		Retrieved projects & 250,166 & \\
-		Analyzed projects & 247,798 & \\
-		Non-empty projects (used for statistics) & \textbf{233,491} & \\
-
-		Projects utilizing variables & 73,577 & 31.51\% \\
-		Projects utilizing lists & 9,358 & 4.01\% \\
-		Projects with conditional statements & 92,959 & 39.81\% \\
-		Projects accepting user input & 131,314 & 56.24\% \\
-		Projects with recursive loop statements & 180,210 & 77.18\% \\
-		Projects with \texttt{repeat until <condition>} statements & 31,739 & 13.59\% \\
-		Projects with \texttt{broadcast} - \texttt{receive} statements & 69,039 & 29.57\%\\
-		Projects with cloned scripts (>=5 blocks) across sprites & 59,634 & 25.54\% \\
-		Projects with cloned scripts (>=5 blocks) within sprites & 23,671 & 10.14\%\\
-		Projects with cloned procedures (>=5 blocks) & 4,945 & 2.12\%\\
-		Projects with cloned functionality blocks (>=4 blocks) across sprites & 60,554 & 25.93\%\\
-		Projects with exact clones (>=5 blocks) across sprites & 27,574 & 11.81\%\\
-		Projects with exact clones (>=5 blocks) within sprites & 2,043 & 0.87\%\\
-		Projects containing dead code & 56,890	& 24.36\%\\
-		Projects containing large scripts & 69,521 & 29.77\%\\
-		Projects containing large sprites & 31,954 & 13.68\%\\		
+		Retrieved & 250,166 & \\
+		Analyzed & 247,798 & \\
+		Non-empty (used for statistics) & \textbf{233,491} & \\
+		\hline
+		Procedures & 17,979 & 7.70\%\\
+		Variables & 73,577 & 31.51\% \\
+		Lists & 9,358 & 4.01\% \\
+		Conditional statements & 92,959 & 39.81\% \\
+		User input blocks& 131,314 & 56.24\% \\
+		Loop statements & 180,210 & 77.18\% \\
+		\texttt{repeat until <condition>} statements & 31,739 & 13.59\% \\
+		\texttt{broadcast} - \texttt{receive} statements & 69,039 & 29.57\%\\
+		Cloned scripts across sprites & 59,634 & 25.54\% \\
+		Cloned scripts within sprites & 23,671 & 10.14\%\\
+		Cloned procedures & 4,945 & 2.12\%\\
+		Cloned functionality blocks across sprites & 60,554 & 25.93\%\\
+		Exact clones across sprites & 27,574 & 11.81\%\\
+		Exact clones within sprites & 2,043 & 0.87\%\\
+		Dead code & 56,890	& 24.36\%\\
+		Large scripts & 69,521 & 29.77\%\\
+		Large sprites & 31,954 & 13.68\%\\		
 		\hline
 	\end{tabular}
 	\caption{Characteristics in the projects in the dataset}
@@ -470,17 +472,15 @@ Furthermore we use the number of blocks in the Scratch programs as a measure for
 \section{Related Work}
 \label{sec:related}
 
-The evaluation of block-based languages in general, and Scratch in particular, as tools for programming education has received significant research attention during the past years. A number of studies have been carried out on the programming practices of novice programmers in block-based environments, on the programming skills they develop, and on the quality of Scratch programs.
+The evaluation of block-based languages in general, and Scratch in particular, as tools for programming education has received significant research attention during the past years. A number of studies have been carried out on the understanding of programming concepts and the programming practices of novice programmers in block-based environments, on the programming skills they develop, and on the quality of Scratch programs.
 
+A study on the internalization of programming concepts with Scratch with 46 students was presented in \cite{meerbaum-salant_learning_2010}. Concepts like loops, conditional loops, message passing, initialization, variables and concurency were examined, and it was found that students had problems with the last three. In a later study with an equal set of subjects \cite{Meerbaum_habits_2011} the same authors identified two bad programming habits in Scratch, namely bottom-up development and extremely fine-grained programming. They connected the later to the reduced use of if-blocks and finite loops and the increased use of infinite loops, a finding that is verified by our study. In \cite{wilson_evaluation_2012} 29 Scratch projects created from 60 students working in groups were evaluated based on a list of criteria related to programming concepts, code organization and usability design.
 
+Most related to our study for the second research question of programming abstractions and concepts is the work by Maloney \emph{et al.} \cite{Maloney_2008}, who analyzed 536 Scratch projects for blocks that relate to programming concepts including loops, conditional statements, variables, user interaction, synchronization, and random numbers. Compared to their findings, our investigation reveals increased use of the first three concepts, and especially variables.
 
+The Scratch automated quality analysis tools Hairball \cite{boe_hairball:_2013} and Dr. Scratch \cite{moreno-leon_dr._2015} are also related to our work on smell detection. The Hairball Scratch extension is a lint-like static analysis tool for Scratch that can detect initialization problems and unmatched broadcast and receive blocks. In their work \cite{moreno_automatic_2014}, Moreno and Robles extended Hairball to detect two bad programming habits in Scratch: not changing the default object names and duplicating scripts, and apply them for evaluating 100 projects from the Scratch repository. The results on script duplication are substantially different than ours---we find projects with script clones to appear half as frequently. The Dr. Scratch tool \cite{moreno-leon_dr._2015} includes bad naming, code duplication and dead code identification functionality, and also evaluates Scratch projects in terms of abstraction, parallelism, logical thinking, synchronization, flow control, user interactivity and data representation.
 
-Finally, there are other works on the quality of Scratch programs. There is for example the Hairball Scratch extension~\cite{boe_hairball:_2013}, which is a lint-like static analysis tool for Scratch that can detect, for example, unmatched broadcast and receive blocks, infinite loops and duplication. An evaluation of 100 Scratch programs showed that Scratch programs indeed suffer from duplication and bad naming~\cite{moreno_automatic_2014}.
-
-Most related to our study is the work by Moreno \emph{et al.}~\cite{moreno-leon_dr._2015} who gave automated feedback on Scratch programs to 100 children aged 10 to 14. Their results demonstrated that feedback on code quality helped improve students' programming skills.
-
-
-Efforts related to our research include works on code smells, initiated by the work by Fowler~\cite{fowler_refactoring:_1999}. His book gives an overview of code smells and corresponding refactorings. Fowler's work was followed by efforts focused on the automatic identification of code smells by means of metrics. Marinescu~\cite{marinescu_detecting_2001} for instance, uses metrics to identify \emph{suspect} classes: classes which could have design flaws. Lanza and Marinescu~\cite{lanza_object-oriented_2006} explain this methodology in more detail. Alves \emph{et al.}~\cite{alves_deriving_2010} focus on a strategy to obtain thresholds for metrics from a benchmark. Olbrich \emph{et al.} furthermore investigates the changes in smells over time, and discusses their impact~\cite{olbrich_evolution_2009}. Moha \emph{et al.}~\cite{moha_decor:_2010} designed the `DECOR' method which automatically generates a smell detection algorithms from specifications. The CCFinder tool~\cite{kamiya_ccfinder:_2002} finally, aims at detecting clones in source code, which are similar to our \dup smell.
+Also related to our research are works on code smells, initiated by the work by Fowler~\cite{fowler_refactoring:_1999}. His book gives an overview of code smells and corresponding refactorings. Fowler's work was followed by efforts focused on the automatic identification of code smells by means of metrics. Marinescu~\cite{marinescu_detecting_2001} for instance, uses metrics to identify \emph{suspect} classes: classes which could have design flaws. Alves \emph{et al.}~\cite{alves_deriving_2010} focus on a strategy to obtain thresholds for metrics from a benchmark Moha \emph{et al.}~\cite{moha_decor:_2010} designed the `DECOR' method which automatically generates a smell detection algorithms from specifications. The CCFinder tool~\cite{kamiya_ccfinder:_2002} finally, aims at detecting clones in source code, which are similar to our code duplication smell.
 
 
 
