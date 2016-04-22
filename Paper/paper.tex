@@ -46,7 +46,7 @@
 
 \maketitle
 \begin{abstract}
-Block-based programming languages like Scratch, Alice and Blockly are becoming increasingly common as introductory languages in programming education. There is substantial research showing that these visual programming environments are suitable for teaching programming concepts. But, what do people do when they use Scratch? In this paper we explore the characteristics of Scratch programs. To that end we have scraped the Scratch public repository and retrieved 250.000 projects. We present an analysis of these projects in three different dimensions. Firstly, we look at the types of blocks used and the size of the projects. We then investigate complexity, used abstractions and programming concepts. Finally we look at coding style and detect \emph{code smells and clones}. We find that programming abstraction concepts like procedures are not commonly used. We further investigate the presence of code smells and bad programming practices, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially code duplication.
+Block-based programming languages like Scratch, Alice and Blockly are becoming increasingly common as introductory languages in programming education. There is substantial research showing that these visual programming environments are suitable for teaching programming concepts. But, what do people do when they use Scratch? In this paper we explore the characteristics of Scratch programs. To that end we have scraped the Scratch public repository and retrieved 250.000 projects. We present an analysis of these projects in three different dimensions. Firstly, we look at the types of blocks used and the size of the projects. We then investigate complexity, used abstractions and programming concepts. Finally we detect \emph{code smells and clones}. We find that programming abstraction concepts like procedures are not commonly used. We further investigate the presence of code smells, namely code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially code duplication.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -73,7 +73,7 @@ The goal of this paper is to obtain a deep understanding of how people program i
 \begin{itemize}
 \item[RQ1] What are the size and complexity characteristics of Scratch programs?
 \item[RQ2] Which coding abstractions and programming concepts and features are commonly used when programming in the Scratch environment?
-\item[RQ3] How common are code smells and bad programming practices in Scratch programs?
+\item[RQ3] How common are code smells in Scratch programs?
 \end{itemize}
 
 Our study is based on data from the Scratch project repository. By scraping the list of recent projects \footnote{\url{https://scratch.mit.edu/explore/projects/all/}}, we have obtained \nPrograms~public Scratch projects and performed analysis on them.
@@ -348,7 +348,7 @@ The use of procedures in projects was further investigated through the procedure
 	\label{fig:procedurecalls}
 \end{figure}
 
-As shown in Table \ref{tbl-characteristics}, almost one-third of the projects use variables and a small number (4.01\%) use lists. The number of variables that is being used is also limited, with only 7.48\% of the projects having 5 or more variables. The distribution of variable and list utilization is shown in Figure \ref{fig:variables}. Exceptional cases exist: the analysis highlighted 842 projects with more than 100 variables and up to 340. Examining the initialization of variables through the \texttt{set <variable> to <value>} blocks, we found that for 4.83\% of all variables this was missing. While failing to initialize a variable in Scratch will not result in a runtime error as in some other programming languages, it is considered bad style \todo{citation needed}.
+As shown in Table \ref{tbl-characteristics}, almost one-third of the projects use variables and a small number (4.01\%) use lists. The number of variables that is being used is also limited, with only 7.48\% of the projects having 5 or more variables. The distribution of variable and list utilization is shown in Figure \ref{fig:variables}. Exceptional cases exist: the analysis highlighted 842 projects with more than 100 variables and up to 340. Examining the initialization of variables through the \texttt{set <variable> to <value>} blocks, we found that for 4.83\% of all variables this was missing. While failing to initialize a variable in Scratch will not result in a runtime error as in some other programming languages, correctly setting the initial state of the program is important \cite{boe_hairball:_2013}.
 
 %commented by Felienne: 1) this is not really scope and 2) we cannot distinguish, so why mention it?
 %The scope of variables was also analyzed: As shown in Table \ref{tbl-size}, each variable is used by an average of 4.97 different scripts, with a median value of 3. However, we must note that this measurement might not be entirely accurate, because variables might be defined in the scope of specific sprites. With our dataset we cannot differentiate global from local variables and we would consider local variables defined with the same name in different sprites as global variables.
@@ -398,7 +398,7 @@ RQ2: One third of the projects use variables, sometimes without initializing the
 }
 
 
-\subsection{Code smells and bad programming practices}
+\subsection{Code smells}
 \label{RQ3}
 The duplicated code smell is the first smell that we examine. As explained in Section \ref{dataAnalysis}, we use 5 as the minimum number of blocks for the identified clones. In total, in the dataset we found 170,532 scripts cloned across sprites in 59,634 (25.54\% of the total non-empty) projects. 726,316 copies of these scripts were found, making each clone being copied an average of 4.26 times. Figure \ref{fig:clonesprojects} plots the distribution of clones across projects. The majority of projects contain up to two cloned scripts; 7.24\% of the projects contain three or more. Figure \ref{fig:clonescopies} plots the number of copies of the identified clones. It is of interest that 79,378 (46.55\%) of the identified clones are copied three or more times, and even in 585 cases from 411 projects they are copied more than 50 times and up to 974.\footnotemark[\ref{repo}] Manual inspection of the mostly copied clones revealed that they were scripts used multiple times to cater for different parameter values, sometimes in multiple sprites.
 
