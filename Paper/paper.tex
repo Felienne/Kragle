@@ -203,10 +203,10 @@ The dataset contains a relatively small number of projects without any code: \ne
 		\hline
 		Sprites with code per project&5.68&1&1&2&5&525\\
 		Scripts per project&17.35&1&2&5&12&3038\\
-		Lines of code (LOC) per project&154.55&1&12&29&76&34622\\
-		LOC in Stage per project&4.80&0&0&0&3&2613\\
-		LOC in Sprites per project&115.57&0&10&26&68&34613\\
-		LOC in Procedures per project&34.17&0&0&0&0&20552\\
+		Number of blocks per project&154.55&1&12&29&76&34622\\
+		Blocks in Stage per project&4.80&0&0&0&3&2613\\
+		Blocks in Sprites per project&115.57&0&10&26&68&34613\\
+		Blocks in Procedures per project&34.17&0&0&0&0&20552\\
 		McCabe Cyclomatic Complexity (CC) per script&1.58&1&1&1&1&246\\
 		McCabe CC per procedure script&3.75&1&1&2&4&183\\
 		Procedures per project with procedures&11.50&1&1&2&6&847\\
@@ -281,7 +281,7 @@ The dataset contains a relatively small number of projects without any code: \ne
 \begin{figure}
 	\centering
 	\includegraphics[width=0.45\textwidth]{fig/charts/1locs}
-	\caption{Histogram of the lines of code in the analyzed projects}
+	\caption{Histogram of the number of blocks in the analyzed projects}
 	\label{fig:size-locs}
 \end{figure}
 \begin{figure}
@@ -292,11 +292,11 @@ The dataset contains a relatively small number of projects without any code: \ne
 \end{figure}
 
 
-In Table \ref{tbl-size} we summarize statistics for the analyzed metrics. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts per project. We furthermore measure the lines of code per project, considering each Scratch block to represent exactly one line of code, thus not counting the closing constructs of loops or conditional statements as separate lines. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and plot the distribution of these size metrics.
+In Table \ref{tbl-size} we summarize statistics for the analyzed metrics. We use the mean value and the five-number summary to describe the dataset in terms of the number of sprites with code per project (including the stage sprite) and the number of scripts and blocks per project. Figures \ref{fig:size-sprites}, \ref{fig:size-scripts}, \ref{fig:size-locs} and plot the distribution of these size metrics.
 
-We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 lines of code, while one fourth of the projects have up to 12 lines of code. On the other end, 5\% of the projects (11,712) have more than 18 sprites and 4.8\% (11,214) consist of more than 500 lines of code. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 lines of code, whose Scratch identifiers are made available for further inspection.\footnotemark[\ref{repo}]
+We find that the majority of Scratch projects are small; 75\% of the projects have up to 5 sprites, 12 scripts and 76 blocks, while one fourth of the projects have up to 12 blocks. On the other end, 5\% of the projects (11,712) have more than 18 sprites and 4.8\% (11,214) consist of more than 500 blocks. The analysis also highlighted some surprisingly large projects: 135 with more than 300 sprites and even 30 projects with more than 20,000 blocks, whose Scratch identifiers are made available for further inspection.\footnotemark[\ref{repo}]
 
-The lines of code metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~lines of code---is written within sprites. An additional 3.1\% of the total lines are found in the stage class. More interestingly, the remaining 22.11\% are lines within defined procedures, which are found in only 7.7\% (17,979) of the projects. The projects that contain procedures use them a lot; almost half of their total lines of code (48.81\%) are lines within procedures.
+The number of blocks metric was further analyzed to understand code organization. As shown in Table \ref{tbl-size}, the majority of Scratch code---74.78\% out of \nLOC~blocks---is written within sprites. An additional 3.1\% of the total blocks are found in the stage class. More interestingly, the remaining 22.11\% are blocks within defined procedures, which are found in only 7.7\% (17,979) of the projects. The projects that contain procedures use them a lot; almost half of their total blocks (48.81\%) are within procedures.
 
 We further analyzed the utilization frequency of the different block shapes and categories, as defined in the Scratch documentation. Figures \ref{fig:categories} and \ref{fig:shapes} present the results in terms of number of blocks from the total \nLOC blocks in the dataset projects. The most commonly used blocks are from the Control and Data categories. The Others category includes the blocks related to procedure calls and arguments.
 
@@ -318,7 +318,7 @@ To understand the complexity of the Scratch projects in our dataset, we use the 
 \noindent
 \fbox{
 	\begin{minipage}{0.46\textwidth}
-		RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 lines of code and no decision points. Most code is written in sprites. A small number of projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.
+		RQ1: The majority of Scratch projects are small and simple; 75\% of the projects have up to 5 sprites, 12 scripts, 76 blocks and no decision points. Most code is written in sprites. A small number of projects (7.7\%) use procedures, but they use them a lot and for more complex code. There exist surprisingly large and complex projects.
 	\end{minipage}}
 
 \subsection{Programming Abstractions and Concepts}
@@ -434,7 +434,7 @@ The second smell that we examine is the dead code smell. Already in the previous
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=6cm]{fig/Unconnected_clones.png}
-		\caption{Cloned blocks that are not connected to an event. Program id: 12237615}
+		\caption{Cloned blocks that are not connected to an event. Project id: 12237615}
 		\label{fig:Unconnected_clones}
 	\end{center}
 \end{figure} 
