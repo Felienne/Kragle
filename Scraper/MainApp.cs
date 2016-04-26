@@ -25,16 +25,18 @@ namespace Scraper
 
             //if you want those, run with -randomprop
             string type = args[0];
+            string location = args[1];
             if (type == "-r")
             {
-               s = new randomScraper(@"C:\ScratchScrapeData\mainApp\", 10000000, 100000000);
+
+               s = new randomScraper(location, 10000000, 100000000);
                s.scrape();
             }
 
 
             if (type == "-l")
             {
-               s = new listScraper(@"C:\ScratchScrapeData\ListScraper\");
+               s = new listScraper(location);
                s.scrape();
             }
 
