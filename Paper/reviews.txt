@@ -1,0 +1,174 @@
+Dear Efthimia, 
+
+ICER submission 66: How Kids Code and How We Know: An Exploratory Study on the Scratch Repository
+
+Thank you for submitting your paper to ICER 2016, the 12th International Computing Education Research Conference.
+
+We are pleased to inform you that your research paper has been conditionally accepted for publication and inclusion in this year’s conference, contingent on submission of a camera ready version and at least one author registering to attend the conference.
+
+We had 102 papers submitted, and given the high quality of many submissions, paper selection was highly competitive. Ultimately 26 research papers were accepted for publication (a 25% acceptance rate). We had to make some difficult choices, but this reflects the quality of the submissions and the health of our maturing field.
+
+All papers were independently reviewed by three or four members of the program committee (reviews appended below). A meta-reviewing panel made up of the three program chairs and the two associate chairs also reviewed each paper and the individual reviews in order to make final acceptance decisions. When necessary to reconcile disparate reviews or to highlight matters of particular importance, a meta-review was written by one member of this panel. If a meta-review was written for your submission it will be clearly indicated along with the other reviews, but keep in mind that not all papers will have received a meta-review.
+
+Please begin preparing the final version of your paper, taking carefully into account the reviewers' comments. In particular, we ask you to pay close attention to addressing suggested edits highlighted in comments from the meta-reviewer, if applicable.
+
+You will be submitting the final version of your paper through Sheridan Printing; instructions for this will be sent to you soon under separate cover. Please note that we are on a tight schedule: the hard deadline for the camera-ready copy is Wednesday 29 June.
+
+Papers will be available publicly through the ACM Digital Library one week prior to the start of the conference. Following the conference, papers will be available to ACM DL subscribers.
+
+We are looking forward to seeing you at the ICER Conference in Melbourne in September. Please keep in mind that publication of your work is contingent on at least one co-author registering for and attending the conference to present your paper. Registration and hotel booking information will be available soon at http://icer.hosting.acm.org. 
+
+Thanks for your contribution and for being part of the growing ICER community! We look forward to welcoming you to Melbourne in September.
+
+Judy Sheard, Josh Tenenberg, Brian Dorn
+ICER 2016 Program Chairs
+
+[In the reviews, the overall rating for the paper ranges from 1 (strong reject) to 6 (strong accept). Most of the other ratings range from 1 (very poor) to 5 (very good), but Research methodology ranges from 1 to 3 and Exposition of research methods from 1 to 4.]
+
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 66
+TITLE: How Kids Code and How We Know: An Exploratory Study on the Scratch Repository
+AUTHORS: Felienne Hermans and Efthimia Aivaloglou
+
+OVERALL EVALUATION: 5 (I would argue for accepting this paper)
+Discussion of related work: 4 (covers key related work; its relationship to submission is described, but could be extended further)
+Theoretical basis for the paper: 2 (maybe there's a theory there, but it is vague and has no clear relevance to the research)
+Research methodology: 2 (questionable choice of research approach and methods)
+Exposition of research methods: 3 (data collected and analyzed, but some aspects unclearly described)
+Discussion of results and conclusions: 4 (good interpretation of findings; limitations considered)
+Contribution and relevance to the international computing education research field: 4 (a clear contribution to the field)
+Writing and expression: 4 (well written and expressed)
+
+----------- Summary of paper -----------
+The paper aims to reveal how kids code by looking at source code examples
+
+----------- Use of theory -----------
+There is no idea or theory how people program. It is just an empirical description. There would be theory avaliably, e.g. Peter Naur: programming a s theory building (to mention some older work as example).
+
+----------- Methodology and empirical basis -----------
+The methods are questionable: Revealing process issues by looking at products. There would also be theory or prior work discussing this problem. However: The approach developed and used seems reasonable and given the data source very successful. Of course: Observing kids coding would have led to completely different approach and answers…
+So the method is very good for the data source. And data on process is hard to obtain. Therefore, the approach makes sense. I suggest to add some small argument that results still are somewhat due to data source.
+In section 5.1.2 is the most direct reference to programming process: It is an interpretation (a plausible one). The rest of the results are more on product features, not really on process issues.
+In general I like diagrams, but I couldn’t really understood the relevance of every single diagram in this paper. 
+It is more a descriptive analysis. 
+I really liked some of the critical discussions, and also interpretation of results was clearly visible.
+
+----------- Significance of contributions/results  -----------
+Overall a clear contribution. Unfortunately, more to program designers. Maybe the authors could add a section on ideas/interpretations for instructors and researchers interested in using the tools for learning.
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 66
+TITLE: How Kids Code and How We Know: An Exploratory Study on the Scratch Repository
+AUTHORS: Felienne Hermans and Efthimia Aivaloglou
+
+OVERALL EVALUATION: 5 (I would argue for accepting this paper)
+Discussion of related work: 4 (covers key related work; its relationship to submission is described, but could be extended further)
+Theoretical basis for the paper: 1 (no obvious theory being applied)
+Research methodology: 3 (research approach and methods well-suited for the research questions/hypotheses)
+Exposition of research methods: 4 (data collected and analyzed; methods clear and thoroughly described)
+Discussion of results and conclusions: 3 (plausible interpretation of findings)
+Contribution and relevance to the international computing education research field: 4 (a clear contribution to the field)
+Writing and expression: 5 (exemplary writing that enhances the quality of the paper)
+
+----------- Summary of paper -----------
+A body of 250,000 Scratch programs are analysed in a variety of ways and the results of the analysis are presented - for example, size of projects and scripts, variety of code blocks used, and various "code smells".
+
+----------- Use of theory -----------
+One related paper that is missed is the Seiter and Foreman paper from ICER 2013, which developed a progression framework for Scratch programming and identifies some of the issues that have now emerged in this paper.
+While the automated analysis of the data is impressive, there is no single theoretical framing within which to interpret the results.  For example, the McCabe cyclometric complexity measure is used, and the "code smells" analysis is set against other work in the same vein.
+Some of the framing seems out of place.  For example, in the Introduction, it is stated that "the goal of this paper is to obtain a deep understanding of how people program in Scratch...".  We have little insight into how people program, only into characteristics of the final artefacts that they produce - quite a different thing.  For the same reason "How kids code..." in the title of the paper is inappropriate.
+
+----------- Methodology and empirical basis -----------
+The collection and processing of data is excellent.  The provision of all the Scratch code and the queries etc on-line is very good also.  There are a number of results in here that I found very interesting.
+
+One query.  For the McCabe cyclomatic complexity, you have only considered the decision points derived in selection statements - if then, if then else.  However, loops - or conditional loops in particular - introduce decision points that adjust the control flow of the program.  Furthermore, broadcast statements can be seen as generating parallel threads of execution, which should surely be part of the complexity measure you are going for - the number of paths through the program.  Why are these constructs not included?
+
+I found the discussion and conclusions drawn from the data rather lack-lustre.  I wasn't convinced by the argument that this data would inform language designers.  For example, the suggestion for the provision of a library for sharing surely defeats the point of Scratch as a learning tool - there is value in writing it yourself - and even if you do copy it in from another's script, then hopefully some of the copied code will lodge in the programmer's brain.  The point is - learning to program is about the doing, the problem solving, the coding; it is not about creating a finished artefact quicker.  The dead code and clones analysis is also not particularly interesting to me.
+
+I would have thought that more could be made of the frequency of use of different block types.  At a gross level, the proportions of use of the different blocks fits with expectations - that students will only use simple constructs in the most part that they are comfortable with.  In Scratch, which is often used by folk outside a formal educational process, they are likely to continue using the simpler constructs with which they are familiar, because there is nobody pushing them to use the more advanced features.  This data can also be used to support arguments about developmental progression in programming - although this could obviously be done much better if we knew the ages of the contributors of each program.
+
+----------- Significance of contributions/results  -----------
+I believe that this data set and the findings will be of use to other researchers to back up work on using Scratch and similar languages in the development of computational thinking skills.
+
+----------- Suggestions regarding the writing or other comments -----------
+Note thoughts on the appropriateness of the title, given above.
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 66
+TITLE: How Kids Code and How We Know: An Exploratory Study on the Scratch Repository
+AUTHORS: Felienne Hermans and Efthimia Aivaloglou
+
+OVERALL EVALUATION: 5 (I would argue for accepting this paper)
+Discussion of related work: 2 (several important or key references missing, and relationship of references to submission not apparent)
+Theoretical basis for the paper: 2 (maybe there's a theory there, but it is vague and has no clear relevance to the research)
+Research methodology: 3 (research approach and methods well-suited for the research questions/hypotheses)
+Exposition of research methods: 4 (data collected and analyzed; methods clear and thoroughly described)
+Discussion of results and conclusions: 3 (plausible interpretation of findings)
+Contribution and relevance to the international computing education research field: 4 (a clear contribution to the field)
+Writing and expression: 4 (well written and expressed)
+
+----------- Summary of paper -----------
+The authors present an analysis of a large-scale dataset of Scratch projects. They report on project size and complexity, the use of features that relate to programming concepts, and the presence of code smells.
+
+----------- Use of theory -----------
+The paper mainly describes the analysis of the dataset with few references to educational theory.
+
+----------- Methodology and empirical basis -----------
+The authors provide a clear and comprehensive explanation of how they collected and analyzed their data. Most interesting and novel is their analysis of abstraction through procedures and code smells, particularly cloned scripts, in a block-based environment
+
+The authors also provide a solid interpretation of their findings. The only weakness is that discussion on the implications of their findings for computing education are thin.
+
+----------- Significance of contributions/results  -----------
+The authors provide a comprehensive description of Scratch projects, analyzing it from multiple angles. This can be helpful for contextualizing past and future research on Scratch, which is a major thread running through computing education research.
+
+----------- Suggestions regarding the writing or other comments -----------
+Besides a more fleshed out discussion on the implications of the study's findings for language design and pedagogy, a major weakness is the related works section. It is missing several highly relevant references that do similar large-scale analyses of Scratch projects. For example:
+
+- Fields, D.A., Giang, M. and Kafai, Y. 2014. Programming in the wild: Trends in youth computational participation in the online Scratch community. WiPSCE, 2–11.
+- Yang, S., Domeniconi, C., Revelle, M., Sweeney, M., Gelman, B.U., Beckley, C. and Johri, A. 2015. Uncovering trajectories of informal learning in large online communities of creators. L@S, 131–140.
+- Dasgupta et al. Remixing as a pathway to computational thinking. CSCW'16.
+
+I recommend that the authors include these and possibly other papers that have been overlooked, and discuss the contributions of this study (I do believe it makes significant contributions) with respect to them.
+
+
+----------------------- REVIEW 4 ---------------------
+PAPER: 66
+TITLE: How Kids Code and How We Know: An Exploratory Study on the Scratch Repository
+AUTHORS: Felienne Hermans and Efthimia Aivaloglou
+
+OVERALL EVALUATION: 5 (I would argue for accepting this paper)
+Discussion of related work: 1 (no discussion of related work)
+Theoretical basis for the paper: 1 (no obvious theory being applied)
+Research methodology: 1 (research approach and methods inappropriate for research objectives)
+Exposition of research methods: 1 (no empirical data collected)
+Discussion of results and conclusions: 1 (unjustifiable interpretation of findings)
+Contribution and relevance to the international computing education research field: 1 (contributes little or nothing to computing education research)
+Writing and expression: 1 (extremely poorly written; hard to understand)
+
+----------- Summary of paper -----------
+META-REVIEW: ICER meta-reviews are entered when appropriate to provide additional context for interpreting paper reviews, to capture program committee deliberations, and to direct authors' attention to the most salient points. Meta-reviews are not intended as an independent review, but rather account for all aspects of the program decision process.  The overall evaluation score in this review reflects this final judgement.
+
+NOTE: Individual element scores on a meta-review are all given values of 1 and are meaningless placeholders due to limitations of EasyChair.
+
+Meta-reviewer comments are provided in the last field of the review form.
+
+----------- Use of theory -----------
+see comments below
+
+----------- Methodology and empirical basis -----------
+see comments below
+
+----------- Significance of contributions/results  -----------
+see comments below
+
+----------- Suggestions regarding the writing or other comments -----------
+The meta-reviewers note that all three reviewers have commented positively on the work presented in this paper.  We note, however, that each reviewer, has provided suggestions for improving the work.  The main issue highlighted is that although there is a comprehensive analysis of the data and presentation of results, the implications of the findings for computing educators and computing education is not made clear.  R1 suggests adding “a section on ideas/interpretations for instructors and researchers interested in using the tools for learning”. 
+
+The meta-reviewers suggest that the authors soften their statement about the goal to “obtain a deep understanding of how people program in Scratch” as we feel that “deep” is a little too strong to describe the understanding achieved with the data analysis and interpretation reported in the paper.  
+
+A minor grammatical error noticed: Section 2, Sprites, “Figure 1 contains two one sprites” – there appears to be an extra word here.
+
+All in all, the meta-reviewers and reviewers agree that this paper makes a worthy contribution and we look forward to the presentation of this work at ICER 2016.
