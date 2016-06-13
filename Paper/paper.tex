@@ -12,6 +12,10 @@
 
 \newcommand{\todo}[1]{\textbf{#1}}
 
+\def\sharedaffiliation{%
+\end{tabular}
+\begin{tabular}{c}}
+
 \begin{document}
 %
 % --- Author Metadata here ---
@@ -20,24 +24,18 @@
 
 \title{How Kids Code and How We Know:\\An Exploratory Study on the Scratch Repository }
 
-\numberofauthors{1}
+\numberofauthors{2}
 \author{
-% 1st. author
-\alignauthor
-(anonymized submission)
-%Ben Trovato\titlenote{Dr.~Trovato insisted his name be first.}\\
-%       \affaddr{Institute for Clarity in Documentation}\\
-%       \affaddr{1932 Wallamaloo Lane}\\
-%       \affaddr{Wallamaloo, New Zealand}\\
-%       \email{trovato@corporation.com}
-% 2nd. author
-%\alignauthor
-%G.K.M. Tobin\titlenote{The secretary disavows
-%any knowledge of this author's actions.}\\
-%       \affaddr{Institute for Clarity in Documentation}\\
-%       \affaddr{P.O. Box 1212}\\
-%       \affaddr{Dublin, Ohio 43017-6221}\\
-%       \email{webmaster@marysville-ohio.com}
+	\alignauthor Efthimia Aivaloglou\\      
+	\email{e.aivaloglou@tudelft.nl}
+	%
+	\alignauthor Felienne Hermans\\     
+	\email{f.f.j.hermans@tudelft.nl}
+	%
+	\sharedaffiliation
+	\affaddr{Software Engineering Research Group}\\
+	\affaddr{Delft University of Technology }   \\
+	\affaddr{Mekelweg 4, 2628 CD, Delft, the Netherlands }
 }
 
 %\date{30 July 1999}
@@ -52,7 +50,7 @@ Block-based programming languages like Scratch, Alice and Blockly are becoming i
 %A category including the fourth, optional field follows...
 %\category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
 
-\terms{terms}
+%\terms{terms}
 
 \keywords{Scratch, block-based languages, programming practices, code smells, static analysis}
 
@@ -62,7 +60,7 @@ Scratch \cite{resnick_scratch:_2009} is a programming language developed to teac
 
 Block-based languages have existed since the eighties, but have recently found adoption as tools for programming education. In addition to Scratch, also Alice~\cite{conway_alice:_1994}, Blockly\footnote{\url{https://developers.google.com/blockly/}} and App Inventor~\cite{wolber_app_2011} are block-languages aimed at novice programmers.
 
-Several studies have shown that block-based languages are powerful as tools for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003,price_comparing_2015}. Previous works involving static analysis of Scratch programs have evaluated the application of various programming concepts in Scratch projects \cite{Maloney_2008,moreno_automatic_2014}. Recent works have focused on bad programming practices within Scratch programs \cite{Meerbaum_habits_2011}, and automated quality assessment tools have been proposed for identifying code smells~\cite{fowler_refactoring:_1999}~and bad programming practices \cite{boe_hairball:_2013,moreno_automatic_2014}. A recent controlled experiment found that long scripts and code duplication decreases a novice programmer's ability to understand and modify Scratch programs \cite{hermans_2016}.
+Several studies have shown that block-based languages are powerful as tools for teaching programming~\cite{meerbaum-salant_learning_2010, b._moskal_evaluating_2005,cooper_teaching_2003,price_comparing_2015}. Previous works involving static analysis of Scratch programs have evaluated the application of various programming concepts in Scratch projects \cite{Maloney_2008,moreno_automatic_2014}. Recent works have focused on bad programming practices within Scratch programs \cite{Meerbaum_habits_2011}, and automated quality assessment tools have been proposed for identifying code smells~\cite{fowler_refactoring:_1999}~and bad programming practices \cite{boe_hairball:_2013,moreno_automatic_2014}. In a recent controlled experiment we found that long scripts and code duplication decreases a novice programmer's ability to understand and modify Scratch programs \cite{hermans_2016}.
 
 The goal of this paper is to obtain a deep understanding of how people program in Scratch, to analyze the characteristics of Scratch programs, and to quantitatively evaluate the use of programming abstractions and concepts. Moreover, knowing that bad programming habits and code smells can be harmful \cite{hermans_2016}, we also want to explore whether they are common. To address this goal, we answer the following research questions:
 
@@ -72,7 +70,7 @@ The goal of this paper is to obtain a deep understanding of how people program i
 \item[RQ3] How common are code smells in Scratch programs?
 \end{itemize}
 
-Our study is based on data from the Scratch project repository. By scraping the list of recent projects,\footnote{\label{scratchpublic}\url{https://scratch.mit.edu/explore/projects/all/}} we have obtained \nPrograms~public Scratch projects and performed source code analysis on them. To the best of our knowledge, this is the first large-scale exploratory study of Scratch projects.
+Our study is based on data from the Scratch project repository. By scraping the list of recent projects,\footnote{\label{scratchpublic}\url{https://scratch.mit.edu/explore/projects/all/}} we have obtained \nPrograms~public Scratch projects and performed source code analysis on them. To the best of our knowledge, this is the first large-scale exploratory study of Scratch programs.
 
 The contributions of this paper are as follows:
 
@@ -117,7 +115,7 @@ We obtained the set of Scratch projects by using a scraping program. Our scrapin
 
 % For a given id $x$ a Scratch programs JSON representation can be obtained via \url{https://cdn.projects.scratch.mit.edu/internalapi/project/x/get}.  Does not fit on the page nicely and might also not be needed?
 
-We ran Kragle on March 2nd 2016 for 24 hours and, in that time, it obtained a little over 250,000 projects. Out of the \nPrograms, we failed to parse and further analyze 2,367 projects due to technical difficulties with the provided JSON files. Kragle, as well as all scraped projects and our analysis files are available.\footnote{\label{repo}\url{https://github.com/ScratchLover42/ICER-Data-Code} (temporary link to protect the anonymity of the authors)}
+We ran Kragle on March 2nd 2016 for 24 hours and, in that time, it obtained a little over 250,000 projects. Out of the \nPrograms, we failed to parse and further analyze 2,367 projects due to technical difficulties with the provided JSON files. Kragle, as well as all scraped projects and our analysis files are available.\footnote{\label{repo}\url{https://github.com/ScratchLover42/ICER-Data-Code} \todo{Felienne, what is the new address?} }
 
 Once we obtained the Scratch projects, we parsed the JSON files according to the specification of the format.\footnote{\url{http://wiki.scratch.mit.edu/wiki/Scratch_File_Format_(2.0)}} This resulted in a list of used blocks per project, with the sprites and the stage of the project. We cross referenced also all blocks with the Scratch wiki to determine the shapes and the category of all blocks. For example, \texttt{When Green Flag Clicked} is a \emph{Hat block} from the \emph{Events category}.
 
