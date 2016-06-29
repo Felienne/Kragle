@@ -1,4 +1,4 @@
-\documentclass{sig-alternate}
+\documentclass{sig-alternate-05-2015}
 
 \usepackage{url}
 \usepackage{graphicx}
@@ -21,6 +21,16 @@
 % --- Author Metadata here ---
 %\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
 % --- End of Author Metadata ---
+
+% Copyright
+\CopyrightYear{2016} 
+\setcopyright{othergov}
+\conferenceinfo{ICER '16,}{September 08-12, 2016, Melbourne, VIC, Australia}
+\isbn{978-1-4503-4449-4/16/09}\acmPrice{\$15.00}
+\doi{http://dx.doi.org/10.1145/2960310.2960325}
+
+\clubpenalty=10000 
+\widowpenalty = 10000
 
 \title{How Kids Code and How We Know:\\An Exploratory Study on the Scratch Repository }
 
@@ -45,14 +55,7 @@
 Block-based programming languages like Scratch, Alice and Blockly are becoming increasingly common as introductory languages in programming education. There is substantial research showing that these visual programming environments are suitable for teaching programming concepts. But, what do people do when they use Scratch? In this paper we explore the characteristics of Scratch programs. To this end we have scraped the Scratch public repository and retrieved 250,000 projects. We present an analysis of these projects in three different dimensions. Initially, we look at the types of blocks used and the size of the projects. We then investigate complexity, used abstractions and programming concepts. Finally we detect \emph{code smells} such as large scripts, dead code and duplicated code blocks. Our results show that 1) most Scratch programs are small, however Scratch programs consisting of over 100 sprites exist, 2) programming abstraction concepts like procedures are not commonly used and 3) Scratch programs do suffer from code smells including large scripts and unmatched broadcast signals.
 \end{abstract}
 
-% A category with the (minimum) three required fields
-%\category{H.4}{Information Systems Applications}{Miscellaneous}
-%A category including the fourth, optional field follows...
-%\category{D.2.8}{Software Engineering}{Metrics}[complexity measures, performance measures]
-
-%\terms{terms}
-
-\keywords{Scratch, block-based languages, programming practices, code smells, static analysis}
+\keywords{Scratch; block-based languages; programming practices; code smells; static analysis}
 
 \section{Introduction}
 
@@ -382,7 +385,7 @@ We further inspected which of the identified clones were duplicated within the s
 
 Apart from whole scripts, we also examined cases where scripts differ only in the first (Hat) block. This way we examine if Scratch programmers assign the same functionality to handle different types of events. Cloned functionality blocks are found to be rare: without considering the first block, only 2,243 additional clones were found in 920 projects.
 
-The second smell that we examine is the dead code smell. We identify four types of dead code: (1) procedures that are not invoked, (2) unmatched broadcast-receive messages, (3) code that is not invoked and (4) empty event scripts. Investigating the first type, we find that a significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. This is also shown in Figure \ref{fig:procedurecalls} and it occurs in 2,079 projects. For the second type, we examined the broadcast-receive messages and found that they are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronization occurs in 18,669 (7.99\% of the total) projects.
+The second smell that we examine is the dead code smell. We identify four types of dead code: (1) procedures that are not invoked, (2) unmatched broadcast-receive messages, (3) code that is not invoked and (4) empty event scripts, i.e., scripts that contain an event block alone. Investigating the first type, we find that a significant number of the defined procedures (13,036 or 5.06\%) are not called in the projects. This is also shown in Figure \ref{fig:procedurecalls} and it occurs in 2,079 projects. For the second type, we examined the broadcast-receive messages and found that they are not always synchronized: 3,33\% of the \texttt{when I receive} blocks were found to wait for a message that is never being broadcasted, while 4,4\% of the \texttt{broadcast} blocks broadcast a message that is not being received. This lack of syncronization occurs in 18,669 (7.99\% of the total) projects.
 
 The third and fourth cases are incomplete scripts. Those are either never invoked due to the lack of a starting \texttt{when <trigger>} block from the Scratch Events or Control category, or are comprised of only a \texttt{when <trigger>} block without any functionality. A total of 322,475 scripts like that were found in 56,890 (24.36\% of the total) projects. The majority of these scripts (86.6\%) are scripts missing a Hat block. Examining the size of these dead scripts, 72.34\% are composed of a single block. However, some dead scripts are considerably large; 2,358 dead scripts in 1,553 different projects have more than 30 blocks and up to 2,610.\footnotemark[\ref{repo}]
 
@@ -438,7 +441,7 @@ The evaluation of block-based languages in general, and Scratch in particular, a
 
 For example, a study on the internalization of programming concepts with Scratch with 46 students was presented in \cite{meerbaum-salant_learning_2010}. Concepts like loops, conditional loops, message passing, initialization, variables and concurency were examined, and it was found that students had problems with the last three. In a later study with an equal set of subjects \cite{Meerbaum_habits_2011} the same authors identified two bad programming habits in Scratch, namely bottom-up development and extremely fine-grained programming. They connected the later to the reduced use of if-blocks and finite loops and the increased use of infinite loops, a finding that is verified by our study. In \cite{wilson_evaluation_2012}, 29 projects created by 60 students working in groups were evaluated based on a list of criteria related to programming concepts, code organization and usability design.
 
-Large-scale analyses of Scratch projects have been performed using the dataset made available by the Lifelong Kindergarten Group at the MIT Media Lab, which contains data for Scratch projects created until 2012, when the web-based programming environment was introduced. In \cite{yang_2015}, this dataset was used for exploring the learning patterns of users in terms of block use over their first 50 projects. Dasgupta \emph{et al.} investigated how project remixing relates to the adoption of computational thinking concepts \cite{Dasgupta_2016}. In \cite{fields_2014}, the use of programming concepts was examined in relation to the level of participation (commenting, remixing, etc), the gender, and the account age of 5,000 Scratch programmers.
+Large-scale analyses of Scratch projects have been performed using the dataset made available by the Lifelong Kindergarten Group at the MIT Media Lab, which contains data for Scratch projects created until 2012, when the web-based programming environment was introduced. In \cite{yang_2015}, this dataset was used for exploring the learning patterns of programmers in terms of block use over their first 50 projects. Dasgupta \emph{et al.} investigated how project remixing relates to the adoption of computational thinking concepts \cite{Dasgupta_2016}. In \cite{fields_2014}, the use of programming concepts was examined in relation to the level of participation (commenting, remixing, etc), the gender, and the account age of 5,000 Scratch programmers.
 
 Most related to our study for the second research question of programming abstractions and concepts is the work by Maloney \emph{et al.} \cite{Maloney_2008}, who analyzed 536 Scratch projects for blocks that relate to programming concepts including loops, conditional statements, variables, user interaction, synchronization, and random numbers. Compared to their findings, our investigation reveals increased use of the first three concepts, and especially variables.
 
@@ -450,7 +453,7 @@ The Scratch automated quality analysis tools Hairball \cite{boe_hairball:_2013} 
 \label{sec:conclusion}
 In this paper we presented a large-scale study on 247,798 projects we scraped from the Scratch repository. We analyze these projects in terms of size, complexity, application of programming abstractions and utilization of programming concepts including procedures, variables, conditional statements, loops, and broadcast-receive functionality. We find that procedures and conditional loops are not commonly used. We further investigate the presence of code smells, including code duplication, dead code, long method and large class smells. Our findings indicate that Scratch programs suffer from code smells and especially from dead code and code duplication.
 
-In addition to the findings presented in this paper, we provide as contributions the dataset that we used for our study, as well as information on the edge cases that we found in the dataset in terms of size and number of procedures, variables, cyclomatic complexity, clones and dead code.\footnotemark[\ref{repo}]
+In addition to the findings presented in this paper, we provide as contributions the dataset that we used for our study, as well as the project identifiers and information on the edge cases that we found in the dataset in terms of size and number of procedures, variables, cyclomatic complexity, clones and dead code.\footnotemark[\ref{repo}]
 
 \bibliographystyle{abbrv}
 \bibliography{zotero}
