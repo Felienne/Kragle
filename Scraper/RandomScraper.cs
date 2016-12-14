@@ -1,28 +1,29 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 
 namespace Scraper
 {
-    public abstract class scraper
+    public abstract class Scraper
     {
-        public string _path;
+        public string Path;
 
-        public scraper(string p)
+        public Scraper(string p)
         {
-            _path = p;
+            Path = p;
             //check to see if the path exists and whether the subfolders /files and /properties do
 
-            makeIfNotExists(_path);
+            MakeIfNotExists(Path);
 
-            makeIfNotExists(_path + "\\files\\");
-            makeIfNotExists(_path + "\\properties\\");
+            MakeIfNotExists(Path + "\\files\\");
+            MakeIfNotExists(Path + "\\properties\\");
         }
 
 
-        public abstract void scrape();
+        public abstract void Scrape();
 
-        private void makeIfNotExists(string p)
+        private static void MakeIfNotExists(string p)
         {
             bool existsWhole = Directory.Exists(p);
 
@@ -34,18 +35,19 @@ namespace Scraper
     }
 
 
-    public class randomScraper : scraper
+    public class RandomScraper : Scraper
     {
-        public int _max;
-        public int _min;
+        public int Max;
+        public int Min;
 
-        public randomScraper(string p, int min, int max) : base(p)
+        public RandomScraper(string p, int min, int max) : base(p)
         {
-            _min = min;
-            _max = max;
+            Min = min;
+            Max = max;
         }
 
-        public override void scrape()
+        [SuppressMessage("ReSharper", "FunctionNeverReturns")]
+        public override void Scrape()
         {
             int numFound = 1;
             int numNotFound = 0;
@@ -56,43 +58,43 @@ namespace Scraper
 
             while (true)
             {
-                string skippedPath = _path + "\\skipped.txt";
-                int id = rnd.Next(_min, _max);
+                string skippedPath = Path + "\\skipped.txt";
+                int id = rnd.Next(Min, Max);
                 string idString = id.ToString();
 
                 try
                 {
-                    string JSONpath = _path + "\\files\\" + id + ".sb";
+                    string jsonPath = Path + "\\files\\" + id + ".sb";
 
                     //do we already have this id?
-                    if (!File.Exists(JSONpath))
+                    if (!File.Exists(jsonPath))
                     {
-                        string toWrite = JSONGetter.getProjectbyID(idString);
+                        string toWrite = JsonGetter.GetProjectbyId(idString);
 
                         if (toWrite != null)
                         {
-                            JSONGetter.writeStringToFile(toWrite, JSONpath);
+                            JsonGetter.WriteStringToFile(toWrite, jsonPath);
                             numFound++;
                         }
                         else
                         {
                             numNotFound++;
-                            JSONGetter.writeStringToFile("Not Found, " + idString, skippedPath, true);
+                            JsonGetter.WriteStringToFile("Not Found, " + idString, skippedPath, true);
                         }
                     }
                     else
                     {
                         numDouble++;
-                        JSONGetter.writeStringToFile("Double, " + idString, skippedPath, true);
+                        JsonGetter.WriteStringToFile("Double, " + idString, skippedPath, true);
                     }
 
                     Console.WriteLine(numFound + "/" + numDouble + "/" + numNotFound + "/" + numException +
                                       "   (found/double/notfound/exception)    " + idString);
                 }
-                catch (Exception E)
+                catch (Exception)
                 {
                     numException++;
-                    JSONGetter.writeStringToFile("Exception, " + idString, skippedPath, true);
+                    JsonGetter.WriteStringToFile("Exception, " + idString, skippedPath, true);
                 }
             }
         }

@@ -6,12 +6,12 @@ using System.Threading;
 
 namespace Scraper
 {
-    public class JSONGetter
+    public class JsonGetter
     {
-        public string url;
+        public string Url;
 
 
-        public static string GetJSON(string url)
+        public static string GetJson(string url)
         {
             WebRequest request = WebRequest.Create(url);
 
@@ -27,7 +27,11 @@ namespace Scraper
             }
 
 
-            Stream data = response.GetResponseStream();
+            Stream data = response?.GetResponseStream();
+            if (data == null)
+            {
+                return null;
+            }
 
             try
             {
@@ -43,26 +47,25 @@ namespace Scraper
             }
         }
 
-        public static void writeStringToFile(string toWrite, string path, bool append = false, bool newline = true)
+        public static void WriteStringToFile(string toWrite, string path, bool append = false, bool newline = true)
         {
-            using (StreamWriter JSONfile =
-                new StreamWriter(path, append))
+            using (StreamWriter jsonFile = new StreamWriter(path, append))
             {
                 if (newline)
                 {
-                    JSONfile.WriteLine(toWrite);
+                    jsonFile.WriteLine(toWrite);
                 }
                 else
                 {
-                    JSONfile.Write(toWrite);
+                    jsonFile.Write(toWrite);
                 }
             }
         }
 
-        public static string getProjectbyID(string id)
+        public static string GetProjectbyId(string id)
         {
             string projecturl = "https://cdn.projects.scratch.mit.edu/internalapi/project/" + id + "/get/";
-            return GetJSON(projecturl);
+            return GetJson(projecturl);
         }
     }
 }

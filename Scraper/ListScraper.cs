@@ -6,16 +6,17 @@ using System.Net;
 
 namespace Scraper
 {
-    internal class listScraper : scraper
+    internal class ListScraper : Scraper
     {
-        public listScraper(string p) : base(p)
+        public ListScraper(string p) : base(p)
         {
         }
 
-        public override void scrape()
+        public override void Scrape()
         {
             int all = 0;
             int i = 1;
+
             while (true)
             {
                 try
@@ -23,12 +24,11 @@ namespace Scraper
                     //get the JSON over the overview page
                     string url = "https://scratch.mit.edu/site-api/explore/more/projects/all/" + i + "/?date=this_month";
 
-                    //parse JSON all project ids
-                    string JSON = JSONGetter.GetJSON(url);
+                    //parse JSON all projectds i
+                    string json = JsonGetter.GetJson(url);
 
                     WebClient webClient = new WebClient();
-                    dynamic result = JsonValue.Parse(JSON);
-                    int numSkips = 0;
+                    dynamic result = JsonValue.Parse(json);
 
                     foreach (dynamic item in result)
                     {
@@ -39,41 +39,39 @@ namespace Scraper
                         string projecturl = "https://cdn.projects.scratch.mit.edu/internalapi/project/" + idString +
                                             "/get/";
 
-                        string JSONpath = _path + "files//" + id + ".sb";
-                        string propertiesPath = _path + "properties.sb";
+                        string jsonPath = Path + "files//" + id + ".sb";
+                        string propertiesPath = Path + "properties.sb";
 
                         //do we already have this id?
-                        if (!File.Exists(JSONpath))
+                        if (File.Exists(jsonPath))
                         {
-                            string toWrite = JSONGetter.getProjectbyID(idString);
-
-                            string properties = idString;
-                            dynamic fields = item["fields"];
-
-                            properties = makeStringFromJSONArray(properties, fields);
-
-                            if (toWrite != null)
-                            {
-                                JSONGetter.writeStringToFile(toWrite, JSONpath);
-                                JSONGetter.writeStringToFile(properties, propertiesPath, true);
-                            }
-
-                            all++;
-                            Console.WriteLine(all + ": " + idString);
+                            continue;
                         }
-                        else
+
+                        string toWrite = JsonGetter.GetProjectbyId(idString);
+
+                        string properties = idString;
+                        dynamic fields = item["fields"];
+
+                        properties = MakeStringFromJsonArray(properties, fields);
+
+                        if (toWrite != null)
                         {
-                            numSkips++;
+                            JsonGetter.WriteStringToFile(toWrite, jsonPath);
+                            JsonGetter.WriteStringToFile(properties, propertiesPath, true);
                         }
+
+                        all++;
+                        Console.WriteLine(all + ": " + idString);
                     }
 
                     Console.WriteLine("Page " + i + " done");
 
                     i++;
                 }
-                catch (Exception E)
+                catch (Exception)
                 {
-                    string skippedPath = _path + "skipped.txt";
+                    string skippedPath = Path + "skipped.txt";
                     Console.WriteLine("exception!");
                     using (StreamWriter skippedFile = new StreamWriter(skippedPath, true))
                     {
@@ -83,7 +81,7 @@ namespace Scraper
             }
         }
 
-        private static string makeStringFromJSONArray(string properties, dynamic fields)
+        private static string MakeStringFromJsonArray(string properties, dynamic fields)
         {
             foreach (dynamic v in fields.Values)
             {
@@ -94,7 +92,7 @@ namespace Scraper
                 else
                 {
                     //JSONarray
-                    dynamic rec = makeStringFromJSONArray(properties, v);
+                    dynamic rec = MakeStringFromJsonArray(properties, v);
                     properties = rec;
                 }
             }

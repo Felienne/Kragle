@@ -9,41 +9,35 @@ namespace Kragle
     {
         private static void Main(string[] args)
         {
-            string param1 = "-p"; //args[0];
+            const string param1 = "-p"; //args[0];
+            const string path = @"C:\Users\Felienne\Dropbox\Code\KragleData\testData\"; //args[1];
 
-            string path = @"C:\Users\Felienne\Dropbox\Code\KragleData\testData\"; //args[1];
-
-            if (param1 == "-p")
+            switch (param1)
             {
-                JSONReader.ProcessJSON(path);
-            }
-            else
-            {
-                if (param1 == "-s")
-                {
+                case "-p":
+                    JsonReader.ProcessJson(path);
+                    break;
+                case "-s":
                     //split the shared and non-shared files
                     Split(path);
-                }
-                else
-                {
-                    JSONPropertiesReader.writeProperties(path);
-                }
+                    break;
+                default:
+                    JsonPropertiesReader.WriteProperties(path);
+                    break;
             }
         }
 
         private static void Split(string path)
         {
             //merge all local list scraped files:
-
-
-            string from = @"C:\ScratchScrapeData\Random_RunLocal\files";
+            const string from = @"C:\ScratchScrapeData\Random_RunLocal\files";
 
             DirectoryInfo d = new DirectoryInfo(from);
 
-            FileInfo[] Files = d.GetFiles();
+            FileInfo[] files = d.GetFiles();
             int i = 0;
 
-            foreach (FileInfo file in Files)
+            foreach (FileInfo file in files)
             {
                 //get the id:
                 string id = Path.GetFileNameWithoutExtension(file.Name);
@@ -53,32 +47,15 @@ namespace Kragle
                 try
                 {
                     File.Move(file.FullName, filenameTo);
-                    Console.WriteLine(i*100/Files.Length);
+                    Console.WriteLine(i*100/files.Length);
                 }
-                catch (Exception E)
+                catch (Exception e)
                 {
-                    Console.WriteLine(E.Message);
-                    int x = 5;
+                    Console.WriteLine(e.Message);
                 }
-
 
                 i++;
             }
-
-
-            //   string filenameNotShared = path+"properties\\notshared.sb";
-
-            //   System.IO.StreamReader fileRead = new System.IO.StreamReader(filenameNotShared);
-
-            //   while (!fileRead.EndOfStream)
-            //   {
-            //      string ID = fileRead.ReadLine();
-
-            //      string filenameFrom = path + ID + ".sb";
-            //      string filenameTo = path + "notShared\\" + ID + ".sb";
-
-            //      File.Move(filenameFrom, filenameTo);
-            //   }
         }
     }
 }

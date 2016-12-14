@@ -3,11 +3,11 @@ using System.Linq;
 using System.Text;
 
 
-namespace csvCleanup
+namespace CsvCleanup
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             //using (var input = File.OpenText(@"C:\Users\Efthimia\Documents\GitHub\Kragle\KragleData\procedures.csv"))
             //using (var output = new StreamWriter(@"C:\Users\Efthimia\Documents\GitHub\Kragle\KragleData\proceduresReplaced.txt", true, Encoding.UTF8))
@@ -26,7 +26,7 @@ namespace csvCleanup
             //    }
             //}
 
-            bool write = true;
+            const bool write = true;
 
             using (
                 StreamReader input =

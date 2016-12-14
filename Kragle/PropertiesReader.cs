@@ -4,58 +4,56 @@ using System.IO;
 
 namespace Scraper
 {
-    internal class JSONPropertiesReader
+    internal class JsonPropertiesReader
     {
-        public static bool isShared(string html)
+        public static bool IsShared(string html)
         {
             return !html.Contains("Sorry this project is not shared");
         }
 
 
-        public static void writeProperties(string _path)
+        public static void WriteProperties(string path)
         {
             //this method assumes that in you have scraped a number of Scratch files
             //it will then put all the corresponding properties in /properties
+            DirectoryInfo d = new DirectoryInfo(path);
 
-
-            DirectoryInfo d = new DirectoryInfo(_path);
-
-            FileInfo[] Files = d.GetFiles(); //Getting files
+            FileInfo[] files = d.GetFiles(); //Getting files
             int i = 0;
 
-            foreach (FileInfo file in Files)
+            foreach (FileInfo file in files)
             {
                 //get the id:
                 string id = Path.GetFileNameWithoutExtension(file.Name);
 
-                string projectURL = @"https://scratch.mit.edu/projects/" + id + "/?x=" + DateTime.Now;
+                string projectUrl = @"https://scratch.mit.edu/projects/" + id + "/?x=" + DateTime.Now;
                 //we are adding a fake quety string to prevent the browser form loading from the cache and getting old data
 
-                string HTML = JSONGetter.GetJSON(projectURL);
+                string html = JsonGetter.GetJson(projectUrl);
 
-                if (HTML != null)
+                if (html != null)
                 {
-                    if (isShared(HTML))
+                    if (IsShared(html))
                     {
-                        string pathForProperties = _path + "properties\\properties.sb";
+                        string pathForProperties = path + "properties\\properties.sb";
 
-                        JSONGetter.writeStringToFile(id + ",", pathForProperties, true, false);
+                        JsonGetter.WriteStringToFile(id + ",", pathForProperties, true, false);
 
-                        FindCountandWritetoFile(HTML, "fav-count", pathForProperties);
-                        FindCountandWritetoFile(HTML, "love-count", pathForProperties);
+                        FindCountandWritetoFile(html, "fav-count", pathForProperties);
+                        FindCountandWritetoFile(html, "love-count", pathForProperties);
 
-                        FindCountandWritetoFile(HTML, "icon views", pathForProperties);
-                        FindCountandWritetoFile(HTML, "icon remix-tree", pathForProperties);
+                        FindCountandWritetoFile(html, "icon views", pathForProperties);
+                        FindCountandWritetoFile(html, "icon remix-tree", pathForProperties);
 
-                        FindCountandWritetoFile(HTML, "Shared:", pathForProperties);
-                        FindCountandWritetoFile(HTML, "Modified:", pathForProperties);
+                        FindCountandWritetoFile(html, "Shared:", pathForProperties);
+                        FindCountandWritetoFile(html, "Modified:", pathForProperties);
 
-                        FindUserWritetoFile(HTML, pathForProperties);
+                        FindUserWritetoFile(html, pathForProperties);
                     }
                     else
                     {
-                        string pathForProperties = _path + "properties\\notShared.sb";
-                        JSONGetter.writeStringToFile(id, pathForProperties, true, true);
+                        string pathForProperties = path + "properties\\notShared.sb";
+                        JsonGetter.WriteStringToFile(id, pathForProperties, true);
                     }
                 }
 
@@ -64,14 +62,14 @@ namespace Scraper
             }
         }
 
-        private static void FindCountandWritetoFile(string HTML, string toFind, string pathForProperties)
+        private static void FindCountandWritetoFile(string html, string toFind, string pathForProperties)
         {
-            int found = HTML.IndexOf(toFind);
+            int found = html.IndexOf(toFind, StringComparison.Ordinal);
 
             if (found != -1)
             {
-                int endofSpan = HTML.IndexOf("</span>", found);
-                string item = HTML.Substring(found + toFind.Length + 2, endofSpan - found - toFind.Length - 2);
+                int endofSpan = html.IndexOf("</span>", found, StringComparison.Ordinal);
+                string item = html.Substring(found + toFind.Length + 2, endofSpan - found - toFind.Length - 2);
 
                 string itemNoSpacesandComma = item.Replace(" ", "").Replace("&nbsp;", "").Replace("\n", "") + ",";
                 if (itemNoSpacesandComma == ",")
@@ -79,33 +77,25 @@ namespace Scraper
                     itemNoSpacesandComma = "0,";
                 }
 
-                JSONGetter.writeStringToFile(itemNoSpacesandComma, pathForProperties, true, false);
+                JsonGetter.WriteStringToFile(itemNoSpacesandComma, pathForProperties, true, false);
             }
         }
 
-        private static void FindUserWritetoFile(string HTML, string pathForProperties)
+        private static void FindUserWritetoFile(string html, string pathForProperties)
         {
-            string toFind = "id=\"owner";
-            int found = HTML.IndexOf(toFind);
+            const string toFind = "id=\"owner";
+            int found = html.IndexOf(toFind, StringComparison.Ordinal);
 
-            if (found != -1)
+            if (found == -1)
             {
-                int endofSpan = HTML.IndexOf("</span>", found);
-                string item = HTML.Substring(found + toFind.Length + 2, endofSpan - found - toFind.Length - 2);
-
-                string itemNoSpaces = item.Replace(" ", "").Replace("&nbsp;", "").Replace("\n", "");
-                JSONGetter.writeStringToFile(itemNoSpaces, pathForProperties, true, true);
+                return;
             }
-        }
 
+            int endOfSpan = html.IndexOf("</span>", found, StringComparison.Ordinal);
+            string item = html.Substring(found + toFind.Length + 2, endOfSpan - found - toFind.Length - 2);
 
-        private static void WriteToFile(string file, dynamic item2)
-        {
-            using (StreamWriter analysisFile =
-                new StreamWriter(file, true))
-            {
-                analysisFile.WriteLine(item2);
-            }
+            string itemNoSpaces = item.Replace(" ", "").Replace("&nbsp;", "").Replace("\n", "");
+            JsonGetter.WriteStringToFile(itemNoSpaces, pathForProperties, true);
         }
     }
 }

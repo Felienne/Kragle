@@ -9,31 +9,31 @@ using Scraper;
 
 namespace Kragle
 {
-    public class JSONReader
+    public class JsonReader
     {
-        public static void ProcessJSON(string path)
+        public static void ProcessJson(string path)
         {
             DirectoryInfo d = new DirectoryInfo(path);
 
-            FileInfo[] Files = d.GetFiles();
+            FileInfo[] files = d.GetFiles();
             int i = 0;
 
-            foreach (FileInfo file in Files)
+            foreach (FileInfo file in files)
             {
-                int dot = file.Name.IndexOf(".");
+                int dot = file.Name.IndexOf(".", StringComparison.Ordinal);
                 string id = file.Name.Substring(0, dot);
 
                 string filename = file.FullName;
 
                 StreamReader fileRead = new StreamReader(filename);
-                string JSON = fileRead.ReadToEnd();
+                string json = fileRead.ReadToEnd();
 
                 List<Script> allScripts = new List<Script>();
                 List<Script> allWaitScripts = new List<Script>();
 
                 try
                 {
-                    dynamic result = JsonValue.Parse(JSON);
+                    dynamic result = JsonValue.Parse(json);
 
                     //in scripts we get all scripts at the level of the stage (the background)
                     foreach (dynamic script in result.scripts)
@@ -49,7 +49,7 @@ namespace Kragle
                         string scopeType = s.Scope;
                         string scopeName = s.ScopeName;
 
-                        foreach (dynamic w in allWaits(script[2], s, ref scopeType, ref scopeName))
+                        foreach (dynamic w in AllWaits(script[2], s, ref scopeType, ref scopeName))
                         {
                             allWaitScripts.Add(w);
                         }
@@ -74,7 +74,7 @@ namespace Kragle
                             string scopeType = s.Scope;
                             string scopeName = s.ScopeName;
 
-                            foreach (dynamic w in allWaits(script[2], s, ref scopeType, ref scopeName))
+                            foreach (dynamic w in AllWaits(script[2], s, ref scopeType, ref scopeName))
                             {
                                 allWaitScripts.Add(w);
                             }
@@ -84,10 +84,10 @@ namespace Kragle
                         }
                     }
 
-                    cloneDetect(path, "clones", allScripts, id, false);
-                    cloneDetect(path, "waitClones", allWaitScripts, id, true);
+                    CloneDetect(path, "clones", allScripts, id, false);
+                    CloneDetect(path, "waitClones", allWaitScripts, id, true);
                 }
-                catch (Exception E)
+                catch (Exception)
                 {
                     using (StreamWriter failFile =
                         new StreamWriter(path + "output\\fail.csv", true))
@@ -103,16 +103,17 @@ namespace Kragle
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
 
 
-                Console.WriteLine(i + "-" + i*100/Files.Length + "%");
+                Console.WriteLine(i + "-" + i*100/files.Length + "%");
                 i++;
             }
             Console.ReadLine();
         }
 
-        private static void cloneDetect(string path, string file, List<Script> allScripts, string id, bool WriteCode)
+        private static void CloneDetect(string path, string file, List<Script> allScripts, string id, bool writeCode)
         {
             IEnumerable<IGrouping<string, Script>> scriptsbyCode = allScripts.GroupBy(x => x.Code.ToString());
 
@@ -141,7 +142,7 @@ namespace Kragle
                     }
 
                     string toWrite;
-                    if (WriteCode)
+                    if (writeCode)
                     {
                         toWrite = "\"" + code.First().ScopeName + "" + "\"," + code.First().ScriptId + "," + code.Key;
                     }
@@ -187,7 +188,7 @@ namespace Kragle
             return true;
         }
 
-        private static ArrayList allWaits(JsonArray script, Script S, ref string scopeType, ref string scopeName)
+        private static ArrayList AllWaits(JsonArray script, Script S, ref string scopeType, ref string scopeName)
         {
             //S is the original script the block occur on
             //script is just code so we can recurse
@@ -202,27 +203,29 @@ namespace Kragle
 
             foreach (JsonValue innerScript in script)
             {
-                if (innerScript is JsonArray)
+                if (!(innerScript is JsonArray))
                 {
-                    if (AllOneField((JsonArray) innerScript))
-                    {
-                        //this is clearly not a wait block
-                    }
-                    else
-                    {
-                        //we save all conditions for clone detection:
-                        if ((innerScript.Count > 0) && (innerScript[0].ToString() == "\"doWaitUntil\""))
-                        {
-                            //create a new scriot to store this block in
-                            Script s = new Script((JsonArray) innerScript, scopeType, scopeName, S.Location, S.ScriptId,
-                                S.ProgramId);
-                            result.Add(s);
-                        }
+                    continue;
+                }
 
-                        foreach (object item in allWaits((JsonArray) innerScript, S, ref scopeType, ref scopeName))
-                        {
-                            result.Add(item);
-                        }
+                if (AllOneField((JsonArray) innerScript))
+                {
+                    //this is clearly not a wait block
+                }
+                else
+                {
+                    //we save all conditions for clone detection:
+                    if ((innerScript.Count > 0) && (innerScript[0].ToString() == "\"doWaitUntil\""))
+                    {
+                        //create a new scriot to store this block in
+                        Script s = new Script((JsonArray) innerScript, scopeType, scopeName, S.Location, S.ScriptId,
+                            S.ProgramId);
+                        result.Add(s);
+                    }
+
+                    foreach (object item in AllWaits((JsonArray) innerScript, S, ref scopeType, ref scopeName))
+                    {
+                        result.Add(item);
                     }
                 }
             }
@@ -230,7 +233,7 @@ namespace Kragle
         }
 
 
-        private static ArrayList flatten(ref int order, JsonArray scripts, ref string scopeType, ref string scopeName,
+        private static ArrayList Flatten(ref int order, JsonArray scripts, ref string scopeType, ref string scopeName,
             ref int indent, string path, string id, ref int maxIndent)
         {
             ArrayList result = new ArrayList();
@@ -294,7 +297,7 @@ namespace Kragle
                             }
                             foreach (
                                 object item in
-                                flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
+                                Flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
                                     path, ref maxIndent))
                             {
                                 result.Add(item);
@@ -309,7 +312,7 @@ namespace Kragle
                             string procdef = id + "," + scopeName + ",procDef," + innerScript[1] + "," +
                                              innerScript[2].Count;
                                 //procdef plus name of the proc plus number of arguments
-                            JSONGetter.writeStringToFile(procdef, path + "output\\procedures.csv", true);
+                            JsonGetter.WriteStringToFile(procdef, path + "output\\procedures.csv", true);
 
                             toPrint += ",procdef";
                             //now set the other blocks to the scope of this proc
@@ -327,7 +330,7 @@ namespace Kragle
                             }
                             foreach (
                                 object item in
-                                flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
+                                Flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
                                     path, ref maxIndent))
                             {
                                 result.Add(item);
@@ -359,7 +362,7 @@ namespace Kragle
 
             int maxIndent = 0;
 
-            ArrayList allStatements = flatten(ref order, s.Code, ref scopeType, ref scopeName, ref indent, path,
+            ArrayList allStatements = Flatten(ref order, s.Code, ref scopeType, ref scopeName, ref indent, path,
                 s.ProgramId, ref maxIndent);
             foreach (object statement in allStatements)
             {
@@ -369,7 +372,6 @@ namespace Kragle
                     analysisFile.WriteLine(s.ProgramId + "," + s.Location + "," + s.ScriptId + "," + statement);
                 }
             }
-            ;
 
             //to calculate Long Method smell we need the length of all scripts, which is the number of items in flattenSimple
             //we also save the number of statements at the top level
