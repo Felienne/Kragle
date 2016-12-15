@@ -9,23 +9,6 @@ namespace CsvCleanup
     {
         private static void Main()
         {
-            //using (var input = File.OpenText(@"C:\Users\Efthimia\Documents\GitHub\Kragle\KragleData\procedures.csv"))
-            //using (var output = new StreamWriter(@"C:\Users\Efthimia\Documents\GitHub\Kragle\KragleData\proceduresReplaced.txt", true, Encoding.UTF8))
-            //{
-            //    string line;
-            //    while (null != (line = input.ReadLine()))
-            //    {
-            //        var procdelf = line.IndexOf(",procDef,");
-            //        var start = line.Substring(0, procdelf).Split(',');
-            //        var end = line.Substring(procdelf + 1, line.Length - procdelf - 1).Split(',');
-
-            //        var outputLine = start[0] + ",\"" + start[1].Replace("\"", "") + "\",\"" + end[1].Replace("\"", "") + "\"," + end[2];
-
-            //        output.WriteLine(outputLine);
-
-            //    }
-            //}
-
             const bool write = true;
 
             using (
@@ -41,11 +24,6 @@ namespace CsvCleanup
                     string line;
                     while (null != (line = input.ReadLine()))
                     {
-                        //if (line.StartsWith("99850394,5-118.5,23,sprite"))
-                        //{
-                        //    write = true;
-                        //    line = line;//.Replace("The \"Exit\"", "The Exit");
-                        //}
                         line = line.Replace(",\"I have no talent.\", said Sprite 44.,",
                             ",\"I have no talent., said Sprite 44.\",");
                         line = line.Replace(",\"I lagged so much, so I decided, \"Whatever\"\",",

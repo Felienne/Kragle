@@ -36,9 +36,6 @@ namespace Scraper
                         int id = item["pk"].Value;
                         string idString = id.ToString();
 
-                        string projecturl = "https://cdn.projects.scratch.mit.edu/internalapi/project/" + idString +
-                                            "/get/";
-
                         string jsonPath = Path + "files//" + id + ".sb";
                         string propertiesPath = Path + "properties.sb";
 

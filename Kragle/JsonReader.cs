@@ -43,7 +43,7 @@ namespace Kragle
                         //as script id we used the number of scripts saved so far.
 
                         Script s = new Script(script[2], "stage", "stage", location, allScripts.Count().ToString(), id);
-                            //we only take the third element, the first two are the location.
+                        //we only take the third element, the first two are the location.
                         allScripts.Add(s);
 
                         string scopeType = s.Scope;
@@ -67,8 +67,8 @@ namespace Kragle
                             string location = script[0] + "-" + script[1];
 
                             Script s = new Script(script[2], "sprite", spriteName, location,
-                                    allScripts.Count().ToString(), id);
-                                //we only take the third element, the first two are the location.
+                                allScripts.Count().ToString(), id);
+                            //we only take the third element, the first two are the location.
                             allScripts.Add(s);
 
                             string scopeType = s.Scope;
@@ -89,8 +89,7 @@ namespace Kragle
                 }
                 catch (Exception)
                 {
-                    using (StreamWriter failFile =
-                        new StreamWriter(path + "output\\fail.csv", true))
+                    using (StreamWriter failFile = new StreamWriter(path + "output\\fail.csv", true))
                     {
                         failFile.WriteLine(id);
                     }
@@ -124,40 +123,42 @@ namespace Kragle
                 //print that thang!
                 int numOccurrences = code.Count();
 
-                if (numOccurrences > 1)
+                if (numOccurrences <= 1)
                 {
-                    //now group the clones by their location:
-                    IEnumerable<IGrouping<string, Script>> clonesbyScope = code.GroupBy(x => x.ScopeName);
+                    continue;
+                }
 
-                    string scopesAndOccurrences = "";
-                    foreach (IGrouping<string, Script> scope in clonesbyScope)
-                    {
-                        scopesAndOccurrences += "," + scope.Key + ",";
-                        scopesAndOccurrences += scope.Count();
-                    }
+                //now group the clones by their location:
+                IEnumerable<IGrouping<string, Script>> clonesbyScope = code.GroupBy(x => x.ScopeName);
 
-                    if (numOccurrences != clonesbyScope.Count())
-                    {
-                        bool b = true;
-                    }
+                string scopesAndOccurrences = "";
+                foreach (IGrouping<string, Script> scope in clonesbyScope)
+                {
+                    scopesAndOccurrences += "," + scope.Key + ",";
+                    scopesAndOccurrences += scope.Count();
+                }
 
-                    string toWrite;
-                    if (writeCode)
-                    {
-                        toWrite = "\"" + code.First().ScopeName + "" + "\"," + code.First().ScriptId + "," + code.Key;
-                    }
-                    else
-                    {
-                        toWrite = "\"" + code.First().ScopeName + "" + "\"," + code.First().ScriptId;
-                            //we write the location of the first clone                                       
-                    }
+                if (numOccurrences != clonesbyScope.Count())
+                {
+                    bool b = true;
+                }
 
-                    using (StreamWriter analysisFile =
-                        new StreamWriter(path + "output\\" + file + ".csv", true))
-                    {
-                        analysisFile.WriteLine(id + "," + numOccurrences + "," + clonesbyScope.Count() + "," + toWrite +
-                                               scopesAndOccurrences);
-                    }
+                string toWrite;
+                if (writeCode)
+                {
+                    toWrite = "\"" + code.First().ScopeName + "" + "\"," + code.First().ScriptId + "," + code.Key;
+                }
+                else
+                {
+                    toWrite = "\"" + code.First().ScopeName + "" + "\"," + code.First().ScriptId;
+                    //we write the location of the first clone                                       
+                }
+
+                using (StreamWriter analysisFile =
+                    new StreamWriter(path + "output\\" + file + ".csv", true))
+                {
+                    analysisFile.WriteLine(id + "," + numOccurrences + "," + clonesbyScope.Count() + "," + toWrite +
+                                           scopesAndOccurrences);
                 }
             }
         }
@@ -176,12 +177,14 @@ namespace Kragle
 
             foreach (JsonValue innerScript in script)
             {
-                if (innerScript is JsonArray)
+                if (!(innerScript is JsonArray))
                 {
-                    if (!AllOneField((JsonArray) innerScript))
-                    {
-                        return false;
-                    }
+                    continue;
+                }
+
+                if (!AllOneField((JsonArray) innerScript))
+                {
+                    return false;
                 }
             }
 
@@ -268,73 +271,75 @@ namespace Kragle
                     }
 
                     added = true;
-                        //it could be that there will be more primitives (arguments) so we only print at the end
+                    //it could be that there will be more primitives (arguments) so we only print at the end
                 }
-                if (innerScript is JsonArray)
+                if (!(innerScript is JsonArray))
                 {
-                    if (AllOneField((JsonArray) innerScript))
+                    continue;
+                }
+
+                if (AllOneField((JsonArray) innerScript))
+                {
+                    if (innerScript.Count == 0)
                     {
-                        if (innerScript.Count == 0)
+                        //this is an empy array
+                        if (addOrder)
                         {
-                            //this is an empy array
-                            if (addOrder)
-                            {
-                                toPrint += "," + order + ",[]";
-                                order = order + 1;
-                                addOrder = false;
-                            }
-                            else
-                            {
-                                toPrint += ",[]";
-                            }
+                            toPrint += "," + order + ",[]";
+                            order = order + 1;
+                            addOrder = false;
                         }
                         else
                         {
-                            int j = indent + 1;
-                            if (j > maxIndent)
-                            {
-                                maxIndent = j;
-                            }
-                            foreach (
-                                object item in
-                                Flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
-                                    path, ref maxIndent))
-                            {
-                                result.Add(item);
-                            }
+                            toPrint += ",[]";
                         }
                     }
                     else
                     {
-                        if ((innerScript.Count > 0) && (innerScript[0].ToString() == "\"procDef\""))
+                        int j = indent + 1;
+                        if (j > maxIndent)
                         {
-                            //first save this definition to a separate file
-                            string procdef = id + "," + scopeName + ",procDef," + innerScript[1] + "," +
-                                             innerScript[2].Count;
-                                //procdef plus name of the proc plus number of arguments
-                            JsonGetter.WriteStringToFile(procdef, path + "output\\procedures.csv", true);
-
-                            toPrint += ",procdef";
-                            //now set the other blocks to the scope of this proc
-                            scopeType = "procDef";
-                            scopeName = innerScript[1].ToString();
-
-                            added = true;
+                            maxIndent = j;
                         }
-                        else
+                        foreach (
+                            object item in
+                            Flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
+                                path, ref maxIndent))
                         {
-                            int j = indent + 1;
-                            if (j > maxIndent)
-                            {
-                                maxIndent = j;
-                            }
-                            foreach (
-                                object item in
-                                Flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
-                                    path, ref maxIndent))
-                            {
-                                result.Add(item);
-                            }
+                            result.Add(item);
+                        }
+                    }
+                }
+                else
+                {
+                    if ((innerScript.Count > 0) && (innerScript[0].ToString() == "\"procDef\""))
+                    {
+                        //first save this definition to a separate file
+                        string procdef = id + "," + scopeName + ",procDef," + innerScript[1] + "," +
+                                         innerScript[2].Count;
+                        //procdef plus name of the proc plus number of arguments
+                        JsonGetter.WriteStringToFile(procdef, path + "output\\procedures.csv", true);
+
+                        toPrint += ",procdef";
+                        //now set the other blocks to the scope of this proc
+                        scopeType = "procDef";
+                        scopeName = innerScript[1].ToString();
+
+                        added = true;
+                    }
+                    else
+                    {
+                        int j = indent + 1;
+                        if (j > maxIndent)
+                        {
+                            maxIndent = j;
+                        }
+                        foreach (
+                            object item in
+                            Flatten(ref order, (JsonArray) innerScript, ref scopeType, ref scopeName, ref j, id,
+                                path, ref maxIndent))
+                        {
+                            result.Add(item);
                         }
                     }
                 }
