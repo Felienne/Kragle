@@ -12,26 +12,13 @@ namespace Scraper
         public Scraper(string p)
         {
             Path = p;
-            //check to see if the path exists and whether the subfolders /files and /properties do
-
-            MakeIfNotExists(Path);
-
-            MakeIfNotExists(Path + "\\files\\");
-            MakeIfNotExists(Path + "\\properties\\");
+            Directory.CreateDirectory(Path);
+            Directory.CreateDirectory(Path + "/files/");
+            Directory.CreateDirectory(Path + "/properties/");
         }
 
 
         public abstract void Scrape();
-
-        private static void MakeIfNotExists(string p)
-        {
-            bool existsWhole = Directory.Exists(p);
-
-            if (!existsWhole)
-            {
-                Directory.CreateDirectory(p);
-            }
-        }
     }
 
 

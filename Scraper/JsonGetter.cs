@@ -16,7 +16,7 @@ namespace Scraper
             WebRequest request = WebRequest.Create(url);
 
             // Obtain a response from the server, if there was an error, return nothing
-            HttpWebResponse response = null;
+            HttpWebResponse response;
             try
             {
                 response = request.GetResponse() as HttpWebResponse;

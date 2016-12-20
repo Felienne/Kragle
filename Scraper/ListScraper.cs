@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Json;
-using System.Net;
 
 
 namespace Scraper
@@ -12,6 +12,7 @@ namespace Scraper
         {
         }
 
+        [SuppressMessage("ReSharper", "FunctionNeverReturns")]
         public override void Scrape()
         {
             int all = 0;
@@ -22,12 +23,12 @@ namespace Scraper
                 try
                 {
                     //get the JSON over the overview page
-                    string url = "https://scratch.mit.edu/site-api/explore/more/projects/all/" + i + "/?date=this_month";
+                    string url = "https://scratch.mit.edu/site-api/explore/more/projects/all/" + i +
+                                 "/?date=this_month";
 
                     //parse JSON all projectds i
                     string json = JsonGetter.GetJson(url);
 
-                    WebClient webClient = new WebClient();
                     dynamic result = JsonValue.Parse(json);
 
                     foreach (dynamic item in result)

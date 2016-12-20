@@ -47,7 +47,7 @@ namespace Kragle
                 try
                 {
                     File.Move(file.FullName, filenameTo);
-                    Console.WriteLine(i*100/files.Length);
+                    Console.WriteLine(i * 100 / files.Length);
                 }
                 catch (Exception e)
                 {

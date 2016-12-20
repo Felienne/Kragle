@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Text;
 
 
@@ -9,8 +8,6 @@ namespace CsvCleanup
     {
         private static void Main()
         {
-            const bool write = true;
-
             using (
                 StreamReader input =
                     File.OpenText(@"C:\Users\Efthimia\Documents\GitHub\Kragle\KragleData\analysisutf8.txt"))
@@ -57,7 +54,8 @@ namespace CsvCleanup
                             line = line.Replace("\"*scratch* \"Ow, that hurt...\"\"", "\"*scratch* Ow, that hurt...\"");
                         }
                         if (!line.Contains("\"bob is the adrihgl\\") && !line.Contains(",\"agario\\\"") &&
-                            !line.StartsWith("88909171") && !line.StartsWith("89272317") && !line.StartsWith("98879854") &&
+                            !line.StartsWith("88909171") && !line.StartsWith("89272317") &&
+                            !line.StartsWith("98879854") &&
                             !line.Contains(@"\\"""))
                         {
                             line = line.Replace(@"\""", "*");
@@ -69,11 +67,11 @@ namespace CsvCleanup
 
 
                         string[] splits = line.Split(',');
-                        if (splits.Count() > 4)
+                        if (splits.Length > 4)
                         {
                             string[] parts = splits[4].Split('\"');
-                            if ((splits[4] == @"""") || (parts.Count() > 3) ||
-                                ((parts.Count() == 3) && ((parts[0].Length > 0) || (parts[2].Length > 0))))
+                            if (splits[4] == @"""" || parts.Length > 3 ||
+                                parts.Length == 3 && (parts[0].Length > 0 || parts[2].Length > 0))
                             {
                                 if (!line.Contains(",\",\","))
                                 {
@@ -82,13 +80,13 @@ namespace CsvCleanup
                                 }
                             }
 
-                            if ((splits.Count() > 8) && (splits[8].Length > 1900))
+                            if (splits.Length > 8 && splits[8].Length > 1900)
                             {
                                 line = line.Replace(splits[8], "(shortened)" + splits[8].Substring(0, 1899));
                             }
                         }
 
-                        if (write && !line.StartsWith("93746209"))
+                        if (!line.StartsWith("93746209"))
                         {
                             output.WriteLine(line);
                         }

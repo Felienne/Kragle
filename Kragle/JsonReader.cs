@@ -106,7 +106,7 @@ namespace Kragle
                 }
 
 
-                Console.WriteLine(i + "-" + i*100/files.Length + "%");
+                Console.WriteLine(i + "-" + i * 100 / files.Length + "%");
                 i++;
             }
             Console.ReadLine();
