@@ -119,7 +119,7 @@ namespace Kragle
             // Loop over groups.
             foreach (IGrouping<string, Script> code in scriptsbyCode)
             {
-                //if there is a group bigger than 1 (aka A CLONE) 
+                //if there is a group bigger than 1 (aka A CLONE)
                 //print that thang!
                 int numOccurrences = code.Count();
 
@@ -138,11 +138,6 @@ namespace Kragle
                     scopesAndOccurrences += scope.Count();
                 }
 
-                if (numOccurrences != clonesbyScope.Count())
-                {
-                    bool b = true;
-                }
-
                 string toWrite;
                 if (writeCode)
                 {
@@ -151,7 +146,7 @@ namespace Kragle
                 else
                 {
                     toWrite = "\"" + code.First().ScopeName + "" + "\"," + code.First().ScriptId;
-                    //we write the location of the first clone                                       
+                    //we write the location of the first clone
                 }
 
                 using (StreamWriter analysisFile =
