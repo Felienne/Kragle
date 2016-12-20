@@ -52,10 +52,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JSONGetter.cs" />
+    <Compile Include="JsonGetter.cs" />
     <Compile Include="MainApp.cs" />
-    <Compile Include="randomScraper.cs" />
-    <Compile Include="listScraper.cs" />
+    <Compile Include="RandomScraper.cs" />
+    <Compile Include="ListScraper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
