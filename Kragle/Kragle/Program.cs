@@ -35,6 +35,7 @@ namespace Kragle
             {
                 case "reset":
                     ResetSubOptions resetSubOptions = (ResetSubOptions) _invokedVerbInstance;
+                    Database.Reset(resetSubOptions.DatabaseFile);
                     break;
 
                 case "users":
@@ -110,7 +111,7 @@ namespace Kragle
     /// </summary>
     internal class UsersSubOptions : DatabaseSharedOptions
     {
-        [Option('n', "number", HelpText = "The number of users to scrape")]
+        [Option('n', "number", DefaultValue = int.MaxValue, HelpText = "The number of users to scrape")]
         public int Count { get; set; }
 
         [Option('r', "reset database", HelpText = "Reset the database")]
