@@ -1,0 +1,1 @@
+CREATE TABLE proto_user (id INTEGER NOT NULL, PRIMARY KEY (id));

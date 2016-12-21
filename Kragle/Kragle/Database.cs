@@ -77,7 +77,7 @@ namespace Kragle
         /// <param name="connection">a valid connection to a database</param>
         private static void InitialiseDatabase(SQLiteConnection connection)
         {
-            new SQLiteCommand("CREATE TABLE proto_user (id integer primary key);", connection).ExecuteNonQuery();
+            new SQLiteCommand(Properties.Resources.db_create, connection).ExecuteNonQuery();
         }
     }
 }
