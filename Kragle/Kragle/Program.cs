@@ -19,6 +19,11 @@ namespace Kragle
         /// <param name="args">the command-line arguments</param>
         private static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                return;
+            }
+
             // Parse options
             Options options = new Options();
             if (!Parser.Default.ParseArguments(args, options, (verb, subOptions) =>
@@ -35,7 +40,8 @@ namespace Kragle
             {
                 case "reset":
                     ResetSubOptions resetSubOptions = (ResetSubOptions) _invokedVerbInstance;
-                    Database.Reset(resetSubOptions.DatabaseFile);
+                    Database.Reset(resetSubOptions.DatabaseHost, resetSubOptions.DatabasePort,
+                        resetSubOptions.DatabaseUser, resetSubOptions.DatabasePass, resetSubOptions.DatabaseName);
                     break;
 
                 case "users":
@@ -54,7 +60,7 @@ namespace Kragle
                     ParseSubOptions parseSubOptions = (ParseSubOptions) _invokedVerbInstance;
                     break;
 
-                case "analyse":
+                case "analyze":
                     AnalyzeSubOptions analyzeSubOptions = (AnalyzeSubOptions) _invokedVerbInstance;
                     break;
 
@@ -62,6 +68,10 @@ namespace Kragle
                     Environment.Exit(Parser.DefaultExitCodeFail);
                     break;
             }
+
+            // Finish
+            Console.WriteLine("\nProgram finished execution.\nPress enter to close this window.");
+            Console.ReadLine();
         }
     }
 
@@ -95,8 +105,20 @@ namespace Kragle
     /// </summary>
     internal abstract class DatabaseSharedOptions
     {
-        [Option('d', "database", DefaultValue = "database.sqlite", HelpText = "The location of the database file")]
-        public string DatabaseFile { get; set; }
+        [Option('h', "host", DefaultValue = "127.0.0.1", HelpText = "The database host address")]
+        public string DatabaseHost { get; set; }
+
+        [Option('u', "user", DefaultValue = "postgres", HelpText = "The database user account name")]
+        public string DatabaseUser { get; set; }
+
+        [Option('p', "pass", Required = true, HelpText = "The database user account password")]
+        public string DatabasePass { get; set; }
+
+        [Option("port", DefaultValue = 5432, HelpText = "The database port")]
+        public int DatabasePort { get; set; }
+
+        [Option("db", DefaultValue = "kragle", HelpText = "The database name")]
+        public string DatabaseName { get; set; }
     }
 
     /// <summary>
@@ -118,7 +140,7 @@ namespace Kragle
         public bool Reset { get; set; }
 
         [Option('c', "disable caching", HelpText = "Disable caching with requests; slows down the process significantly"
-         )]
+        )]
         public bool NoCache { get; set; }
     }
 

@@ -1,5 +1,8 @@
-﻿using System.Data.SQLite;
-using System.IO;
+﻿using System;
+using System.Data;
+using System.Data.Common;
+using Kragle.Properties;
+using Npgsql;
 
 
 namespace Kragle
@@ -9,25 +12,62 @@ namespace Kragle
     /// </summary>
     internal class Database
     {
-        private readonly SQLiteConnection _connection;
+        private readonly NpgsqlConnection _conn;
 
 
         /// <summary>
         ///     Establishes a new database connection.
         /// </summary>
-        public Database(string databaseFile)
+        public Database(string server, int port, string username, string password, string database)
         {
-            bool exists = File.Exists(databaseFile);
-
-            _connection = new SQLiteConnection("Data Source=" + databaseFile + ";Version=3;");
-            _connection.Open();
-
-            if (!exists)
-            {
-                InitialiseDatabase(_connection);
-            }
+            CreateDatabase(server, port, username, password, database);
+            _conn = CreateConnection(server, port, username, password, database);
         }
 
+
+        /// <summary>
+        ///     Resets the given database. That is, the database is dropped and then created again, without tables.
+        /// </summary>
+        /// <param name="server">the address of the server</param>
+        /// <param name="port">the port of the server</param>
+        /// <param name="username">the username of the user to connect as</param>
+        /// <param name="password">the password of the user</param>
+        /// <param name="database">the name of the database</param>
+        public static void Reset(string server, int port, string username, string password, string database)
+        {
+            const string dropQuery = "DROP DATABASE IF EXISTS {0};";
+
+            using (NpgsqlConnection conn = CreateConnection(server, port, username, password))
+            {
+                conn.Open();
+
+                try
+                {
+                    new NpgsqlCommand(string.Format(dropQuery, database), conn).ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+
+            CreateDatabase(server, port, username, password, database);
+        }
+
+        /// <summary>
+        ///     Executes the given SQL and returns the dataset returned from the query. This method is useful for retrieving data
+        ///     from prepared queries.
+        /// </summary>
+        /// <param name="sql">the SQL to execute</param>
+        /// <returns>the dataset returned from the query</returns>
+        public static DataTable ExecuteReaderQuery(DbCommand sql)
+        {
+            DbDataReader reader = sql.ExecuteReader();
+            DataTable dt = new DataTable();
+            dt.Load(reader);
+
+            return dt;
+        }
 
         /// <summary>
         ///     Executes the given SQL and returns the number of affected rows.
@@ -36,48 +76,96 @@ namespace Kragle
         /// <returns>the number of affected rows</returns>
         public int ExecuteQuery(string sql)
         {
-            return new SQLiteCommand(sql, _connection).ExecuteNonQuery();
+            return new NpgsqlCommand(sql, _conn).ExecuteNonQuery();
         }
 
         /// <summary>
-        /// Prepares the given query.
+        ///     Prepares a query.
         /// </summary>
         /// <param name="sql">the SQL to prepare</param>
-        /// <returns>the prepared SQLiteCommand</returns>
-        public SQLiteCommand PrepareQuery(string sql)
+        /// <returns>the prepared query</returns>
+        public DbCommand PrepareQuery(string sql)
         {
-            SQLiteCommand command = new SQLiteCommand(sql, _connection);
+            NpgsqlCommand command = new NpgsqlCommand(sql, _conn);
             command.Prepare();
             return command;
         }
 
         /// <summary>
-        ///     Executes the given SQL and returns the reader of the result.
+        ///     Executes the given SQL and returns the dataset returned from the query.
         /// </summary>
         /// <param name="sql">the SQL to execute</param>
-        /// <returns></returns>
-        public SQLiteDataReader ReadQuery(string sql)
+        /// <returns>the dataset returned from the query</returns>
+        public DataTable ExecuteReaderQuery(string sql)
         {
-            return new SQLiteCommand(sql, _connection).ExecuteReader();
-        }
-
-        /// <summary>
-        ///     Resets the database file, removing all contents.
-        /// </summary>
-        /// <param name="databaseFile">the location of the database file</param>
-        public static void Reset(string databaseFile)
-        {
-            File.Delete(databaseFile);
+            return ExecuteReaderQuery(new NpgsqlCommand(sql, _conn));
         }
 
 
         /// <summary>
-        ///     Populates the database with the necessary tables and keys.
+        ///     Creates a connection to a PostgreSQL server, but does not open it.
         /// </summary>
-        /// <param name="connection">a valid connection to a database</param>
-        private static void InitialiseDatabase(SQLiteConnection connection)
+        /// <param name="server">the address of the server</param>
+        /// <param name="port">the port of the server</param>
+        /// <param name="username">the username of the user to create the database as</param>
+        /// <param name="password">the password of the user</param>
+        /// <returns>a connection to a PostgreSQL server</returns>
+        private static NpgsqlConnection CreateConnection(string server, int port, string username, string password)
         {
-            new SQLiteCommand(Properties.Resources.db_create, connection).ExecuteNonQuery();
+            const string connString = "Server={0};Port={1};Username={2};Password={3};";
+
+            return new NpgsqlConnection(string.Format(connString, server, port, username, password));
+        }
+
+        /// <summary>
+        ///     Creates a connection to a PostgreSQL database, but does not open it.
+        /// </summary>
+        /// <param name="server">the address of the server</param>
+        /// <param name="port">the port of the server</param>
+        /// <param name="username">the username of the user to connect as</param>
+        /// <param name="password">the password of the user</param>
+        /// <param name="database">the name of the database</param>
+        /// <returns>a connection to a PostgreSQL database</returns>
+        private static NpgsqlConnection CreateConnection(string server, int port, string username, string password,
+            string database)
+        {
+            const string connString = "Server={0};Port={1};Username={2};Password={3};Database={4};";
+
+            return new NpgsqlConnection(string.Format(connString, server, port, username, password, database));
+        }
+
+        /// <summary>
+        ///     Creates a database if it does not already exist, and populates it with tables if they do not exist.
+        /// </summary>
+        /// <param name="server">the address of the server</param>
+        /// <param name="port">the port of the server</param>
+        /// <param name="username">the username of the user to create the database as</param>
+        /// <param name="password">the password of the user</param>
+        /// <param name="database">the name of the database</param>
+        private static void CreateDatabase(string server, int port, string username, string password, string database)
+        {
+            const string existsQuery = "SELECT 1 AS result FROM pg_database WHERE datname='{0}';";
+            const string createQuery = "CREATE DATABASE {0};";
+
+            // Create database (if it does not exist)
+            using (NpgsqlConnection conn = CreateConnection(server, port, username, password))
+            {
+                conn.Open();
+
+                DataTable data = ExecuteReaderQuery(new NpgsqlCommand(string.Format(existsQuery, database), conn));
+                if (data.Rows.Count == 0)
+                {
+                    new NpgsqlCommand(string.Format(createQuery, database), conn).ExecuteNonQuery();
+                }
+            }
+
+            // Create table (if they do not exist)
+            using (NpgsqlConnection conn = CreateConnection(server, port, username, password, database))
+            {
+                conn.Open();
+
+                new NpgsqlCommand(Resources.db_create, conn).ExecuteNonQuery();
+            }
         }
     }
 }
