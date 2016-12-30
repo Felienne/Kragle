@@ -92,6 +92,23 @@ namespace Kragle
         }
 
         /// <summary>
+        ///     Adds a parameter-value pair to a prepared query. The instance of this Database object is returned to allow chaining
+        ///     of this method.
+        /// </summary>
+        /// <param name="sql">a prepared query</param>
+        /// <param name="parameter">the name of the parameter</param>
+        /// <param name="value">the value of the parameter</param>
+        /// <returns>this Database instance</returns>
+        public Database AddParameter(DbCommand sql, string parameter, object value)
+        {
+            DbParameter param = sql.CreateParameter();
+            param.ParameterName = parameter;
+            param.Value = value;
+            sql.Parameters.Add(param);
+            return this;
+        }
+
+        /// <summary>
         ///     Executes the given SQL and returns the dataset returned from the query.
         /// </summary>
         /// <param name="sql">the SQL to execute</param>
