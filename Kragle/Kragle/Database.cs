@@ -45,7 +45,7 @@ namespace Kragle
                 {
                     new NpgsqlCommand(string.Format(dropQuery, database), conn).ExecuteNonQuery();
                 }
-                catch (Exception e)
+                catch (NpgsqlException e)
                 {
                     Console.WriteLine(e.Message);
                 }
