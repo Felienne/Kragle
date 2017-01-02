@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using Kragle.Properties;
 using Npgsql;
+using NpgsqlTypes;
 
 
 namespace Kragle
@@ -57,18 +59,53 @@ namespace Kragle
         }
 
         /// <summary>
-        ///     Executes the given SQL and returns the dataset returned from the query. This method is useful for retrieving data
-        ///     from prepared queries.
+        ///     Executes the given command and returns the dataset returned from the query. This method is useful for retrieving
+        ///     data from prepared queries.
         /// </summary>
-        /// <param name="sql">the SQL to execute</param>
+        /// <param name="cmd">the command to execute</param>
         /// <returns>the dataset returned from the query</returns>
-        public static DataTable ExecuteReaderQuery(DbCommand sql)
+        public static DataTable ExecuteReaderQuery(DbCommand cmd)
         {
-            DbDataReader reader = sql.ExecuteReader();
+            DbDataReader reader = cmd.ExecuteReader();
             DataTable dt = new DataTable();
             dt.Load(reader);
 
             return dt;
+        }
+
+        /// <summary>
+        ///     Adds a parameter-value pair to a prepared query.
+        /// </summary>
+        /// <param name="cmd">a prepared query</param>
+        /// <param name="parameter">the name of the parameter</param>
+        /// <param name="type">the parameter's data type</param>
+        /// <returns>this Database instance</returns>
+        public static void PrepareParameter(DbCommand cmd, string parameter, NpgsqlDbType type)
+        {
+            cmd.Parameters.Add(new NpgsqlParameter(parameter, type));
+        }
+
+        /// <summary>
+        /// Sets the value for a prepared command's parameter.
+        /// </summary>
+        /// <param name="cmd">a database command</param>
+        /// <param name="parameter">the parameter name</param>
+        /// <param name="value">the parameter value</param>
+        public static void SetParameter(DbCommand cmd, string parameter, object value)
+        {
+            NpgsqlCommand npgsqlCmd = cmd as NpgsqlCommand;
+            Debug.Assert(npgsqlCmd != null, "cmd is an NpgsqlCommand");
+            npgsqlCmd.Parameters[parameter].Value = value;
+        }
+
+        /// <summary>
+        ///     Creates a command object encapsulating an SQL query.
+        /// </summary>
+        /// <param name="sql">the SQL</param>
+        /// <returns>a command object</returns>
+        public NpgsqlCommand CreateQuery(string sql)
+        {
+            return new NpgsqlCommand(sql, _conn);
         }
 
         /// <summary>
@@ -78,36 +115,7 @@ namespace Kragle
         /// <returns>the number of affected rows</returns>
         public int ExecuteQuery(string sql)
         {
-            return new NpgsqlCommand(sql, _conn).ExecuteNonQuery();
-        }
-
-        /// <summary>
-        ///     Prepares a query.
-        /// </summary>
-        /// <param name="sql">the SQL to prepare</param>
-        /// <returns>the prepared query</returns>
-        public DbCommand PrepareQuery(string sql)
-        {
-            NpgsqlCommand command = new NpgsqlCommand(sql, _conn);
-            command.Prepare();
-            return command;
-        }
-
-        /// <summary>
-        ///     Adds a parameter-value pair to a prepared query. The instance of this Database object is returned to allow chaining
-        ///     of this method.
-        /// </summary>
-        /// <param name="sql">a prepared query</param>
-        /// <param name="parameter">the name of the parameter</param>
-        /// <param name="value">the value of the parameter</param>
-        /// <returns>this Database instance</returns>
-        public Database AddParameter(DbCommand sql, string parameter, object value)
-        {
-            DbParameter param = sql.CreateParameter();
-            param.ParameterName = parameter;
-            param.Value = value;
-            sql.Parameters.Add(param);
-            return this;
+            return CreateQuery(sql).ExecuteNonQuery();
         }
 
         /// <summary>
@@ -117,7 +125,7 @@ namespace Kragle
         /// <returns>the dataset returned from the query</returns>
         public DataTable ExecuteReaderQuery(string sql)
         {
-            return ExecuteReaderQuery(new NpgsqlCommand(sql, _conn));
+            return ExecuteReaderQuery(CreateQuery(sql));
         }
 
 
