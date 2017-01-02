@@ -13,8 +13,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{BAB35749-6034-41CC-99E6-63253DD29922}.Release|Any CPU.ActiveCfg = Reset|Any CPU
 		{BAB35749-6034-41CC-99E6-63253DD29922}.Release|Any CPU.Build.0 = Reset|Any CPU
-		{BAB35749-6034-41CC-99E6-63253DD29922}.Reset|Any CPU.ActiveCfg = Release|Any CPU
-		{BAB35749-6034-41CC-99E6-63253DD29922}.Reset|Any CPU.Build.0 = Release|Any CPU
+		{BAB35749-6034-41CC-99E6-63253DD29922}.Reset|Any CPU.ActiveCfg = Reset|Any CPU
+		{BAB35749-6034-41CC-99E6-63253DD29922}.Reset|Any CPU.Build.0 = Reset|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

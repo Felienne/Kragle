@@ -21,7 +21,9 @@ namespace Kragle
         public Database(string server, int port, string username, string password, string database)
         {
             CreateDatabase(server, port, username, password, database);
+
             _conn = CreateConnection(server, port, username, password, database);
+            _conn.Open();
         }
 
 

@@ -42,6 +42,7 @@ namespace Kragle
                     ResetSubOptions resetSubOptions = (ResetSubOptions) _invokedVerbInstance;
                     Database.Reset(resetSubOptions.DatabaseHost, resetSubOptions.DatabasePort,
                         resetSubOptions.DatabaseUser, resetSubOptions.DatabasePass, resetSubOptions.DatabaseName);
+                    Console.WriteLine("Successfully reset database.");
                     break;
 
                 case "users":
