@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using Kragle.Properties;
 using Npgsql;
 using NpgsqlTypes;
@@ -179,18 +180,21 @@ namespace Kragle
                 {
                     ["user"] = new Dictionary<string, Column>
                     {
+                        ["_"] = new Column("scratch_user", NpgsqlDbType.Integer),
                         ["id"] = new Column("user_id", NpgsqlDbType.Integer),
                         ["name"] = new Column("username", NpgsqlDbType.Varchar),
-                        ["join_date"] = new Column("join_date", NpgsqlDbType.Bigint),
+                        ["joinDate"] = new Column("join_date", NpgsqlDbType.Bigint),
                         ["country"] = new Column("country", NpgsqlDbType.Varchar)
                     },
-                    ["user_project"] = new Dictionary<string, Column>
+                    ["userProject"] = new Dictionary<string, Column>
                     {
+                        ["_"] = new Column("user_project", NpgsqlDbType.Integer),
                         ["userId"] = new Column("user_id", NpgsqlDbType.Integer),
                         ["projectId"] = new Column("project_id", NpgsqlDbType.Integer)
                     },
                     ["project"] = new Dictionary<string, Column>
                     {
+                        ["_"] = new Column("project", NpgsqlDbType.Integer),
                         ["id"] = new Column("project_id", NpgsqlDbType.Integer),
                         ["title"] = new Column("title", NpgsqlDbType.Varchar),
                         ["createDate"] = new Column("create_date", NpgsqlDbType.Bigint),
@@ -203,8 +207,9 @@ namespace Kragle
                         ["remixParentId"] = new Column("remix_parent_id", NpgsqlDbType.Integer),
                         ["remixRootId"] = new Column("remix_parent_root", NpgsqlDbType.Integer)
                     },
-                    ["project_code"] = new Dictionary<string, Column>
+                    ["projectCode"] = new Dictionary<string, Column>
                     {
+                        ["_"] = new Column("project_code", NpgsqlDbType.Integer),
                         ["projectId"] = new Column("project_id", NpgsqlDbType.Integer),
                         ["fetchDate"] = new Column("fetch_date", NpgsqlDbType.Bigint),
                         ["code"] = new Column("code", NpgsqlDbType.Text)
@@ -263,10 +268,17 @@ namespace Kragle
         /// <summary>
         ///     Prepares this Query with the given parameters.
         /// </summary>
+        /// <param name="format">true if the query should first be formatted</param>
+        /// <param name="offset">the number of leading parameters that are for formatting and not for preparing</param>
         /// <param name="parameters">an enumerable of (name, type) pairs</param>
-        public void Prepare(IEnumerable<Tuple<string, NpgsqlDbType>> parameters)
+        public void Prepare(bool format = false, int offset = 0, params Tuple<string, NpgsqlDbType>[] parameters)
         {
-            foreach (Tuple<string, NpgsqlDbType> parameter in parameters)
+            if (format)
+            {
+                Format(parameters.Select(parameter => (object) parameter.Item1).ToArray());
+            }
+
+            foreach (Tuple<string, NpgsqlDbType> parameter in parameters.Skip(offset))
             {
                 PrepareParameter(parameter.Item1, parameter.Item2);
             }
@@ -277,10 +289,17 @@ namespace Kragle
         /// <summary>
         ///     Prepares this Query with the given parameters.
         /// </summary>
+        /// <param name="format">true if the query should first be formatted</param>
+        /// <param name="offset">the number of leading parameters that are for formatting and not for preparing</param>
         /// <param name="parameters">an enumerable of columns; the name of each column is used as the name of the parameter</param>
-        public void Prepare(IEnumerable<Column> parameters)
+        public void Prepare(bool format = false, int offset = 0, params Column[] parameters)
         {
-            foreach (Column parameter in parameters)
+            if (format)
+            {
+                Format(parameters.Select(parameter => (object) parameter.Name).ToArray());
+            }
+
+            foreach (Column parameter in parameters.Skip(offset))
             {
                 PrepareParameter(parameter.Name, parameter.Type);
             }
@@ -291,13 +310,20 @@ namespace Kragle
         /// <summary>
         ///     Prepares this Query with the given parameters.
         /// </summary>
+        /// <param name="format">true if the query should first be formatted</param>
+        /// <param name="offset">the number of leading parameters that are for formatting and not for preparing</param>
         /// <param name="parameters">
         ///     an enumerable of (name, column) pairs; the name in the outer pair is used rather than the name
         ///     inside the Column object
         /// </param>
-        public void Prepare(IEnumerable<Tuple<string, Column>> parameters)
+        public void Prepare(bool format = false, int offset = 0, params Tuple<string, Column>[] parameters)
         {
-            foreach (Tuple<string, Column> parameter in parameters)
+            if (format)
+            {
+                Format(parameters.Select(parameter => (object) parameter.Item1).ToArray());
+            }
+
+            foreach (Tuple<string, Column> parameter in parameters.Skip(offset))
             {
                 PrepareParameter(parameter.Item1, parameter.Item2.Type);
             }
@@ -308,7 +334,7 @@ namespace Kragle
         ///     Sets the parameters for this Query.
         /// </summary>
         /// <param name="parameters">an enumerable of (name, value) pairs</param>
-        public void Set(IEnumerable<Tuple<string, object>> parameters)
+        public void Set(params Tuple<string, object>[] parameters)
         {
             foreach (Tuple<string, object> parameter in parameters)
             {
@@ -320,7 +346,7 @@ namespace Kragle
         ///     Sets the parameters for this Query.
         /// </summary>
         /// <param name="parameters">an enumerable of (column, value); the name of each column is used as the name of the parameter</param>
-        public void Set(IEnumerable<Tuple<Column, object>> parameters)
+        public void Set(params Tuple<Column, object>[] parameters)
         {
             foreach (Tuple<Column, object> parameter in parameters)
             {
@@ -370,6 +396,15 @@ namespace Kragle
         private void SetParameter(string name, object value)
         {
             _command.Parameters[name].Value = value;
+        }
+
+        /// <summary>
+        ///     Formats the command string.
+        /// </summary>
+        /// <param name="arguments">the arguments to format with</param>
+        private void Format(params object[] arguments)
+        {
+            _command.CommandText = string.Format(_command.CommandText, arguments);
         }
     }
 
