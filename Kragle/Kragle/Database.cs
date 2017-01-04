@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -27,6 +28,14 @@ namespace Kragle
             _conn = CreateConnection(server, port, username, password, database);
             _conn.Open();
         }
+
+
+        /// <summary>
+        ///     Returns information on the columns in the given table.
+        /// </summary>
+        /// <param name="table">the table name</param>
+        /// <returns></returns>
+        public IDictionary<string, Tuple<string, NpgsqlDbType>> this[string table] => Properties.Tables[table];
 
 
         /// <summary>
@@ -192,6 +201,58 @@ namespace Kragle
                 conn.Open();
 
                 new NpgsqlCommand(Resources.db_create, conn).ExecuteNonQuery();
+            }
+        }
+
+
+        /// <summary>
+        ///     Contains properties of tables and columns.
+        /// </summary>
+        private static class Properties
+        {
+            public static readonly IDictionary<string, IDictionary<string, Tuple<string, NpgsqlDbType>>> Tables;
+
+
+            /// <summary>
+            ///     Static initialiser for tables.
+            /// </summary>
+            static Properties()
+            {
+                Tables = new Dictionary<string, IDictionary<string, Tuple<string, NpgsqlDbType>>>
+                {
+                    ["user"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    {
+                        ["id"] = Tuple.Create("user_id", NpgsqlDbType.Integer),
+                        ["name"] = Tuple.Create("username", NpgsqlDbType.Varchar),
+                        ["join_date"] = Tuple.Create("join_date", NpgsqlDbType.Bigint),
+                        ["country"] = Tuple.Create("country", NpgsqlDbType.Varchar)
+                    },
+                    ["user_project"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    {
+                        ["userId"] = Tuple.Create("user_id", NpgsqlDbType.Integer),
+                        ["projectId"] = Tuple.Create("project_id", NpgsqlDbType.Integer)
+                    },
+                    ["project"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    {
+                        ["id"] = Tuple.Create("project_id", NpgsqlDbType.Integer),
+                        ["title"] = Tuple.Create("title", NpgsqlDbType.Varchar),
+                        ["createDate"] = Tuple.Create("create_date", NpgsqlDbType.Bigint),
+                        ["modifyDate"] = Tuple.Create("modify_date", NpgsqlDbType.Bigint),
+                        ["shareDate"] = Tuple.Create("share_date", NpgsqlDbType.Bigint),
+                        ["viewCount"] = Tuple.Create("view_count", NpgsqlDbType.Integer),
+                        ["loveCount"] = Tuple.Create("love_count", NpgsqlDbType.Integer),
+                        ["favoriteCount"] = Tuple.Create("favorite_count", NpgsqlDbType.Integer),
+                        ["commentCount"] = Tuple.Create("comment_count", NpgsqlDbType.Integer),
+                        ["remixParentId"] = Tuple.Create("remix_parent_id", NpgsqlDbType.Integer),
+                        ["remixRootId"] = Tuple.Create("remix_parent_root", NpgsqlDbType.Integer)
+                    },
+                    ["project_code"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    {
+                        ["projectId"] = Tuple.Create("project_id", NpgsqlDbType.Integer),
+                        ["fetchDate"] = Tuple.Create("fetch_date", NpgsqlDbType.Bigint),
+                        ["code"] = Tuple.Create("code", NpgsqlDbType.Text)
+                    }
+                };
             }
         }
     }
