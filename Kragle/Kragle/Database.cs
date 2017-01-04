@@ -86,7 +86,7 @@ namespace Kragle
         }
 
         /// <summary>
-        /// Sets the value for a prepared command's parameter.
+        ///     Sets the value for a prepared command's parameter.
         /// </summary>
         /// <param name="cmd">a database command</param>
         /// <param name="parameter">the parameter name</param>
