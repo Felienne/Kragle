@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using Kragle.Properties;
 using Npgsql;
 using NpgsqlTypes;
@@ -13,7 +12,7 @@ namespace Kragle
     /// <summary>
     ///     Database interface.
     /// </summary>
-    internal class Database
+    internal class Database : IDisposable
     {
         private readonly NpgsqlConnection _conn;
 
@@ -23,7 +22,7 @@ namespace Kragle
         /// </summary>
         public Database(string server, int port, string username, string password, string database)
         {
-            CreateDatabase(server, port, username, password, database);
+            Initialize(server, port, username, password, database);
 
             _conn = CreateConnection(server, port, username, password, database);
             _conn.Open();
@@ -35,7 +34,15 @@ namespace Kragle
         /// </summary>
         /// <param name="table">the table name</param>
         /// <returns></returns>
-        public IDictionary<string, Tuple<string, NpgsqlDbType>> this[string table] => Properties.Tables[table];
+        public IDictionary<string, Column> this[string table] => Properties.Tables[table];
+
+        /// <summary>
+        ///     Disposes this Database.
+        /// </summary>
+        public void Dispose()
+        {
+            _conn.Dispose();
+        }
 
 
         /// <summary>
@@ -54,87 +61,23 @@ namespace Kragle
             {
                 conn.Open();
 
-                try
+                using (Query query = new Query(string.Format(dropQuery, database), conn))
                 {
-                    new NpgsqlCommand(string.Format(dropQuery, database), conn).ExecuteNonQuery();
-                }
-                catch (NpgsqlException e)
-                {
-                    Console.WriteLine(e.Message);
+                    query.ExecuteNonQuery();
                 }
             }
 
-            CreateDatabase(server, port, username, password, database);
+            Initialize(server, port, username, password, database);
         }
 
         /// <summary>
-        ///     Executes the given command and returns the dataset returned from the query. This method is useful for retrieving
-        ///     data from prepared queries.
-        /// </summary>
-        /// <param name="cmd">the command to execute</param>
-        /// <returns>the dataset returned from the query</returns>
-        public static DataTable ExecuteReaderQuery(DbCommand cmd)
-        {
-            DbDataReader reader = cmd.ExecuteReader();
-            DataTable dt = new DataTable();
-            dt.Load(reader);
-
-            return dt;
-        }
-
-        /// <summary>
-        ///     Adds a parameter-value pair to a prepared query.
-        /// </summary>
-        /// <param name="cmd">a prepared query</param>
-        /// <param name="parameter">the name of the parameter</param>
-        /// <param name="type">the parameter's data type</param>
-        /// <returns>this Database instance</returns>
-        public static void PrepareParameter(DbCommand cmd, string parameter, NpgsqlDbType type)
-        {
-            cmd.Parameters.Add(new NpgsqlParameter(parameter, type));
-        }
-
-        /// <summary>
-        ///     Sets the value for a prepared command's parameter.
-        /// </summary>
-        /// <param name="cmd">a database command</param>
-        /// <param name="parameter">the parameter name</param>
-        /// <param name="value">the parameter value</param>
-        public static void SetParameter(DbCommand cmd, string parameter, object value)
-        {
-            NpgsqlCommand npgsqlCmd = cmd as NpgsqlCommand;
-            Debug.Assert(npgsqlCmd != null, "cmd is an NpgsqlCommand");
-            npgsqlCmd.Parameters[parameter].Value = value;
-        }
-
-        /// <summary>
-        ///     Creates a command object encapsulating an SQL query.
+        ///     Constructs a new Query.
         /// </summary>
         /// <param name="sql">the SQL</param>
-        /// <returns>a command object</returns>
-        public NpgsqlCommand CreateQuery(string sql)
+        /// <returns>a new Query</returns>
+        public Query CreateQuery(string sql)
         {
-            return new NpgsqlCommand(sql, _conn);
-        }
-
-        /// <summary>
-        ///     Executes the given SQL and returns the number of affected rows.
-        /// </summary>
-        /// <param name="sql">the SQL to execute</param>
-        /// <returns>the number of affected rows</returns>
-        public int ExecuteQuery(string sql)
-        {
-            return CreateQuery(sql).ExecuteNonQuery();
-        }
-
-        /// <summary>
-        ///     Executes the given SQL and returns the dataset returned from the query.
-        /// </summary>
-        /// <param name="sql">the SQL to execute</param>
-        /// <returns>the dataset returned from the query</returns>
-        public DataTable ExecuteReaderQuery(string sql)
-        {
-            return ExecuteReaderQuery(CreateQuery(sql));
+            return new Query(sql, _conn);
         }
 
 
@@ -178,7 +121,7 @@ namespace Kragle
         /// <param name="username">the username of the user to create the database as</param>
         /// <param name="password">the password of the user</param>
         /// <param name="database">the name of the database</param>
-        private static void CreateDatabase(string server, int port, string username, string password, string database)
+        private static void Initialize(string server, int port, string username, string password, string database)
         {
             const string existsQuery = "SELECT 1 AS result FROM pg_database WHERE datname='{0}';";
             const string createQuery = "CREATE DATABASE {0};";
@@ -188,19 +131,33 @@ namespace Kragle
             {
                 conn.Open();
 
-                DataTable data = ExecuteReaderQuery(new NpgsqlCommand(string.Format(existsQuery, database), conn));
-                if (data.Rows.Count == 0)
+                // Check if exists
+                bool databaseExists;
+                using (Query query = new Query(string.Format(existsQuery, database), conn))
                 {
-                    new NpgsqlCommand(string.Format(createQuery, database), conn).ExecuteNonQuery();
+                    DataTable table = query.ExecuteQuery();
+                    databaseExists = table.Rows.Count != 0;
+                }
+
+                // Create if not exists
+                if (!databaseExists)
+                {
+                    using (Query query = new Query(string.Format(createQuery, database), conn))
+                    {
+                        query.ExecuteNonQuery();
+                    }
                 }
             }
 
-            // Create table (if they do not exist)
+            // Create tables (SQL checks that tables do not exist)
             using (NpgsqlConnection conn = CreateConnection(server, port, username, password, database))
             {
                 conn.Open();
 
-                new NpgsqlCommand(Resources.db_create, conn).ExecuteNonQuery();
+                using (Query query = new Query(Resources.db_create, conn))
+                {
+                    query.ExecuteNonQuery();
+                }
             }
         }
 
@@ -210,7 +167,7 @@ namespace Kragle
         /// </summary>
         private static class Properties
         {
-            public static readonly IDictionary<string, IDictionary<string, Tuple<string, NpgsqlDbType>>> Tables;
+            public static readonly IDictionary<string, IDictionary<string, Column>> Tables;
 
 
             /// <summary>
@@ -218,42 +175,231 @@ namespace Kragle
             /// </summary>
             static Properties()
             {
-                Tables = new Dictionary<string, IDictionary<string, Tuple<string, NpgsqlDbType>>>
+                Tables = new Dictionary<string, IDictionary<string, Column>>
                 {
-                    ["user"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    ["user"] = new Dictionary<string, Column>
                     {
-                        ["id"] = Tuple.Create("user_id", NpgsqlDbType.Integer),
-                        ["name"] = Tuple.Create("username", NpgsqlDbType.Varchar),
-                        ["join_date"] = Tuple.Create("join_date", NpgsqlDbType.Bigint),
-                        ["country"] = Tuple.Create("country", NpgsqlDbType.Varchar)
+                        ["id"] = new Column("user_id", NpgsqlDbType.Integer),
+                        ["name"] = new Column("username", NpgsqlDbType.Varchar),
+                        ["join_date"] = new Column("join_date", NpgsqlDbType.Bigint),
+                        ["country"] = new Column("country", NpgsqlDbType.Varchar)
                     },
-                    ["user_project"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    ["user_project"] = new Dictionary<string, Column>
                     {
-                        ["userId"] = Tuple.Create("user_id", NpgsqlDbType.Integer),
-                        ["projectId"] = Tuple.Create("project_id", NpgsqlDbType.Integer)
+                        ["userId"] = new Column("user_id", NpgsqlDbType.Integer),
+                        ["projectId"] = new Column("project_id", NpgsqlDbType.Integer)
                     },
-                    ["project"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    ["project"] = new Dictionary<string, Column>
                     {
-                        ["id"] = Tuple.Create("project_id", NpgsqlDbType.Integer),
-                        ["title"] = Tuple.Create("title", NpgsqlDbType.Varchar),
-                        ["createDate"] = Tuple.Create("create_date", NpgsqlDbType.Bigint),
-                        ["modifyDate"] = Tuple.Create("modify_date", NpgsqlDbType.Bigint),
-                        ["shareDate"] = Tuple.Create("share_date", NpgsqlDbType.Bigint),
-                        ["viewCount"] = Tuple.Create("view_count", NpgsqlDbType.Integer),
-                        ["loveCount"] = Tuple.Create("love_count", NpgsqlDbType.Integer),
-                        ["favoriteCount"] = Tuple.Create("favorite_count", NpgsqlDbType.Integer),
-                        ["commentCount"] = Tuple.Create("comment_count", NpgsqlDbType.Integer),
-                        ["remixParentId"] = Tuple.Create("remix_parent_id", NpgsqlDbType.Integer),
-                        ["remixRootId"] = Tuple.Create("remix_parent_root", NpgsqlDbType.Integer)
+                        ["id"] = new Column("project_id", NpgsqlDbType.Integer),
+                        ["title"] = new Column("title", NpgsqlDbType.Varchar),
+                        ["createDate"] = new Column("create_date", NpgsqlDbType.Bigint),
+                        ["modifyDate"] = new Column("modify_date", NpgsqlDbType.Bigint),
+                        ["shareDate"] = new Column("share_date", NpgsqlDbType.Bigint),
+                        ["viewCount"] = new Column("view_count", NpgsqlDbType.Integer),
+                        ["loveCount"] = new Column("love_count", NpgsqlDbType.Integer),
+                        ["favoriteCount"] = new Column("favorite_count", NpgsqlDbType.Integer),
+                        ["commentCount"] = new Column("comment_count", NpgsqlDbType.Integer),
+                        ["remixParentId"] = new Column("remix_parent_id", NpgsqlDbType.Integer),
+                        ["remixRootId"] = new Column("remix_parent_root", NpgsqlDbType.Integer)
                     },
-                    ["project_code"] = new Dictionary<string, Tuple<string, NpgsqlDbType>>
+                    ["project_code"] = new Dictionary<string, Column>
                     {
-                        ["projectId"] = Tuple.Create("project_id", NpgsqlDbType.Integer),
-                        ["fetchDate"] = Tuple.Create("fetch_date", NpgsqlDbType.Bigint),
-                        ["code"] = Tuple.Create("code", NpgsqlDbType.Text)
+                        ["projectId"] = new Column("project_id", NpgsqlDbType.Integer),
+                        ["fetchDate"] = new Column("fetch_date", NpgsqlDbType.Bigint),
+                        ["code"] = new Column("code", NpgsqlDbType.Text)
                     }
                 };
             }
+        }
+    }
+
+
+    /// <summary>
+    ///     A query to be executed on a database.
+    /// </summary>
+    internal class Query : IDisposable
+    {
+        private readonly NpgsqlCommand _command;
+
+
+        /// <summary>
+        ///     Constructs a new Query object.
+        /// </summary>
+        /// <param name="command">the encapsulated command</param>
+        public Query(NpgsqlCommand command)
+        {
+            _command = command;
+        }
+
+        /// <summary>
+        ///     Constructs a new Query object.
+        /// </summary>
+        /// <param name="sql">the SQL query</param>
+        /// <param name="conn">the connection on which the Query is executed</param>
+        public Query(string sql, NpgsqlConnection conn)
+        {
+            _command = new NpgsqlCommand(sql, conn);
+        }
+
+
+        /// <summary>
+        ///     Disposes this Query.
+        /// </summary>
+        public void Dispose()
+        {
+            _command.Dispose();
+        }
+
+
+        /// <summary>
+        ///     Prepares this Query without any parameters.
+        /// </summary>
+        public void Prepare()
+        {
+            _command.Prepare();
+        }
+
+        /// <summary>
+        ///     Prepares this Query with the given parameters.
+        /// </summary>
+        /// <param name="parameters">an enumerable of (name, type) pairs</param>
+        public void Prepare(IEnumerable<Tuple<string, NpgsqlDbType>> parameters)
+        {
+            foreach (Tuple<string, NpgsqlDbType> parameter in parameters)
+            {
+                PrepareParameter(parameter.Item1, parameter.Item2);
+            }
+
+            _command.Prepare();
+        }
+
+        /// <summary>
+        ///     Prepares this Query with the given parameters.
+        /// </summary>
+        /// <param name="parameters">an enumerable of columns; the name of each column is used as the name of the parameter</param>
+        public void Prepare(IEnumerable<Column> parameters)
+        {
+            foreach (Column parameter in parameters)
+            {
+                PrepareParameter(parameter.Name, parameter.Type);
+            }
+
+            _command.Prepare();
+        }
+
+        /// <summary>
+        ///     Prepares this Query with the given parameters.
+        /// </summary>
+        /// <param name="parameters">
+        ///     an enumerable of (name, column) pairs; the name in the outer pair is used rather than the name
+        ///     inside the Column object
+        /// </param>
+        public void Prepare(IEnumerable<Tuple<string, Column>> parameters)
+        {
+            foreach (Tuple<string, Column> parameter in parameters)
+            {
+                PrepareParameter(parameter.Item1, parameter.Item2.Type);
+            }
+        }
+
+
+        /// <summary>
+        ///     Sets the parameters for this Query.
+        /// </summary>
+        /// <param name="parameters">an enumerable of (name, value) pairs</param>
+        public void Set(IEnumerable<Tuple<string, object>> parameters)
+        {
+            foreach (Tuple<string, object> parameter in parameters)
+            {
+                SetParameter(parameter.Item1, parameter.Item2);
+            }
+        }
+
+        /// <summary>
+        ///     Sets the parameters for this Query.
+        /// </summary>
+        /// <param name="parameters">an enumerable of (column, value); the name of each column is used as the name of the parameter</param>
+        public void Set(IEnumerable<Tuple<Column, object>> parameters)
+        {
+            foreach (Tuple<Column, object> parameter in parameters)
+            {
+                SetParameter(parameter.Item1.Name, parameter.Item2);
+            }
+        }
+
+
+        /// <summary>
+        ///     Executes this Query.
+        /// </summary>
+        /// <returns>the number of affected rows</returns>
+        public int ExecuteNonQuery()
+        {
+            return _command.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        ///     Executes this query.
+        /// </summary>
+        /// <returns>a DataTable containing the query's results</returns>
+        public DataTable ExecuteQuery()
+        {
+            DbDataReader reader = _command.ExecuteReader();
+            DataTable table = new DataTable();
+            table.Load(reader);
+
+            return table;
+        }
+
+
+        /// <summary>
+        ///     Prepares a single parameter.
+        /// </summary>
+        /// <param name="name">the name of the parameter</param>
+        /// <param name="type">the data type of the parameter</param>
+        private void PrepareParameter(string name, NpgsqlDbType type)
+        {
+            _command.Parameters.Add(new NpgsqlParameter(name, type));
+        }
+
+        /// <summary>
+        ///     Sets the value for a single parameter.
+        /// </summary>
+        /// <param name="name">the name of the parameter</param>
+        /// <param name="value">the value of the parameter</param>
+        private void SetParameter(string name, object value)
+        {
+            _command.Parameters[name].Value = value;
+        }
+    }
+
+
+    /// <summary>
+    ///     A column's properties in a table.
+    /// </summary>
+    internal class Column
+    {
+        public readonly string Name;
+        public readonly NpgsqlDbType Type;
+
+
+        /// <summary>
+        ///     Constructs a new column.
+        /// </summary>
+        /// <param name="name">the name of the column</param>
+        /// <param name="type">the type of the column</param>
+        public Column(string name, NpgsqlDbType type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        /// <summary>
+        ///     Constructs a new column.
+        /// </summary>
+        /// <param name="tuple">a name-type pair</param>
+        public Column(Tuple<string, NpgsqlDbType> tuple) : this(tuple.Item1, tuple.Item2)
+        {
         }
     }
 }
