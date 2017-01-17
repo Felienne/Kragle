@@ -55,7 +55,9 @@ namespace Kragle
         /// </summary>
         /// <param name="file">the file to write to</param>
         /// <param name="contents">the new contents for the file</param>
-        /// <param name="append">should be <code>true</code> if the file should be appended rather than overwritten</param>
+        /// <param name="append">
+        ///     should be <code>true</code> if the file should be appended rather than overwritten
+        /// </param>
         protected void WriteFile(string file, string contents, bool append = false)
         {
             WriteFile(_rootDir.FullName, file, contents, append);
