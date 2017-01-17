@@ -49,14 +49,6 @@ namespace Kragle
                     CodeSubOptions codeSubOptions = (CodeSubOptions) _invokedVerbInstance;
                     break;
 
-                case "parse":
-                    ParseSubOptions parseSubOptions = (ParseSubOptions) _invokedVerbInstance;
-                    break;
-
-                case "analyse":
-                    AnalyzeSubOptions analyzeSubOptions = (AnalyzeSubOptions) _invokedVerbInstance;
-                    break;
-
                 default:
                     Environment.Exit(Parser.DefaultExitCodeFail);
                     break;
@@ -70,10 +62,10 @@ namespace Kragle
     /// </summary>
     internal class Options
     {
-        [VerbOption("reset", HelpText = "Reset the database file, deleting all contents")]
+        [VerbOption("reset", HelpText = "Reset all files")]
         public ResetSubOptions ResetSubOptions { get; set; }
 
-        [VerbOption("users", HelpText = "Generate the list of users who most recently shared a project")]
+        [VerbOption("users", HelpText = "Generate/update the list of users who most recently shared a project")]
         public UsersSubOptions UsersSubOptions { get; set; }
 
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
@@ -81,12 +73,6 @@ namespace Kragle
 
         [VerbOption("code", HelpText = "Download the latest code of all registered projects")]
         public CodeSubOptions CodeSubOptions { get; set; }
-
-        [VerbOption("parse", HelpText = "Parse all registered code")]
-        public ParseSubOptions ParseSubOptions { get; set; }
-
-        [VerbOption("analyse", HelpText = "Analyse all parsed code")]
-        public AnalyzeSubOptions AnalyzeSubOptions { get; set; }
     }
 
     /// <summary>
@@ -94,8 +80,6 @@ namespace Kragle
     /// </summary>
     internal abstract class DatabaseSharedOptions
     {
-        [Option('d', "database", DefaultValue = "database.sqlite", HelpText = "The location of the database file")]
-        public string DatabaseFile { get; set; }
     }
 
     /// <summary>
@@ -113,11 +97,7 @@ namespace Kragle
         [Option('n', "number", HelpText = "The number of users to scrape")]
         public int Count { get; set; }
 
-        [Option('r', "reset database", HelpText = "Reset the database")]
-        public bool Reset { get; set; }
-
-        [Option('c', "disable caching", HelpText = "Disable caching with requests; slows down the process significantly"
-         )]
+        [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
         public bool NoCache { get; set; }
     }
 
@@ -132,20 +112,6 @@ namespace Kragle
     ///     Command-line options for the `code` verb.
     /// </summary>
     internal class CodeSubOptions : DatabaseSharedOptions
-    {
-    }
-
-    /// <summary>
-    ///     Command-line options for the `parse` verb.
-    /// </summary>
-    internal class ParseSubOptions : DatabaseSharedOptions
-    {
-    }
-
-    /// <summary>
-    ///     Command-line options for the `analyze` verb.
-    /// </summary>
-    internal class AnalyzeSubOptions : DatabaseSharedOptions
     {
     }
 }
