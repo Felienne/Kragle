@@ -10,7 +10,7 @@ namespace Kragle
     ///     A scraper class "scrapes" the Scratch API by mass-downloading certain pages and storing them. A scraper
     ///     does not analyse or read these pages, it is only responsible for storing them.
     /// </summary>
-    internal abstract class Scraper
+    public abstract class Scraper
     {
         private readonly bool _noCache;
 
@@ -19,7 +19,7 @@ namespace Kragle
         ///     Constructs a new Scraper.
         /// </summary>
         /// <param name="noCache">true if requests should be made without using the cache in requests</param>
-        protected Scraper(bool noCache)
+        public Scraper(bool noCache)
         {
             _noCache = noCache;
         }
@@ -39,8 +39,7 @@ namespace Kragle
             {
                 try
                 {
-                    url += _noCache ? GetRandomSuffix() : "";
-                    rawJson = client.DownloadString(url);
+                    rawJson = client.DownloadString(AppendRandomParameter(url));
                 }
                 catch (WebException e)
                 {
@@ -60,14 +59,15 @@ namespace Kragle
             }
         }
 
-
         /// <summary>
-        ///     Returns a key-value pair as a string with key "random" and a random value.
+        ///     Appends a query parameter to the given URL, with as its key <code>"random"</code>, and an actually
+        ///     random value.
         /// </summary>
-        /// <returns>a key-value pair with a random value</returns>
-        private static string GetRandomSuffix()
+        /// <param name="url">the URL to append a query parameter to</param>
+        /// <returns>the URL with the appendix</returns>
+        protected static string AppendRandomParameter(string url)
         {
-            return "&random=" + Path.GetRandomFileName().Substring(0, 8);
+            return url + "&random=" + Path.GetRandomFileName().Substring(0, 8);
         }
     }
 }
