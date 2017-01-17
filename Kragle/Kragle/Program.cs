@@ -20,6 +20,13 @@ namespace Kragle
         private static void Main(string[] args)
         {
             // Parse options
+            if (args == null || args.Length == 0)
+            {
+                Console.WriteLine("Invalid parameters given: Missing command verb");
+                Console.ReadLine();
+                Environment.Exit(1);
+            }
+
             Options options = new Options();
             if (!Parser.Default.ParseArguments(args, options, (verb, subOptions) =>
             {
@@ -27,6 +34,8 @@ namespace Kragle
                 _invokedVerbInstance = subOptions;
             }))
             {
+                Console.WriteLine("Invalid parameters given: ");
+                Console.ReadLine();
                 Environment.Exit(Parser.DefaultExitCodeFail);
             }
 
@@ -34,25 +43,44 @@ namespace Kragle
             switch (_invokedVerb)
             {
                 case "reset":
-                    ResetSubOptions resetSubOptions = (ResetSubOptions) _invokedVerbInstance;
+                {
+                    ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    fs.RemoveDirectory("./");
+                    Console.WriteLine("Removed all files.");
+
                     break;
+                }
 
                 case "users":
-                    UsersSubOptions userSubOptions = (UsersSubOptions) _invokedVerbInstance;
+                {
+                    UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
                     break;
+                }
 
                 case "projects":
-                    ProjectsSubOptions projectsSubOptions = (ProjectsSubOptions) _invokedVerbInstance;
+                {
+                    ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
                     break;
+                }
 
                 case "code":
-                    CodeSubOptions codeSubOptions = (CodeSubOptions) _invokedVerbInstance;
+                {
+                    CodeSubOptions subOptions = (CodeSubOptions) _invokedVerbInstance;
                     break;
+                }
 
                 default:
+                {
                     Environment.Exit(Parser.DefaultExitCodeFail);
                     break;
+                }
             }
+
+            // Exit message
+            Console.WriteLine("\nDone. Press enter to close this window.");
+            Console.ReadLine();
         }
     }
 
@@ -80,6 +108,8 @@ namespace Kragle
     /// </summary>
     internal abstract class DatabaseSharedOptions
     {
+        [Option('p', "path", HelpText = "The path files should be read from and written to")]
+        public string Path { get; set; }
     }
 
     /// <summary>

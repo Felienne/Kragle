@@ -13,11 +13,6 @@ namespace KragleTests
         private string _fileName;
 
 
-        public FileStoreTests() : base("./")
-        {
-        }
-
-
         [TestInitialize]
         public void SetUp()
         {
@@ -25,7 +20,7 @@ namespace KragleTests
             _fileName = Path.GetRandomFileName();
             _fileContents = Path.GetRandomFileName();
 
-            RemoveFile(_fileName);
+            RemoveDirectory("./");
         }
 
 
@@ -98,7 +93,7 @@ namespace KragleTests
         }
 
         [TestMethod]
-        public void FileExistsInDirectoryTrue()
+        public void FileExistsInDirectoryTrueTest()
         {
             WriteFile(_directory, _fileName, _fileContents);
 
@@ -116,11 +111,54 @@ namespace KragleTests
         }
 
         [TestMethod]
-        public void RemoveFileNotFoundTest()
+        public void RemoveFileDirectoryNotFoundTest()
         {
-            RemoveFile(_fileName);
+            RemoveFile(_directory, _fileName);
 
-            Assert.IsFalse(FileExists(_fileName));
+            Assert.IsFalse(FileExists(_directory, _fileName));
+        }
+
+        [TestMethod]
+        public void RemoveFileFileNotFoundTest()
+        {
+            WriteFile(_directory, _fileContents + "x", _fileContents); // Append "x" to write to different file
+
+            RemoveFile(_directory, _fileName);
+
+            Assert.IsFalse(FileExists(_directory, _fileName));
+        }
+
+        [TestMethod]
+        public void DirectoryExistsFalseTest()
+        {
+            Assert.IsFalse(DirectoryExists(_directory));
+        }
+
+        [TestMethod]
+        public void DirectoryExistsTrueTest()
+        {
+            WriteFile(_directory, _fileName, _fileName);
+
+            Assert.IsTrue(DirectoryExists(_directory));
+        }
+
+        [TestMethod]
+        public void RemoveDirectoryTest()
+        {
+            WriteFile(_directory, _fileName, _fileContents);
+
+            RemoveDirectory(_directory);
+
+            Assert.IsFalse(FileExists(_directory, _fileName));
+            Assert.IsFalse(DirectoryExists(_directory));
+        }
+
+        [TestMethod]
+        public void RemoveDirectoryNotFoundTest()
+        {
+            RemoveDirectory(_directory);
+
+            Assert.IsFalse(DirectoryExists(_directory));
         }
     }
 }
