@@ -1,4 +1,5 @@
-﻿using Kragle;
+﻿using System;
+using Kragle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
@@ -19,6 +20,7 @@ namespace KragleTests
         public void GetJsonUnparsableTest()
         {
             const string url = "https://www.google.com/";
+
             Assert.IsNull(GetJson(url));
         }
 
@@ -26,28 +28,50 @@ namespace KragleTests
         public void GetJsonInvalidUrlTest()
         {
             const string url = "http://this-website-does-not-exist.org/";
+
             Assert.IsNull(GetJson(url));
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void GetJsonMalformedUrlTest()
         {
             const string url = "GBnbpjHkef0XdQKOspsI";
-            Assert.IsNull(GetJson(url));
+
+            GetJson(url); // Throws exception
+        }
+
+        [TestMethod]
+        public void GetJsonValidTest()
+        {
+            const string url = "https://jsonplaceholder.typicode.com/posts/";
+
+            Assert.IsNotNull(GetJson(url));
         }
 
         [TestMethod]
         public void AppendRandomParameterStartsWithTest()
         {
-            const string url = "http://some-random-url.com/?";
+            const string url = "http://some-random-url.com/";
+
             Assert.IsTrue(AppendRandomParameter(url).StartsWith(url));
         }
 
         [TestMethod]
-        public void AppendRandomParameterNameTest()
+        public void AppendRandomParameterNameWithoutQueryComponentTest()
+        {
+            const string url = "https://another-website.net/";
+
+            Assert.IsTrue(AppendRandomParameter(url).StartsWith(url + "?random="));
+        }
+
+        [TestMethod]
+        public void AppendRandomParameterNameWithQueryComponentTest()
         {
             const string url = "https://another-website.net/?";
-            Assert.IsTrue(AppendRandomParameter(url).StartsWith(url + "&random="));
+
+            Console.WriteLine(AppendRandomParameter(url));
+            Assert.IsTrue(AppendRandomParameter(url).StartsWith(url + "random="));
         }
     }
 }

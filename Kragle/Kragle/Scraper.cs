@@ -28,13 +28,17 @@ namespace Kragle
         /// <summary>
         ///     Fetches JSON from the given URL and returns the serialised string.
         /// </summary>
-        /// <param name="url">the url to fetch the JSON from</param>
+        /// <param name="url">the valid url to fetch the JSON from</param>
         /// <returns>a deserialised JSON object, or <code>null</code> if the JSON could not be deserialised</returns>
         protected dynamic GetJson(string url)
         {
-            string rawJson;
+            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+            {
+                throw new ArgumentException("Invalid URL provided");
+            }
 
             // Download webpage contents
+            string rawJson;
             using (WebClient client = new WebClient())
             {
                 try
@@ -67,7 +71,13 @@ namespace Kragle
         /// <returns>the URL with the appendix</returns>
         protected static string AppendRandomParameter(string url)
         {
-            return url + "&random=" + Path.GetRandomFileName().Substring(0, 8);
+            if (!url.Contains("?"))
+            {
+                // URL has no query component yet (see https://tools.ietf.org/html/rfc3986#section-3.4)
+                url += "?";
+            }
+
+            return url + "random=" + Path.GetRandomFileName().Substring(0, 8) + "&";
         }
     }
 }

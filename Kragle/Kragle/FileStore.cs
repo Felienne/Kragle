@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 
 namespace Kragle
@@ -7,7 +6,7 @@ namespace Kragle
     /// <summary>
     ///     Interface for interacting with the filesystem.
     /// </summary>
-    internal class FileStore
+    public class FileStore
     {
         private readonly DirectoryInfo _rootDir;
 
@@ -29,21 +28,21 @@ namespace Kragle
         /// <param name="file">the file to write to</param>
         /// <param name="contents">the new contents for the file</param>
         /// <param name="append"><code>true</code> if the file should be appended rather than overwritten</param>
-        protected void WriteFile(string directory, string file, string contents, bool append)
+        protected void WriteFile(string directory, string file, string contents, bool append = false)
         {
             DirectoryInfo subDir = _rootDir.CreateSubdirectory(directory);
             string filePath = subDir.FullName + "/" + file;
 
             if (append)
             {
-                using (StreamWriter fileStream = File.CreateText(filePath))
+                using (StreamWriter fileStream = File.AppendText(filePath))
                 {
                     fileStream.Write(contents);
                 }
             }
             else
             {
-                using (StreamWriter fileStream = File.AppendText(filePath))
+                using (StreamWriter fileStream = File.CreateText(filePath))
                 {
                     fileStream.Write(contents);
                 }
@@ -60,7 +59,7 @@ namespace Kragle
         /// </param>
         protected void WriteFile(string file, string contents, bool append = false)
         {
-            WriteFile(_rootDir.FullName, file, contents, append);
+            WriteFile("./", file, contents, append);
         }
 
         /// <summary>
@@ -71,10 +70,10 @@ namespace Kragle
         /// <returns>the contents of the file</returns>
         protected string ReadFile(string directory, string file)
         {
-            string filePath = _rootDir + "/" + directory + "/" + file;
+            string filePath = _rootDir.FullName + "/" + directory + "/" + file;
             if (!File.Exists(filePath))
             {
-                throw new Exception(""); // TODO decide on what exception to throw
+                throw new FileNotFoundException("The file " + filePath + " does not exist");
             }
 
             return File.ReadAllText(filePath);
@@ -87,7 +86,54 @@ namespace Kragle
         /// <returns>the contents of the file</returns>
         protected string ReadFile(string file)
         {
-            return ReadFile(_rootDir.FullName, file);
+            return ReadFile("./", file);
+        }
+
+        /// <summary>
+        ///     Returns true if the specified file exists.
+        /// </summary>
+        /// <param name="directory">the directory the file is in</param>
+        /// <param name="file">the filename</param>
+        /// <returns><code>true</code> if the specified file exists</returns>
+        protected bool FileExists(string directory, string file)
+        {
+            return File.Exists(_rootDir.FullName + "/" + directory + "/" + file);
+        }
+
+        /// <summary>
+        ///     Returns true if the specified file exists.
+        /// </summary>
+        /// <param name="file">the filename</param>
+        /// <returns><code>true</code> if the specified file exists</returns>
+        protected bool FileExists(string file)
+        {
+            return FileExists("./", file);
+        }
+
+        /// <summary>
+        ///     Removes the file.
+        /// </summary>
+        /// <param name="directory">the directory the file is in</param>
+        /// <param name="file">the filename</param>
+        protected void RemoveFile(string directory, string file)
+        {
+            try
+            {
+                File.Delete(_rootDir.FullName + "/" + directory + "/" + file);
+            }
+            catch (FileNotFoundException)
+            {
+                // If the file cannot be found, we can consider it deleted
+            }
+        }
+
+        /// <summary>
+        ///     Removes the file.
+        /// </summary>
+        /// <param name="file">the filename</param>
+        protected void RemoveFile(string file)
+        {
+            RemoveFile("./", file);
         }
     }
 }
