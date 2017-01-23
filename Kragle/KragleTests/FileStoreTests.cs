@@ -160,5 +160,27 @@ namespace KragleTests
 
             Assert.IsFalse(DirectoryExists(_directory));
         }
+
+        [TestMethod]
+        public void GetFilesSizeTest()
+        {
+            WriteFile(_directory, _fileName, _fileContents);
+
+            Assert.AreEqual(1, GetFiles(_directory).Length);
+        }
+
+        [TestMethod]
+        public void GetFilesNotFoundTest()
+        {
+            Assert.AreEqual(0, GetFiles(_directory).Length);
+        }
+
+        [TestMethod]
+        public void GetFilesContentsTest()
+        {
+            WriteFile(_directory, _fileName, _fileContents);
+
+            Assert.AreEqual(_fileName, GetFiles(_directory)[0].Name);
+        }
     }
 }

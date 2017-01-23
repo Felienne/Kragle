@@ -47,8 +47,8 @@ namespace Kragle
         /// <param name="append"><code>true</code> if the file should be appended rather than overwritten</param>
         public void WriteFile(string directory, string file, string contents, bool append = false)
         {
-            DirectoryInfo subDir = _rootDir.CreateSubdirectory(directory);
-            string filePath = subDir.FullName + "/" + file;
+            CreateDirectory(directory);
+            string filePath = GetAbsolutePath(directory, file);
 
             if (append)
             {
@@ -87,7 +87,7 @@ namespace Kragle
         /// <returns>the contents of the file</returns>
         public string ReadFile(string directory, string file)
         {
-            string filePath = _rootDir.FullName + "/" + directory + "/" + file;
+            string filePath = GetAbsolutePath(directory, file);
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException("The file " + filePath + " does not exist");
@@ -114,7 +114,7 @@ namespace Kragle
         /// <returns><code>true</code> if the specified file exists</returns>
         public bool FileExists(string directory, string file)
         {
-            return File.Exists(_rootDir.FullName + "/" + directory + "/" + file);
+            return File.Exists(GetAbsolutePath(directory, file));
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Kragle
         {
             try
             {
-                File.Delete(_rootDir.FullName + "/" + directory + "/" + file);
+                File.Delete(GetAbsolutePath(directory, file));
             }
             catch (FileNotFoundException)
             {
@@ -163,23 +163,65 @@ namespace Kragle
         /// <param name="directory">true if the specified directory exists</param>
         public bool DirectoryExists(string directory)
         {
-            return Directory.Exists(_rootDir.FullName + "/" + directory);
+            return Directory.Exists(GetAbsolutePath(directory));
         }
 
         /// <summary>
         ///     Removes a directory and all the contained files.
         /// </summary>
         /// <param name="directory">a directory</param>
-        public void RemoveDirectory(string directory)
+        public void RemoveDirectory(string directory = "./")
         {
             try
             {
-                Directory.Delete(_rootDir.FullName + "/" + directory, true);
+                GetDirectory(directory).Delete(true);
             }
             catch (DirectoryNotFoundException)
             {
                 // If the directory cannot be found, we can consider it deleted
             }
+        }
+
+        /// <summary>
+        ///     Returns an array of <code>FileInfo</code> on all files in the specified subdirectory.
+        /// </summary>
+        /// <param name="directory">the name of a subdirectory</param>
+        /// <returns>an array of <code>FileInfo</code> on all files in the specified subdirectory</returns>
+        public FileInfo[] GetFiles(string directory = "./")
+        {
+            return GetDirectory(directory).GetFiles();
+        }
+
+
+        /// <summary>
+        ///     Returns the absolute path to the directory and file.
+        /// </summary>
+        /// <param name="directory">the subdirectory</param>
+        /// <param name="file">the file</param>
+        /// <returns>the absolute path to the directory and file</returns>
+        private string GetAbsolutePath(string directory, string file = "")
+        {
+            return _rootDir.FullName + "/" + directory + "/" + file;
+        }
+
+        /// <summary>
+        ///     Returns the <code>DirectoryInfo</code> on the specified subdirectory.
+        /// </summary>
+        /// <param name="directory">the name of a subdirectory</param>
+        /// <returns>the <code>DirectoryInfo</code> on the specified subdirectory</returns>
+        private DirectoryInfo GetDirectory(string directory = "./")
+        {
+            return Directory.CreateDirectory(GetAbsolutePath(directory));
+        }
+
+        /// <summary>
+        ///     Creates a new subdirectory.
+        /// </summary>
+        /// <param name="directory">he name of the subdirectory</param>
+        /// <returns>the <code>DirectoryInfo</code> on the new subdirectory</returns>
+        private DirectoryInfo CreateDirectory(string directory = "./")
+        {
+            return GetDirectory(directory);
         }
     }
 }
