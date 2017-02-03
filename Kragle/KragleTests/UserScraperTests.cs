@@ -9,7 +9,7 @@ namespace KragleTests
     [TestClass]
     public class UserScraperTests : UserScraper
     {
-        public UserScraperTests() : base(false)
+        public UserScraperTests() : base(new FileStore())
         {
         }
 

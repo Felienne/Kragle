@@ -16,7 +16,7 @@ namespace Kragle
 
 
         /// <summary>
-        ///     Constructs a new Scraper.
+        ///     Constructs a new <code>Scraper</code>.
         /// </summary>
         /// <param name="noCache">true if requests should be made without using the cache in requests</param>
         public Scraper(bool noCache)

@@ -9,8 +9,57 @@ namespace Kragle
     /// </summary>
     public class UserScraper : Scraper
     {
-        public UserScraper(bool noCache) : base(noCache)
+        private const string SubDirectory = "users";
+        private const int PageSize = 20;
+
+        private readonly FileStore _fs;
+        private readonly int _targetUserCount;
+
+
+        /// <summary>
+        ///     Constructs a new <code>UserScraper</code>.
+        /// </summary>
+        /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
+        /// <param name="targetUserCount">the target number of scraped users</param>
+        /// <param name="noCache">true if requests should be made without using the cache in requests</param>
+        public UserScraper(FileStore fs, int targetUserCount = int.MaxValue, bool noCache = false) : base(noCache)
         {
+            _fs = fs;
+            _targetUserCount = targetUserCount;
+        }
+
+
+        /// <summary>
+        ///     Scrapes users until the target has been reached.
+        /// </summary>
+        public void Scrape()
+        {
+            int pageNumber = 0;
+            int userCount = _fs.GetFiles(SubDirectory).Length;
+
+            // Keep downloading projects until the target has been reached
+            while (userCount < _targetUserCount)
+            {
+                ICollection<dynamic> projects = GetRecentProjects(pageNumber, PageSize);
+
+                // Loop over projects
+                foreach (dynamic project in projects)
+                {
+                    string fileName = project.author.id + ".json";
+
+                    // Skip project if user is already known
+                    if (_fs.FileExists(SubDirectory, fileName))
+                    {
+                        continue;
+                    }
+
+                    // Add user
+                    _fs.WriteFile(SubDirectory, fileName, "");
+                    userCount++;
+                }
+
+                pageNumber++;
+            }
         }
 
 

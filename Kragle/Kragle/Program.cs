@@ -56,6 +56,11 @@ namespace Kragle
                 case "users":
                 {
                     UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    UserScraper scraper = new UserScraper(fs, subOptions.Count, subOptions.NoCache);
+                    scraper.Scrape();
+
                     break;
                 }
 

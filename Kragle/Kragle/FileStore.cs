@@ -201,7 +201,7 @@ namespace Kragle
         /// <returns>the absolute path to the directory and file</returns>
         private string GetAbsolutePath(string directory, string file = "")
         {
-            return _rootDir.FullName + "/" + directory + "/" + file;
+            return Path.GetFullPath(_rootDir.FullName + "/" + directory + "/" + file);
         }
 
         /// <summary>
