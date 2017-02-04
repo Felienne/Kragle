@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using CommandLine;
 
 
@@ -53,6 +54,16 @@ namespace Kragle
                     break;
                 }
 
+                case "open":
+                {
+                    OpenSubOptions subOptions = (OpenSubOptions) _invokedVerbInstance;
+
+                    Process.Start(new FileStore(subOptions.Path).GetRootPath());
+
+                    Environment.Exit(0); // Suppress exit message
+                    break;
+                }
+
                 case "users":
                 {
                     UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
@@ -93,6 +104,9 @@ namespace Kragle
         [VerbOption("reset", HelpText = "Reset all files")]
         public ResetSubOptions ResetSubOptions { get; set; }
 
+        [VerbOption("open", HelpText = "Opens the data folder in Windows Explorer")]
+        public OpenSubOptions OpenSubOptions { get; set; }
+
         [VerbOption("users", HelpText = "Generate/update the list of users who most recently shared a project")]
         public UsersSubOptions UsersSubOptions { get; set; }
 
@@ -104,25 +118,32 @@ namespace Kragle
     }
 
     /// <summary>
-    ///     Command-line options for all verbs interacting with the database.
+    ///     Command-line options for all verbs interacting with the file system.
     /// </summary>
-    internal abstract class DatabaseSharedOptions
+    internal abstract class FileSystemSharedOptions
     {
         [Option('p', "path", HelpText = "The path files should be read from and written to")]
         public string Path { get; set; }
     }
 
     /// <summary>
-    ///     Command-line options for the `reset` verb.
+    ///     Command-line options for the 'reset' verb.
     /// </summary>
-    internal class ResetSubOptions : DatabaseSharedOptions
+    internal class ResetSubOptions : FileSystemSharedOptions
     {
     }
 
     /// <summary>
-    ///     Command-line options for the `users` verb.
+    ///     Command-line options for the 'open' verb.
     /// </summary>
-    internal class UsersSubOptions : DatabaseSharedOptions
+    internal class OpenSubOptions : FileSystemSharedOptions
+    {
+    }
+
+    /// <summary>
+    ///     Command-line options for the 'users' verb.
+    /// </summary>
+    internal class UsersSubOptions : FileSystemSharedOptions
     {
         [Option('n', "number", HelpText = "The number of users to scrape")]
         public int Count { get; set; }
@@ -132,16 +153,16 @@ namespace Kragle
     }
 
     /// <summary>
-    ///     Command-line options for the `projects` verb.
+    ///     Command-line options for the 'projects' verb.
     /// </summary>
-    internal class ProjectsSubOptions : DatabaseSharedOptions
+    internal class ProjectsSubOptions : FileSystemSharedOptions
     {
     }
 
     /// <summary>
-    ///     Command-line options for the `code` verb.
+    ///     Command-line options for the 'code' verb.
     /// </summary>
-    internal class CodeSubOptions : DatabaseSharedOptions
+    internal class CodeSubOptions : FileSystemSharedOptions
     {
     }
 }

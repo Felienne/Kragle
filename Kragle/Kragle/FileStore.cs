@@ -39,6 +39,15 @@ namespace Kragle
 
 
         /// <summary>
+        ///     Returns the full path to this <code>FileStore</code>'s root directory.
+        /// </summary>
+        /// <returns>the full path to this <code>FileStore</code>'s root directory</returns>
+        public string GetRootPath()
+        {
+            return _rootDir.FullName;
+        }
+
+        /// <summary>
         ///     Writes data to a file. If the file and/or directory do not exist, they will be created.
         /// </summary>
         /// <param name="directory">the directory the file is in/will be in</param>
