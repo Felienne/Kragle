@@ -26,11 +26,11 @@ namespace Kragle
 
 
         /// <summary>
-        ///     Fetches JSON from the given URL and returns the serialised string.
+        ///     Fetches the contents from the given URL as a string.
         /// </summary>
-        /// <param name="url">the valid url to fetch the JSON from</param>
-        /// <returns>a deserialised JSON object, or <code>null</code> if the JSON could not be deserialised</returns>
-        protected dynamic GetJson(string url)
+        /// <param name="url">the valid url to fetch the contents from</param>
+        /// <returns>the contents of the webpage, or <code>null</code> if the url could not be accessed</returns>
+        protected string GetContents(string url)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
@@ -38,12 +38,12 @@ namespace Kragle
             }
 
             // Download webpage contents
-            string rawJson;
+            string contents;
             using (WebClient client = new WebClient())
             {
                 try
                 {
-                    rawJson = client.DownloadString(AppendRandomParameter(url));
+                    contents = client.DownloadString(AppendRandomParameter(url));
                 }
                 catch (WebException e)
                 {
@@ -51,6 +51,18 @@ namespace Kragle
                     return null;
                 }
             }
+
+            return contents;
+        }
+
+        /// <summary>
+        ///     Fetches JSON from the given URL.
+        /// </summary>
+        /// <param name="url">the valid url to fetch the JSON from</param>
+        /// <returns>a deserialised JSON object, or <code>null</code> if the JSON could not be deserialised</returns>
+        protected dynamic GetJson(string url)
+        {
+            string rawJson = GetContents(url);
 
             // Verify parsability
             try
