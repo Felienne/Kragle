@@ -73,6 +73,12 @@ namespace Kragle
                 case "projects":
                 {
                     ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    ProjectScraper scraper = new ProjectScraper(fs, subOptions.NoCache);
+
+                    scraper.DownloadProjects();
+
                     break;
                 }
 
@@ -124,6 +130,9 @@ namespace Kragle
     {
         [Option('p', "path", HelpText = "The path files should be read from and written to")]
         public string Path { get; set; }
+
+        [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
+        public bool NoCache { get; set; }
     }
 
     /// <summary>
@@ -147,9 +156,6 @@ namespace Kragle
     {
         [Option('n', "number", HelpText = "The number of users to scrape")]
         public int Count { get; set; }
-
-        [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
-        public bool NoCache { get; set; }
     }
 
     /// <summary>
