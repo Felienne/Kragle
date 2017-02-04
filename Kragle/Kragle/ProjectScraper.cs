@@ -24,11 +24,13 @@ namespace Kragle
         /// <summary>
         ///     Generates files for all projects of all registered users, but does not download project code yet.
         /// </summary>
-        public void DownloadProjects()
+        public void UpdateProjectList()
         {
             FileInfo[] users = _fs.GetFiles("users");
+            int userTotal = users.Length;
+            int userCurrent = 0;
 
-            Console.WriteLine("Downloading project lists for " + users.Length + " users\n\n");
+            Console.WriteLine("Downloading project lists for " + users.Length + " users.");
 
             foreach (FileInfo user in users)
             {
@@ -39,6 +41,31 @@ namespace Kragle
                 {
                     _fs.WriteFile("projects", project.id.ToString(), "");
                 }
+
+                userCurrent++;
+                Console.WriteLine("{0:P2}", userCurrent / (double) userTotal);
+            }
+        }
+
+        /// <summary>
+        ///     Downloads project code for all registered projects.
+        /// </summary>
+        public void DownloadProjects()
+        {
+            FileInfo[] projects = _fs.GetFiles("projects");
+            int projectTotal = projects.Length;
+            int projectCurrent = 0;
+
+            Console.WriteLine("Downloading code for " + projects.Length + " projects.");
+
+            foreach (FileInfo project in projects)
+            {
+                int projectId = Convert.ToInt32(project.Name);
+
+                _fs.WriteFile("code", projectId + " 2016-02-04", GetProjectCode(projectId));
+
+                projectCurrent++;
+                Console.WriteLine("{0:P2}", projectCurrent / (double) projectTotal);
             }
         }
 
@@ -67,6 +94,17 @@ namespace Kragle
             }
 
             return projects;
+        }
+
+        /// <summary>
+        ///     Fetches the current state of a project's code.
+        /// </summary>
+        /// <param name="projectId">the project's id</param>
+        /// <returns>the current state of the code of the project</returns>
+        protected string GetProjectCode(int projectId)
+        {
+            const string url = "http://projects.scratch.mit.edu/internalapi/project/{0}/get/";
+            return GetContents(string.Format(url, projectId));
         }
     }
 }

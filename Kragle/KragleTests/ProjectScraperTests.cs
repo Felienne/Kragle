@@ -26,5 +26,17 @@ namespace KragleTests
         {
             Assert.AreEqual(0, GetUserProjects("kragle_user").Count);
         }
+
+        [TestMethod]
+        public void GetProjectCodeNegativeIdTest()
+        {
+            Assert.IsNull(GetProjectCode(-1));
+        }
+
+        [TestMethod]
+        public void GetProjectCodeUnusedIdTest()
+        {
+            Assert.IsNull(GetProjectCode(14));
+        }
     }
 }

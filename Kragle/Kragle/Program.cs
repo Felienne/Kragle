@@ -77,6 +77,8 @@ namespace Kragle
                     FileStore fs = new FileStore(subOptions.Path);
                     ProjectScraper scraper = new ProjectScraper(fs, subOptions.NoCache);
 
+                    scraper.UpdateProjectList();
+                    Console.WriteLine();
                     scraper.DownloadProjects();
 
                     break;
