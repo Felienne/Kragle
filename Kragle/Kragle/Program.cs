@@ -77,9 +77,14 @@ namespace Kragle
                     FileStore fs = new FileStore(subOptions.Path);
                     ProjectScraper scraper = new ProjectScraper(fs, subOptions.NoCache);
 
-                    scraper.UpdateProjectList();
-                    Console.WriteLine();
-                    scraper.DownloadProjects();
+                    if (subOptions.Update)
+                    {
+                        scraper.UpdateProjectList();
+                    }
+                    if (subOptions.Download)
+                    {
+                        scraper.DownloadProjects();
+                    }
 
                     break;
                 }
@@ -165,6 +170,11 @@ namespace Kragle
     /// </summary>
     internal class ProjectsSubOptions : FileSystemSharedOptions
     {
+        [Option('u', "update", HelpText = "Update the list of registered projects")]
+        public bool Update { get; set; }
+
+        [Option('d', "download", HelpText = "Download project code")]
+        public bool Download { get; set; }
     }
 
     /// <summary>
