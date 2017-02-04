@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using CommandLine;
+using CommandLine.Text;
 
 
 namespace Kragle
@@ -23,8 +24,6 @@ namespace Kragle
             // Parse options
             if (args == null || args.Length == 0)
             {
-                Console.WriteLine("Invalid parameters given: Missing command verb");
-                Console.ReadLine();
                 Environment.Exit(1);
             }
 
@@ -35,8 +34,6 @@ namespace Kragle
                 _invokedVerbInstance = subOptions;
             }))
             {
-                Console.WriteLine("Invalid parameters given: ");
-                Console.ReadLine();
                 Environment.Exit(Parser.DefaultExitCodeFail);
             }
 
@@ -115,6 +112,18 @@ namespace Kragle
 
         [VerbOption("code", HelpText = "Download the latest code of all registered projects")]
         public CodeSubOptions CodeSubOptions { get; set; }
+
+        [HelpOption]
+        public string GetUsage()
+        {
+            return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+        }
+
+        [HelpVerbOption]
+        public string GetUsage(string verb)
+        {
+            return HelpText.AutoBuild(this, verb);
+        }
     }
 
     /// <summary>
@@ -124,6 +133,9 @@ namespace Kragle
     {
         [Option('p', "path", HelpText = "The path files should be read from and written to")]
         public string Path { get; set; }
+
+        [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
+        public bool NoCache { get; set; }
     }
 
     /// <summary>
@@ -147,9 +159,6 @@ namespace Kragle
     {
         [Option('n', "number", HelpText = "The number of users to scrape")]
         public int Count { get; set; }
-
-        [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
-        public bool NoCache { get; set; }
     }
 
     /// <summary>
