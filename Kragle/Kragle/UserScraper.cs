@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 
 namespace Kragle
@@ -32,7 +33,7 @@ namespace Kragle
         /// <summary>
         ///     Scrapes users until the target has been reached.
         /// </summary>
-        public void Scrape()
+        public void ScrapeUsers()
         {
             int pageNumber = 0;
             int userCount = _fs.GetFiles(SubDirectory).Length;
@@ -49,24 +50,42 @@ namespace Kragle
                 // Loop over projects
                 foreach (dynamic project in projects)
                 {
-                    Console.Write("  User " + project.author.id + "... ");
-                    string fileName = project.author.id + ".json";
+                    string fileName = project.author.username;
 
                     // Skip project if user is already known
                     if (_fs.FileExists(SubDirectory, fileName))
                     {
-                        Console.WriteLine("skipped");
                         continue;
                     }
 
                     // Add user
-                    Console.WriteLine("added");
                     _fs.WriteFile(SubDirectory, fileName, "");
                     userCount++;
                 }
 
                 Console.WriteLine(userCount + " / " + _targetUserCount + " users\n");
                 pageNumber++;
+            }
+        }
+
+        /// <summary>
+        ///     Downloads meta-data for all users. If the <code>noCache</code> attribute is set, existing meta-data is updated.
+        /// </summary>
+        public void DownloadMetaData()
+        {
+            FileInfo[] users = _fs.GetFiles(SubDirectory);
+
+            Console.WriteLine("Downloading meta-data for " + users.Length + " users.\n");
+
+            foreach (FileInfo user in users)
+            {
+                if (user.Length > 0)
+                {
+                    continue;
+                }
+
+                string metaData = GetMetaData(user.Name);
+                _fs.WriteFile(SubDirectory, user.Name, metaData);
             }
         }
 
@@ -100,6 +119,15 @@ namespace Kragle
             }
 
             return projects;
+        }
+
+        //
+        protected string GetMetaData(string username)
+        {
+            const string url = "https://api.scratch.mit.edu/users/{0}";
+            dynamic metaData = GetJson(string.Format(url, username));
+
+            return metaData.ToString();
         }
     }
 }

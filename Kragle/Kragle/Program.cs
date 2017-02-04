@@ -59,7 +59,12 @@ namespace Kragle
 
                     FileStore fs = new FileStore(subOptions.Path);
                     UserScraper scraper = new UserScraper(fs, subOptions.Count, subOptions.NoCache);
-                    scraper.Scrape();
+
+                    scraper.ScrapeUsers();
+                    if (subOptions.Meta)
+                    {
+                        scraper.DownloadMetaData();
+                    }
 
                     break;
                 }
@@ -134,6 +139,9 @@ namespace Kragle
 
         [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
         public bool NoCache { get; set; }
+
+        [Option('m', "meta", HelpText = "Download user meta-data")]
+        public bool Meta { get; set; }
     }
 
     /// <summary>
