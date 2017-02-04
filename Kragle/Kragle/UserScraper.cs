@@ -37,27 +37,35 @@ namespace Kragle
             int pageNumber = 0;
             int userCount = _fs.GetFiles(SubDirectory).Length;
 
+            Console.WriteLine("Starting user scraping...\n" +
+                              userCount + " users already registered.\n\n");
+
             // Keep downloading projects until the target has been reached
             while (userCount < _targetUserCount)
             {
+                Console.WriteLine("Downloading page " + pageNumber);
                 ICollection<dynamic> projects = GetRecentProjects(pageNumber, PageSize);
 
                 // Loop over projects
                 foreach (dynamic project in projects)
                 {
+                    Console.Write("  User " + project.author.id + "... ");
                     string fileName = project.author.id + ".json";
 
                     // Skip project if user is already known
                     if (_fs.FileExists(SubDirectory, fileName))
                     {
+                        Console.WriteLine("skipped");
                         continue;
                     }
 
                     // Add user
+                    Console.WriteLine("added");
                     _fs.WriteFile(SubDirectory, fileName, "");
                     userCount++;
                 }
 
+                Console.WriteLine(userCount + " / " + _targetUserCount + " users\n");
                 pageNumber++;
             }
         }
