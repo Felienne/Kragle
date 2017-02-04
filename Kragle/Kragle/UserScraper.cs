@@ -121,13 +121,15 @@ namespace Kragle
             return projects;
         }
 
-        //
+        /// <summary>
+        /// Downloads meta-data on a user.
+        /// </summary>
+        /// <param name="username">the user's username</param>
+        /// <returns>the meta-data on the user</returns>
         protected string GetMetaData(string username)
         {
             const string url = "https://api.scratch.mit.edu/users/{0}";
-            dynamic metaData = GetJson(string.Format(url, username));
-
-            return metaData.ToString();
+            return GetContents(string.Format(url, username));
         }
     }
 }
