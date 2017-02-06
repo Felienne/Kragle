@@ -162,15 +162,6 @@ namespace Kragle
 
 
             /// <summary>
-            ///     Recursively detects wait blocks.
-            /// </summary>
-            /// <returns>an <code>IList</code> of all wait blocks</returns>
-            public IList<Script> GetWaits()
-            {
-                return GetWaits(Blocks, Scope, ScopeName);
-            }
-
-            /// <summary>
             ///     Recursively checks whether this <code>Script</code> contains exactly one block. If a block contains
             ///     other blocks, it is checked whether this block contains exactly one block, et cetera.
             /// </summary>
@@ -178,6 +169,41 @@ namespace Kragle
             public bool HasExactlyOneField()
             {
                 return HasExactlyOneField(Blocks);
+            }
+
+            /// <summary>
+            ///     Recursively detects wait blocks.
+            /// </summary>
+            /// <returns>an <code>IList</code> of all wait blocks</returns>
+            public IList<Script> GetWaitBlocks()
+            {
+                return GetWaitBlocks(Blocks, Scope, ScopeName);
+            }
+
+            /// <summary>
+            ///     Compares this <code>Script</code> against another object.
+            /// </summary>
+            /// <param name="obj">an object</param>
+            /// <returns>true if this <code>Script</code> equals the given object</returns>
+            public override bool Equals(object obj)
+            {
+                Script that = obj as Script;
+                return that != null && Equals(that);
+            }
+
+            /// <summary>
+            ///     Returns the hash code for this <code>Script</code>.
+            /// </summary>
+            /// <returns>the hash code for this <code>Script</code></returns>
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hashCode = Blocks?.GetHashCode() ?? 0;
+                    hashCode = (hashCode * 397) ^ (int) Scope;
+                    hashCode = (hashCode * 397) ^ (ScopeName?.GetHashCode() ?? 0);
+                    return hashCode;
+                }
             }
 
 
@@ -192,7 +218,7 @@ namespace Kragle
                 return block == null || HasExactlyOneField(block);
             }
 
-            private static IList<Script> GetWaits(JArray blocks, ScriptScope scope, string scopeName)
+            private static IList<Script> GetWaitBlocks(JArray blocks, ScriptScope scope, string scopeName)
             {
                 IList<Script> waitScripts = new List<Script>();
 
@@ -213,20 +239,27 @@ namespace Kragle
                     }
 
                     // Check if this block is a wait block
-                    if (arrayBlock[0].ToString() == "\"doWaitUntil\"")
+                    if (arrayBlock[0].ToString() == "doWaitUntil")
                     {
                         Script waitScript = new Script(arrayBlock, scope, scopeName);
                         waitScripts.Add(waitScript);
                     }
 
                     // Recur over inner blocks
-                    foreach (Script waitScript in GetWaits(arrayBlock, scope, scopeName))
+                    foreach (Script waitScript in GetWaitBlocks(arrayBlock, scope, scopeName))
                     {
                         waitScripts.Add(waitScript);
                     }
                 }
 
                 return waitScripts;
+            }
+
+            private bool Equals(Script that)
+            {
+                return JToken.DeepEquals(Blocks, that.Blocks)
+                       && Scope == that.Scope
+                       && string.Equals(ScopeName, that.ScopeName);
             }
         }
 
