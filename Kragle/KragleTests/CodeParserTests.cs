@@ -14,17 +14,7 @@ namespace KragleTests
         public CodeParserTests() : base(new FileStore())
         {
         }
-
-
-        [TestMethod]
-        public void ParseScriptSimpleCoordinatesTest()
-        {
-            JArray json = JArray.Parse("[14, 73, []]");
-            Script script = ParseScript(json, ScriptScope.Stage, "stage");
-
-            Assert.AreEqual(14, script.X);
-            Assert.AreEqual(73, script.Y);
-        }
+        
 
         [TestMethod]
         public void ParseScriptSimpleScopeTest()
@@ -42,7 +32,7 @@ namespace KragleTests
             JArray json = JArray.Parse("[24, 921, []]");
             Script script = ParseScript(json, ScriptScope.Stage, "stage");
 
-            Assert.IsTrue(JToken.DeepEquals(new JArray(), script.Code));
+            Assert.IsTrue(JToken.DeepEquals(new JArray(), script.Blocks));
         }
 
         [TestMethod]
@@ -61,11 +51,66 @@ namespace KragleTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FormatException))]
+        [ExpectedException(typeof(JsonReaderException))]
         public void ParseScriptCoordinateTypeFailureTest()
         {
             JArray json = JArray.Parse("[[], 661, 431]");
             ParseScript(json, ScriptScope.Stage, "stage");
+        }
+        
+
+        [TestMethod]
+        public void ScriptHasExactlyOneFieldSimpleFalseTest()
+        {
+            JArray json = JArray.Parse("[581, 31, [483, 21]]");
+            Script script = ParseScript(json, ScriptScope.Stage, "stage");
+
+            Assert.IsFalse(script.HasExactlyOneField());
+        }
+
+        [TestMethod]
+        public void ScriptHasExactlyOneFieldNestedFalseTest()
+        {
+            JArray json = JArray.Parse("[246, 333, [[[[[[38]]], \"no\"]]]]");
+            Script script = ParseScript(json, ScriptScope.Stage, "stage");
+
+            Assert.IsFalse(script.HasExactlyOneField());
+        }
+
+        [TestMethod]
+        public void ScriptHasExactlyOneFieldSimpleEmptyFalseTest()
+        {
+            JArray json = JArray.Parse("[291, 59, []]");
+            Script script = ParseScript(json, ScriptScope.Stage, "stage");
+
+            Assert.IsFalse(script.HasExactlyOneField());
+        }
+
+        [TestMethod]
+        public void ScriptHasExactlyOneFieldNestedEmptyFalseTest()
+        {
+            JArray json = JArray.Parse("[809, 606, [[[[[[[]]]]]]]]");
+            Script script = ParseScript(json, ScriptScope.Stage, "stage");
+
+            Assert.IsFalse(script.HasExactlyOneField());
+        }
+
+        [TestMethod]
+        public void ScriptHasExactlyOneFieldSimpleTrueTest()
+        {
+            JArray json = JArray.Parse("[246, 333, [917]]");
+            Script script = ParseScript(json, ScriptScope.Stage, "stage");
+
+            Assert.IsTrue(script.HasExactlyOneField());
+        }
+
+        [TestMethod]
+        public void ScriptHasExactlyOneFieldNestedTrueTest()
+        {
+            JArray json = JArray.Parse("[246, 333, [[[[[[[[[[[[[3]]]]]]]]]]]]]]");
+            Script script = ParseScript(json, ScriptScope.Stage, "stage");
+
+            Assert.IsTrue(script.HasExactlyOneField());
         }
     }
 }

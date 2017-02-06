@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -45,25 +46,31 @@ namespace Kragle
         /// <summary>
         ///     Parses the given code.
         /// </summary>
-        /// <param name="code">the code</param>
-        protected void Parse(string code)
+        /// <param name="rawCode">the raw code</param>
+        /// <returns>the <code>Code</code> object corresponding to the raw code</returns>
+        protected Code Parse(string rawCode)
         {
+            // Parse raw code
             dynamic json;
             try
             {
-                json = JObject.Parse(code);
+                json = JObject.Parse(rawCode);
             }
             catch (Exception)
             {
-                Console.WriteLine("Failure!");
-                return;
+                //Console.WriteLine("Failure!");
+                return null;
             }
 
+
+            // Parse code object
+            Code code = new Code();
 
             // Iterate over stage scripts
             foreach (dynamic script in json.scripts ?? Enumerable.Empty<dynamic>())
             {
-                ParseScript(script, ScriptScope.Stage, "stage");
+                Script s = ParseScript(script, ScriptScope.Stage, "stage");
+                code.AddScript(s);
             }
 
             // Iterate over scripts in sprites
@@ -73,9 +80,14 @@ namespace Kragle
 
                 foreach (dynamic script in sprite.scripts ?? Enumerable.Empty<dynamic>())
                 {
-                    ParseScript(script, ScriptScope.Script, spriteName);
+                    Script s = ParseScript(script, ScriptScope.Script, spriteName);
+                    code.AddScript(s);
+
+                    Console.WriteLine(s.HasExactlyOneField());
                 }
             }
+
+            return code;
         }
 
         /// <summary>
@@ -87,13 +99,41 @@ namespace Kragle
         /// <returns>a new <code>Script</code> object</returns>
         protected Script ParseScript(dynamic script, ScriptScope scope, string scopeName)
         {
-            float x = float.Parse(script[0].ToString());
-            float y = float.Parse(script[1].ToString());
             JArray code = JArray.Parse(script[2].ToString());
 
-            return new Script(x, y, code, scope, scopeName);
+            return new Script(code, scope, scopeName);
         }
 
+
+        //
+        protected class Code
+        {
+            private readonly IList<Script> scripts;
+            private readonly IList<Script> waitScripts;
+
+
+            public Code()
+            {
+                scripts = new List<Script>();
+                waitScripts = new List<Script>();
+            }
+
+
+            public void AddScript(Script script)
+            {
+                scripts.Add(script);
+            }
+
+            public void AddWaitScript(Script waitScript)
+            {
+                waitScripts.Add(waitScript);
+            }
+
+            public void DetectClones()
+            {
+                //
+            }
+        }
 
         /// <summary>
         ///     This class represents a script in a Scratch environment.
@@ -106,24 +146,88 @@ namespace Kragle
             /// </summary>
             /// <param name="x">the x-coordinate</param>
             /// <param name="y">the y-coordinate</param>
-            /// <param name="code">the blocks as a JSON array</param>
+            /// <param name="blocks">the blocks as a JSON array</param>
             /// <param name="scope">the scope the script was found in</param>
             /// <param name="scopeName">the name of the sprite the script is in, or "stage"</param>
-            public Script(float x, float y, JArray code, ScriptScope scope, string scopeName)
+            public Script(JArray blocks, ScriptScope scope, string scopeName)
             {
-                X = x;
-                Y = y;
-                Code = code;
+                Blocks = blocks;
                 Scope = scope;
                 ScopeName = scopeName;
             }
 
+            public JArray Blocks { get; }
+            public ScriptScope Scope { get; }
+            public string ScopeName { get; }
 
-            public float X { get; set; }
-            public float Y { get; set; }
-            public JArray Code { get; set; }
-            public ScriptScope Scope { get; set; }
-            public string ScopeName { get; set; }
+
+            /// <summary>
+            ///     Recursively detects wait blocks.
+            /// </summary>
+            /// <returns>an <code>IList</code> of all wait blocks</returns>
+            public IList<Script> GetWaits()
+            {
+                return GetWaits(Blocks, Scope, ScopeName);
+            }
+
+            /// <summary>
+            ///     Recursively checks whether this <code>Script</code> contains exactly one block. If a block contains
+            ///     other blocks, it is checked whether this block contains exactly one block, et cetera.
+            /// </summary>
+            /// <returns>true if this <code>Script</code> recursively contains exactly one block</returns>
+            public bool HasExactlyOneField()
+            {
+                return HasExactlyOneField(Blocks);
+            }
+
+
+            private static bool HasExactlyOneField(JArray blocks)
+            {
+                if (blocks.Count != 1)
+                {
+                    return false;
+                }
+
+                JArray block = blocks[0] as JArray;
+                return block == null || HasExactlyOneField(block);
+            }
+
+            private static IList<Script> GetWaits(JArray blocks, ScriptScope scope, string scopeName)
+            {
+                IList<Script> waitScripts = new List<Script>();
+
+                // Iterate over blocks
+                foreach (JToken block in blocks)
+                {
+                    if (!(block is JArray))
+                    {
+                        continue;
+                    }
+
+                    JArray arrayBlock = block as JArray;
+
+                    // Wait block requires multiple fields
+                    if (HasExactlyOneField(arrayBlock))
+                    {
+                        continue;
+                    }
+
+                    // Check if this block is a wait block
+                    if (arrayBlock[0].ToString() == "\"doWaitUntil\"")
+                    {
+                        Script waitScript = new Script(arrayBlock, scope, scopeName);
+                        waitScripts.Add(waitScript);
+                    }
+
+                    // Recur over inner blocks
+                    foreach (Script waitScript in GetWaits(arrayBlock, scope, scopeName))
+                    {
+                        waitScripts.Add(waitScript);
+                    }
+                }
+
+                return waitScripts;
+            }
         }
 
         /// <summary>
