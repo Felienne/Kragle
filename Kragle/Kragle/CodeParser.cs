@@ -51,7 +51,7 @@ namespace Kragle
         protected Code Parse(string rawCode)
         {
             // Parse raw code
-            dynamic json;
+            JObject json;
             try
             {
                 json = JObject.Parse(rawCode);
@@ -67,20 +67,35 @@ namespace Kragle
             Code code = new Code();
 
             // Iterate over stage scripts
-            foreach (dynamic script in json.scripts ?? Enumerable.Empty<dynamic>())
+            foreach (JToken script in json.GetValue("scripts") ?? Enumerable.Empty<dynamic>())
             {
-                Script s = ParseScript(script, ScriptScope.Stage, "stage");
+                if (!(script is JArray) || script.Count() != 3 || !(script[2] is JArray))
+                {
+                    continue;
+                }
+
+                Script s = new Script((JArray) script[2], ScriptScope.Stage, "stage");
                 code.AddScript(s);
             }
 
             // Iterate over scripts in sprites
-            foreach (dynamic sprite in json.children ?? Enumerable.Empty<dynamic>())
+            foreach (JToken spriteToken in json.GetValue("children") ?? Enumerable.Empty<dynamic>())
             {
-                string spriteName = sprite.objName;
-
-                foreach (dynamic script in sprite.scripts ?? Enumerable.Empty<dynamic>())
+                if (!(spriteToken is JObject))
                 {
-                    Script s = ParseScript(script, ScriptScope.Script, spriteName);
+                    continue;
+                }
+                JObject sprite = (JObject) spriteToken;
+                string spriteName = sprite.GetValue("objName").ToString();
+
+                foreach (JToken script in sprite.GetValue("scripts") ?? Enumerable.Empty<dynamic>())
+                {
+                    if (!(script is JArray) || script.Count() != 3 || !(script[2] is JArray))
+                    {
+                        continue;
+                    }
+
+                    Script s = new Script((JArray) script[2], ScriptScope.Script, spriteName);
                     code.AddScript(s);
 
                     Console.WriteLine(s.HasExactlyOneField());
@@ -88,20 +103,6 @@ namespace Kragle
             }
 
             return code;
-        }
-
-        /// <summary>
-        ///     Constructs a <code>Script</code>.
-        /// </summary>
-        /// <param name="script">the contents of the script as a JSON object</param>
-        /// <param name="scope">the scope the script is in</param>
-        /// <param name="scopeName">the name of the sprite the script is in, or "stage"</param>
-        /// <returns>a new <code>Script</code> object</returns>
-        protected Script ParseScript(dynamic script, ScriptScope scope, string scopeName)
-        {
-            JArray code = JArray.Parse(script[2].ToString());
-
-            return new Script(code, scope, scopeName);
         }
 
 
@@ -144,13 +145,16 @@ namespace Kragle
             /// <summary>
             ///     Constructs a new <code>Script</code> object.
             /// </summary>
-            /// <param name="x">the x-coordinate</param>
-            /// <param name="y">the y-coordinate</param>
             /// <param name="blocks">the blocks as a JSON array</param>
             /// <param name="scope">the scope the script was found in</param>
             /// <param name="scopeName">the name of the sprite the script is in, or "stage"</param>
             public Script(JArray blocks, ScriptScope scope, string scopeName)
             {
+                if (blocks == null)
+                {
+                    throw new ArgumentNullException(nameof(blocks));
+                }
+
                 Blocks = blocks;
                 Scope = scope;
                 ScopeName = scopeName;
