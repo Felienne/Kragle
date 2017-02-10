@@ -83,7 +83,7 @@ namespace Kragle
 
             return code;
         }
-        
+
         /// <summary>
         ///     Adds all <code>Script</code>s found in the given <code>JObject</code> to the given <code>Code</code>.
         /// </summary>
@@ -136,7 +136,7 @@ namespace Kragle
                 _waitScripts.Add(waitScript);
             }
 
-            public void AddWaitScripts(IList<Script> waitScripts)
+            public void AddWaitScripts(IEnumerable<Script> waitScripts)
             {
                 foreach (Script waitScript in waitScripts)
                 {
@@ -144,21 +144,20 @@ namespace Kragle
                 }
             }
 
-            public void DetectClones()
+            public IEnumerable<Duplicate> DetectDuplicates()
             {
-                // Group by script code
-                IEnumerable<IGrouping<string, Script>> scriptsByCode = _scripts.GroupBy(x => x.Blocks.ToString());
+                // Sort all scripts by their code; an IGrouping now contains all Scripts with the same code
+                IEnumerable<IGrouping<string, Script>> duplicates = _scripts.GroupBy(x => x.Blocks.ToString());
 
-                foreach (IGrouping<string, Script> script in scriptsByCode)
-                {
-                    // Check if duplicates exist
-                    if (script.Count() <= 1)
-                    {
-                        continue;
-                    }
-
-                    IEnumerable<IGrouping<string, Script>> groupBy = script.GroupBy(x => x.ScopeName);
-                }
+                return
+                (
+                    from script in duplicates
+                    where script.Count() > 1
+                    // Select if duplicate
+                    let groupBy = script.GroupBy(x => x.ScopeName)
+                    // Sort by scope in code
+                    select new Duplicate(script.Key, groupBy)
+                ).ToList();
             }
         }
 
@@ -290,6 +289,26 @@ namespace Kragle
                 return JToken.DeepEquals(Blocks, that.Blocks)
                        && Scope == that.Scope
                        && string.Equals(ScopeName, that.ScopeName);
+            }
+        }
+
+        //
+        protected class Duplicate
+        {
+            public readonly string Blocks;
+            public readonly IEnumerable<Script> Occurrences;
+
+
+            public Duplicate(string blocks, IEnumerable<Script> scripts)
+            {
+                Blocks = blocks;
+                Occurrences = new List<Script>();
+            }
+
+            public Duplicate(string blocks, IEnumerable<IGrouping<string, Script>> duplicates)
+            {
+                Blocks = blocks;
+                Occurrences = duplicates.SelectMany(duplicate => duplicate).ToList();
             }
         }
 
