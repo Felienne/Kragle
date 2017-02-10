@@ -58,81 +58,107 @@ namespace Kragle
             }
             catch (Exception)
             {
-                //Console.WriteLine("Failure!");
+                Console.WriteLine("Failure!");
                 return null;
             }
 
 
-            // Parse code object
             Code code = new Code();
 
-            // Iterate over stage scripts
-            foreach (JToken script in json.GetValue("scripts") ?? Enumerable.Empty<dynamic>())
-            {
-                if (!(script is JArray) || script.Count() != 3 || !(script[2] is JArray))
-                {
-                    continue;
-                }
+            // Add scripts from root level
+            AddScripts(code, json, ScriptScope.Stage, "stage");
 
-                Script s = new Script((JArray) script[2], ScriptScope.Stage, "stage");
-                code.AddScript(s);
-            }
-
-            // Iterate over scripts in sprites
+            // Add scripts from each sprite
             foreach (JToken spriteToken in json.GetValue("children") ?? Enumerable.Empty<dynamic>())
             {
                 if (!(spriteToken is JObject))
                 {
                     continue;
                 }
+
                 JObject sprite = (JObject) spriteToken;
                 string spriteName = sprite.GetValue("objName").ToString();
-
-                foreach (JToken script in sprite.GetValue("scripts") ?? Enumerable.Empty<dynamic>())
-                {
-                    if (!(script is JArray) || script.Count() != 3 || !(script[2] is JArray))
-                    {
-                        continue;
-                    }
-
-                    Script s = new Script((JArray) script[2], ScriptScope.Script, spriteName);
-                    code.AddScript(s);
-
-                    Console.WriteLine(s.HasExactlyOneField());
-                }
+                AddScripts(code, sprite, ScriptScope.Script, spriteName);
             }
 
             return code;
+        }
+        
+        /// <summary>
+        ///     Adds all <code>Script</code>s found in the given <code>JObject</code> to the given <code>Code</code>.
+        /// </summary>
+        /// <param name="code">the <code>Code</code> to add the <code>Script</code>s to</param>
+        /// <param name="json">the <code>JObject</code> to find the <code>Script</code>s in</param>
+        /// <param name="scope">the <code>ScriptScope</code> of all <code>Script</code>s that are found</param>
+        /// <param name="scopeName">the name of the scope of all <code>Script</code>s that are found</param>
+        protected void AddScripts(Code code, JObject json, ScriptScope scope, string scopeName)
+        {
+            // Iterate over scripts
+            foreach (JToken scriptToken in json.GetValue("scripts") ?? Enumerable.Empty<dynamic>())
+            {
+                // Validate script block
+                if (!(scriptToken is JArray)
+                    || scriptToken.Count() != 3 // Must be of form [x, y, code]
+                    || !(scriptToken[2] is JArray)) // Code must be a JArray
+                {
+                    continue;
+                }
+
+                // Add scripts to Code object
+                Script script = new Script((JArray) scriptToken[2], scope, scopeName);
+                code.AddScript(script);
+                code.AddWaitScripts(script.GetWaitBlocks());
+            }
         }
 
 
         //
         protected class Code
         {
-            private readonly IList<Script> scripts;
-            private readonly IList<Script> waitScripts;
+            private readonly IList<Script> _scripts;
+            private readonly IList<Script> _waitScripts;
 
 
             public Code()
             {
-                scripts = new List<Script>();
-                waitScripts = new List<Script>();
+                _scripts = new List<Script>();
+                _waitScripts = new List<Script>();
             }
 
 
             public void AddScript(Script script)
             {
-                scripts.Add(script);
+                _scripts.Add(script);
             }
 
             public void AddWaitScript(Script waitScript)
             {
-                waitScripts.Add(waitScript);
+                _waitScripts.Add(waitScript);
+            }
+
+            public void AddWaitScripts(IList<Script> waitScripts)
+            {
+                foreach (Script waitScript in waitScripts)
+                {
+                    AddWaitScript(waitScript);
+                }
             }
 
             public void DetectClones()
             {
-                //
+                // Group by script code
+                IEnumerable<IGrouping<string, Script>> scriptsByCode = _scripts.GroupBy(x => x.Blocks.ToString());
+
+                foreach (IGrouping<string, Script> script in scriptsByCode)
+                {
+                    // Check if duplicates exist
+                    if (script.Count() <= 1)
+                    {
+                        continue;
+                    }
+
+                    IEnumerable<IGrouping<string, Script>> groupBy = script.GroupBy(x => x.ScopeName);
+                }
             }
         }
 
