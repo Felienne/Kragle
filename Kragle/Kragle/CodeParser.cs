@@ -292,19 +292,31 @@ namespace Kragle
             }
         }
 
-        //
+        /// <summary>
+        ///     This class represents a single piece of a script that is also present in other scripts.
+        /// </summary>
         protected class Duplicate
         {
             public readonly string Blocks;
             public readonly IEnumerable<Script> Occurrences;
 
 
+            /// <summary>
+            ///     Constructs a new <code>Duplicate</code>.
+            /// </summary>
+            /// <param name="blocks">the code that was duplicated</param>
+            /// <param name="scripts">the <code>Script</code>s containing the code</param>
             public Duplicate(string blocks, IEnumerable<Script> scripts)
             {
                 Blocks = blocks;
-                Occurrences = new List<Script>();
+                Occurrences = scripts;
             }
 
+            /// <summary>
+            ///     Constructs a new <code>Duplicate</code>.
+            /// </summary>
+            /// <param name="blocks">the code that was duplicated</param>
+            /// <param name="duplicates">the <code>Script</code>s containing the code</param>
             public Duplicate(string blocks, IEnumerable<IGrouping<string, Script>> duplicates)
             {
                 Blocks = blocks;
