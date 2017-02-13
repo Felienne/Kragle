@@ -32,118 +32,65 @@ namespace Kragle
         public void ParseProjects()
         {
             FileInfo[] codeFiles = _fs.GetFiles("code");
-
             Console.WriteLine("Parsing " + codeFiles.Length + " code files.");
 
             foreach (FileInfo codeFile in codeFiles)
             {
-                string code = File.ReadAllText(codeFile.FullName);
-                Parse(code);
+                string rawCode = File.ReadAllText(codeFile.FullName);
+
+                JObject json;
+                try
+                {
+                    json = JObject.Parse(rawCode);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Failure!");
+                    continue;
+                }
+
+                Code code = new Code(json);
             }
         }
 
 
         /// <summary>
-        ///     Parses the given code.
+        ///     This class represents an instance of a project's code at a single moment in time.
         /// </summary>
-        /// <param name="rawCode">the raw code</param>
-        /// <returns>the <code>Code</code> object corresponding to the raw code</returns>
-        protected Code Parse(string rawCode)
-        {
-            // Parse raw code
-            JObject json;
-            try
-            {
-                json = JObject.Parse(rawCode);
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Failure!");
-                return null;
-            }
-
-
-            Code code = new Code();
-
-            // Add scripts from root level
-            AddScripts(code, json, ScriptScope.Stage, "stage");
-
-            // Add scripts from each sprite
-            foreach (JToken spriteToken in json.GetValue("children") ?? Enumerable.Empty<dynamic>())
-            {
-                if (!(spriteToken is JObject))
-                {
-                    continue;
-                }
-
-                JObject sprite = (JObject) spriteToken;
-                string spriteName = sprite.GetValue("objName").ToString();
-                AddScripts(code, sprite, ScriptScope.Script, spriteName);
-            }
-
-            return code;
-        }
-
-        /// <summary>
-        ///     Adds all <code>Script</code>s found in the given <code>JObject</code> to the given <code>Code</code>.
-        /// </summary>
-        /// <param name="code">the <code>Code</code> to add the <code>Script</code>s to</param>
-        /// <param name="json">the <code>JObject</code> to find the <code>Script</code>s in</param>
-        /// <param name="scope">the <code>ScriptScope</code> of all <code>Script</code>s that are found</param>
-        /// <param name="scopeName">the name of the scope of all <code>Script</code>s that are found</param>
-        protected void AddScripts(Code code, JObject json, ScriptScope scope, string scopeName)
-        {
-            // Iterate over scripts
-            foreach (JToken scriptToken in json.GetValue("scripts") ?? Enumerable.Empty<dynamic>())
-            {
-                // Validate script block
-                if (!(scriptToken is JArray)
-                    || scriptToken.Count() != 3 // Must be of form [x, y, code]
-                    || !(scriptToken[2] is JArray)) // Code must be a JArray
-                {
-                    continue;
-                }
-
-                // Add scripts to Code object
-                Script script = new Script((JArray) scriptToken[2], scope, scopeName);
-                code.AddScript(script);
-                code.AddWaitScripts(script.GetWaitBlocks());
-            }
-        }
-
-
-        //
         protected class Code
         {
-            private readonly IList<Script> _scripts;
-            private readonly IList<Script> _waitScripts;
+            private readonly List<Script> _scripts;
+            private readonly List<Script> _waitScripts;
 
 
-            public Code()
+            /// <summary>
+            ///     Constructs a new <code>Code</code> object.
+            /// </summary>
+            /// <param name="json">the parsed JSON of the entire code</param>
+            public Code(JObject json)
             {
-                _scripts = new List<Script>();
-                _waitScripts = new List<Script>();
-            }
+                // Add scripts from root level
+                AddScripts(json, ScriptScope.Stage, "stage");
 
-
-            public void AddScript(Script script)
-            {
-                _scripts.Add(script);
-            }
-
-            public void AddWaitScript(Script waitScript)
-            {
-                _waitScripts.Add(waitScript);
-            }
-
-            public void AddWaitScripts(IEnumerable<Script> waitScripts)
-            {
-                foreach (Script waitScript in waitScripts)
+                // Add scripts from each sprite
+                foreach (JToken spriteToken in json.GetValue("children") ?? Enumerable.Empty<dynamic>())
                 {
-                    AddWaitScript(waitScript);
+                    if (!(spriteToken is JObject))
+                    {
+                        continue;
+                    }
+
+                    JObject sprite = (JObject) spriteToken;
+                    string spriteName = sprite.GetValue("objName").ToString();
+                    AddScripts(sprite, ScriptScope.Script, spriteName);
                 }
             }
 
+
+            /// <summary>
+            ///     Returns all duplicates present in this piece of code.
+            /// </summary>
+            /// <returns>all duplicates present in this piece of code</returns>
             public IEnumerable<Duplicate> DetectDuplicates()
             {
                 // Sort all scripts by their code; an IGrouping now contains all Scripts with the same code
@@ -152,12 +99,33 @@ namespace Kragle
                 return
                 (
                     from script in duplicates
+                    // Select if duplicate:
                     where script.Count() > 1
-                    // Select if duplicate
+                    // Sort by scope in code:
                     let groupBy = script.GroupBy(x => x.ScopeName)
-                    // Sort by scope in code
                     select new Duplicate(script.Key, groupBy)
                 ).ToList();
+            }
+
+
+            private void AddScripts(JObject json, ScriptScope scope, string scopeName)
+            {
+                // Iterate over scripts
+                foreach (JToken scriptToken in json.GetValue("scripts") ?? Enumerable.Empty<dynamic>())
+                {
+                    // Validate script block
+                    if (!(scriptToken is JArray)
+                        || scriptToken.Count() != 3 // Must be of form [x, y, code]
+                        || !(scriptToken[2] is JArray)) // Code must be a JArray
+                    {
+                        continue;
+                    }
+
+                    // Add scripts to Code object
+                    Script script = new Script((JArray) scriptToken[2], scope, scopeName);
+                    _scripts.Add(script);
+                    _waitScripts.AddRange(script.GetWaitBlocks());
+                }
             }
         }
 
