@@ -31,25 +31,35 @@ namespace Kragle
         /// </summary>
         public void ParseProjects()
         {
-            FileInfo[] codeFiles = _fs.GetFiles("code");
-            Console.WriteLine("Parsing " + codeFiles.Length + " code files.");
+            DirectoryInfo[] days = _fs.GetDirectories("code");
+            int dayCount = 0;
 
-            foreach (FileInfo codeFile in codeFiles)
+            Console.WriteLine("Accessing " + days.Length + " days of code.");
+
+            foreach (DirectoryInfo day in days)
             {
-                string rawCode = File.ReadAllText(codeFile.FullName);
+                FileInfo[] files = day.GetFiles();
+                dayCount++;
 
-                JObject json;
-                try
-                {
-                    json = JObject.Parse(rawCode);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Failure!");
-                    continue;
-                }
+                Console.WriteLine("Parsing " + files.Length + " files for day " + dayCount);
 
-                Code code = new Code(json);
+                foreach (FileInfo file in files)
+                {
+                    string rawCode = File.ReadAllText(file.FullName);
+
+                    JObject json;
+                    try
+                    {
+                        json = JObject.Parse(rawCode);
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Failure!");
+                        continue;
+                    }
+
+                    Code code = new Code(json);
+                }
             }
         }
 
@@ -69,6 +79,10 @@ namespace Kragle
             /// <param name="json">the parsed JSON of the entire code</param>
             public Code(JObject json)
             {
+                _scripts = new List<Script>();
+                _waitScripts = new List<Script>();
+
+
                 // Add scripts from root level
                 AddScripts(json, ScriptScope.Stage, "stage");
 
@@ -81,7 +95,12 @@ namespace Kragle
                     }
 
                     JObject sprite = (JObject) spriteToken;
-                    string spriteName = sprite.GetValue("objName").ToString();
+                    string spriteName = sprite.GetValue("objName")?.ToString();
+                    if (spriteName == null)
+                    {
+                        continue;
+                    }
+
                     AddScripts(sprite, ScriptScope.Script, spriteName);
                 }
             }
@@ -227,10 +246,10 @@ namespace Kragle
                         continue;
                     }
 
-                    JArray arrayBlock = block as JArray;
+                    JArray arrayBlock = (JArray) block;
 
                     // Wait block requires multiple fields
-                    if (HasExactlyOneField(arrayBlock))
+                    if (HasExactlyOneField(arrayBlock) || arrayBlock.Count == 0)
                     {
                         continue;
                     }
