@@ -61,9 +61,8 @@ namespace Kragle
             foreach (FileInfo project in projects)
             {
                 int projectId = Convert.ToInt32(project.Name);
-                string filename = projectId + " " + DateTime.Now.ToString("yyyy-MM-dd HHmm");
 
-                _fs.WriteFile("code", filename, GetProjectCode(projectId));
+                _fs.WriteFile("code/" + DateTime.Now.ToString("yyyy-MM-dd"), projectId.ToString(), GetProjectCode(projectId));
 
                 projectCurrent++;
                 Console.WriteLine("{0:P2}", projectCurrent / (double) projectTotal);
