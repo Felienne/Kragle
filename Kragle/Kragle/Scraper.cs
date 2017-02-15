@@ -36,6 +36,7 @@ namespace Kragle
             {
                 throw new ArgumentException("Invalid URL provided");
             }
+            url = _noCache ? AppendRandomParameter(url) : url;
 
             // Download webpage contents
             string rawJson;
@@ -43,7 +44,7 @@ namespace Kragle
             {
                 try
                 {
-                    rawJson = client.DownloadString(AppendRandomParameter(url));
+                    rawJson = client.DownloadString(url);
                 }
                 catch (WebException e)
                 {
