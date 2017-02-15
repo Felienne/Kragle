@@ -24,7 +24,7 @@ namespace Kragle
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to download user data with</param>
         /// <param name="targetUserCount">the target number of scraped users</param>
-        public UserScraper(FileStore fs, Downloader downloader, int targetUserCount = int.MaxValue)
+        public UserScraper(FileStore fs, Downloader downloader, int targetUserCount)
         {
             _fs = fs;
             _downloader = downloader;
