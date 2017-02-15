@@ -7,19 +7,19 @@ using Newtonsoft.Json;
 namespace Kragle
 {
     /// <summary>
-    ///     A scraper class "scrapes" the Scratch API by mass-downloading certain pages and storing them. A scraper
-    ///     does not analyse or read these pages, it is only responsible for storing them.
+    ///     The <code>Downloader</code> class is responsible for downloading contents (mainly JSON) from the Internet (mainly
+    ///     the Scratch API).
     /// </summary>
-    public abstract class Scraper
+    public class Downloader
     {
         private readonly bool _noCache;
 
 
         /// <summary>
-        ///     Constructs a new Scraper.
+        ///     Constructs a new <code>Downloader</code>.
         /// </summary>
         /// <param name="noCache">true if requests should be made without using the cache in requests</param>
-        public Scraper(bool noCache)
+        public Downloader(bool noCache)
         {
             _noCache = noCache;
         }
@@ -30,7 +30,7 @@ namespace Kragle
         /// </summary>
         /// <param name="url">the valid url to fetch the JSON from</param>
         /// <returns>a deserialised JSON object, or <code>null</code> if the JSON could not be deserialised</returns>
-        protected dynamic GetJson(string url)
+        public dynamic GetJson(string url)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
@@ -63,6 +63,7 @@ namespace Kragle
                 return null;
             }
         }
+
 
         /// <summary>
         ///     Appends a query parameter to the given URL, with as its key <code>"random"</code>, and an actually
