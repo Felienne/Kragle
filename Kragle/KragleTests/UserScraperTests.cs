@@ -10,7 +10,7 @@ namespace KragleTests
     [TestClass]
     public class UserScraperTests : UserScraper
     {
-        public UserScraperTests() : base(new FileStore())
+        public UserScraperTests() : base(new FileStore(), new Downloader(true))
         {
         }
 

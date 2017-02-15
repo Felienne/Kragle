@@ -8,12 +8,13 @@ namespace Kragle
     /// <summary>
     ///     A scraper that scrapes the list of most recent users.
     /// </summary>
-    public class UserScraper : Scraper
+    public class UserScraper
     {
         private const string SubDirectory = "users";
         private const int PageSize = 20;
 
         private readonly FileStore _fs;
+        private readonly Downloader _downloader;
         private readonly int _targetUserCount;
 
 
@@ -21,11 +22,12 @@ namespace Kragle
         ///     Constructs a new <code>UserScraper</code>.
         /// </summary>
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
+        /// <param name="downloader">the <code>Downloader</code> to download user data with</param>
         /// <param name="targetUserCount">the target number of scraped users</param>
-        /// <param name="noCache">true if requests should be made without using the cache in requests</param>
-        public UserScraper(FileStore fs, int targetUserCount = int.MaxValue, bool noCache = false) : base(noCache)
+        public UserScraper(FileStore fs, Downloader downloader, int targetUserCount = int.MaxValue)
         {
             _fs = fs;
+            _downloader = downloader;
             _targetUserCount = targetUserCount;
         }
 
@@ -109,7 +111,7 @@ namespace Kragle
 
             // Fetch JSON
             const string url = "https://api.scratch.mit.edu/search/projects?mode=recent&offset={0}&limit={1}";
-            dynamic projectList = GetJson(string.Format(url, pageNumber, pageSize));
+            dynamic projectList = _downloader.GetJson(string.Format(url, pageNumber, pageSize));
 
             // Parse to collection
             ICollection<dynamic> projects = new List<dynamic>(pageSize);
@@ -129,7 +131,7 @@ namespace Kragle
         protected string GetMetaData(string username)
         {
             const string url = "https://api.scratch.mit.edu/users/{0}";
-            return GetContents(string.Format(url, username));
+            return _downloader.GetContents(string.Format(url, username));
         }
     }
 }

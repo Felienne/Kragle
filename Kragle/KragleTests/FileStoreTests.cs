@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.IO.Pipes;
 using Kragle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -181,6 +182,29 @@ namespace KragleTests
             WriteFile(_directory, _fileName, _fileContents);
 
             Assert.AreEqual(_fileName, GetFiles(_directory)[0].Name);
+        }
+
+        [TestMethod]
+        public void GetDirectoriesEmptySizeTest()
+        {
+            WriteFile(_directory, _fileContents, _fileContents);
+
+            Assert.AreEqual(0, GetDirectories(_directory).Length);
+        }
+        
+        [TestMethod]
+        public void GetDirectoriesSizeTest()
+        {
+            WriteFile(_directory, _fileContents, _fileContents);
+            WriteFile(_directory + "/asdf", _fileName, _fileContents);
+
+            Assert.AreEqual(1, GetDirectories(_directory).Length);
+        }
+
+        [TestMethod]
+        public void GetDirectoriesNotFoundTest()
+        {
+            Assert.AreEqual(0, GetDirectories(_directory).Length);
         }
     }
 }
