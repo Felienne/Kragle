@@ -55,7 +55,7 @@
     <Compile Include="FileStoreTests.cs" />
     <Compile Include="ProjectScraperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScraperTests.cs" />
+    <Compile Include="DownloaderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Kragle\Kragle.csproj">

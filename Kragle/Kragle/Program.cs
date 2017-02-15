@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using CommandLine;
+using CommandLine.Text;
 
 
 namespace Kragle
@@ -23,8 +24,6 @@ namespace Kragle
             // Parse options
             if (args == null || args.Length == 0)
             {
-                Console.WriteLine("Invalid parameters given: Missing command verb");
-                Console.ReadLine();
                 Environment.Exit(1);
             }
 
@@ -35,8 +34,6 @@ namespace Kragle
                 _invokedVerbInstance = subOptions;
             }))
             {
-                Console.WriteLine("Invalid parameters given: ");
-                Console.ReadLine();
                 Environment.Exit(Parser.DefaultExitCodeFail);
             }
 
@@ -75,7 +72,8 @@ namespace Kragle
                     ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
 
                     FileStore fs = new FileStore(subOptions.Path);
-                    ProjectScraper scraper = new ProjectScraper(fs, subOptions.NoCache);
+                    Downloader downloader = new Downloader(subOptions.NoCache);
+                    ProjectScraper scraper = new ProjectScraper(fs, downloader);
 
                     if (subOptions.Update)
                     {
@@ -128,6 +126,18 @@ namespace Kragle
 
         [VerbOption("code", HelpText = "Download the latest code of all registered projects")]
         public CodeSubOptions CodeSubOptions { get; set; }
+
+        [HelpOption]
+        public string GetUsage()
+        {
+            return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+        }
+
+        [HelpVerbOption]
+        public string GetUsage(string verb)
+        {
+            return HelpText.AutoBuild(this, verb);
+        }
     }
 
     /// <summary>

@@ -9,7 +9,7 @@ namespace KragleTests
     [TestClass]
     public class ProjectScraperTests : ProjectScraper
     {
-        public ProjectScraperTests() : base(new FileStore(), false)
+        public ProjectScraperTests() : base(new FileStore(), new Downloader(false))
         {
         }
 

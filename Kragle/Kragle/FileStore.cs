@@ -192,10 +192,20 @@ namespace Kragle
         }
 
         /// <summary>
-        ///     Returns an array of <code>FileInfo</code> on all files in the specified subdirectory.
+        ///     Returns an array of <code>DirectoryInfo</code>s on all subdirectories in the specified (sub)directory.
         /// </summary>
         /// <param name="directory">the name of a subdirectory</param>
-        /// <returns>an array of <code>FileInfo</code> on all files in the specified subdirectory</returns>
+        /// <returns>an array of <code>DirectoryInfo</code>s on all subdirectories in the specified (sub)directory</returns>
+        public DirectoryInfo[] GetDirectories(string directory = "./")
+        {
+            return GetDirectory(directory).GetDirectories();
+        }
+
+        /// <summary>
+        ///     Returns an array of <code>FileInfo</code> on all files in the specified (sub)directory.
+        /// </summary>
+        /// <param name="directory">the name of a subdirectory</param>
+        /// <returns>an array of <code>FileInfo</code> on all files in the specified (sub)directory</returns>
         public FileInfo[] GetFiles(string directory = "./")
         {
             return GetDirectory(directory).GetFiles();

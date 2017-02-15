@@ -70,7 +70,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="ProjectScraper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scraper.cs" />
+    <Compile Include="Downloader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -5,9 +5,10 @@ using System.IO;
 
 namespace Kragle
 {
-    public class ProjectScraper : Scraper
+    public class ProjectScraper
     {
         private readonly FileStore _fs;
+        private readonly Downloader _downloader;
 
 
         /// <summary>
@@ -15,9 +16,10 @@ namespace Kragle
         /// </summary>
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="noCache">true if requests should be made without using the cache in requests</param>
-        public ProjectScraper(FileStore fs, bool noCache) : base(noCache)
+        public ProjectScraper(FileStore fs, Downloader downloader)
         {
             _fs = fs;
+            _downloader = downloader;
         }
 
 
@@ -79,7 +81,7 @@ namespace Kragle
         {
             // Fetch JSON
             const string url = "https://api.scratch.mit.edu/users/{0}/projects";
-            dynamic projectList = GetJson(string.Format(url, username));
+            dynamic projectList = _downloader.GetJson(string.Format(url, username));
 
             if (projectList == null)
             {
@@ -104,7 +106,7 @@ namespace Kragle
         protected string GetProjectCode(int projectId)
         {
             const string url = "http://projects.scratch.mit.edu/internalapi/project/{0}/get/";
-            return GetContents(string.Format(url, projectId));
+            return _downloader.GetContents(string.Format(url, projectId));
         }
     }
 }
