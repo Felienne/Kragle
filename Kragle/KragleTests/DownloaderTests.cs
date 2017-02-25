@@ -6,12 +6,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace KragleTests
 {
     /// <summary>
-    ///     Unit tests for the <code>Scraper</code> class.
+    ///     Unit tests for the <code>Downloader</code> class.
     /// </summary>
     [TestClass]
-    public class ScraperTests : Scraper
+    public class DownloaderTests : Downloader
     {
-        public ScraperTests() : base(false)
+        public DownloaderTests() : base(false)
         {
         }
 
