@@ -70,7 +70,6 @@ namespace Kragle
         protected class Code
         {
             private readonly List<Script> _scripts;
-            private readonly List<Script> _waitScripts;
 
 
             /// <summary>
@@ -80,7 +79,6 @@ namespace Kragle
             public Code(JObject json)
             {
                 _scripts = new List<Script>();
-                _waitScripts = new List<Script>();
 
 
                 // Add scripts from root level
@@ -106,27 +104,6 @@ namespace Kragle
             }
 
 
-            /// <summary>
-            ///     Returns all duplicates present in this piece of code.
-            /// </summary>
-            /// <returns>all duplicates present in this piece of code</returns>
-            public IEnumerable<Duplicate> DetectDuplicates()
-            {
-                // Sort all scripts by their code; an IGrouping now contains all Scripts with the same code
-                IEnumerable<IGrouping<string, Script>> duplicates = _scripts.GroupBy(x => x.Blocks.ToString());
-
-                return
-                (
-                    from script in duplicates
-                    // Select if duplicate:
-                    where script.Count() > 1
-                    // Sort by scope in code:
-                    let groupBy = script.GroupBy(x => x.ScopeName)
-                    select new Duplicate(script.Key, groupBy)
-                ).ToList();
-            }
-
-
             private void AddScripts(JObject json, ScriptScope scope, string scopeName)
             {
                 // Iterate over scripts
@@ -143,7 +120,6 @@ namespace Kragle
                     // Add scripts to Code object
                     Script script = new Script((JArray) scriptToken[2], scope, scopeName);
                     _scripts.Add(script);
-                    _waitScripts.AddRange(script.GetWaitBlocks());
                 }
             }
         }
@@ -276,38 +252,6 @@ namespace Kragle
                 return JToken.DeepEquals(Blocks, that.Blocks)
                        && Scope == that.Scope
                        && string.Equals(ScopeName, that.ScopeName);
-            }
-        }
-
-        /// <summary>
-        ///     This class represents a single piece of a script that is also present in other scripts.
-        /// </summary>
-        protected class Duplicate
-        {
-            public readonly string Blocks;
-            public readonly IEnumerable<Script> Occurrences;
-
-
-            /// <summary>
-            ///     Constructs a new <code>Duplicate</code>.
-            /// </summary>
-            /// <param name="blocks">the code that was duplicated</param>
-            /// <param name="scripts">the <code>Script</code>s containing the code</param>
-            public Duplicate(string blocks, IEnumerable<Script> scripts)
-            {
-                Blocks = blocks;
-                Occurrences = scripts;
-            }
-
-            /// <summary>
-            ///     Constructs a new <code>Duplicate</code>.
-            /// </summary>
-            /// <param name="blocks">the code that was duplicated</param>
-            /// <param name="duplicates">the <code>Script</code>s containing the code</param>
-            public Duplicate(string blocks, IEnumerable<IGrouping<string, Script>> duplicates)
-            {
-                Blocks = blocks;
-                Occurrences = duplicates.SelectMany(duplicate => duplicate).ToList();
             }
         }
 
