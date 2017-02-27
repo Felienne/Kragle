@@ -9,7 +9,7 @@ namespace Kragle
     ///     A <code>CodeParser</code> parses all available project code. It generates several CSV files which can be
     ///     imported into a relational database for further analysis.
     /// </summary>
-    public class CodeParser
+    public sealed class CodeParser
     {
         private readonly FileStore _fs;
 
