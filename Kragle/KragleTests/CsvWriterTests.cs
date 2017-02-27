@@ -32,9 +32,10 @@ namespace KragleTests
             const string contents = "EBeHBuZOuJ";
             const string expected = "\"EBeHBuZOuJ\"";
 
-            CsvWriter writer = new CsvWriter(_filename);
-            writer.Write(contents);
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename))
+            {
+                writer.Write(contents);
+            }
 
             Assert.AreEqual(expected, File.ReadAllText(_filename));
         }
@@ -45,9 +46,10 @@ namespace KragleTests
             string[] contents = {"u3xG0k1fkc", "HYyCaFclz7"};
             const string expected = "\"u3xG0k1fkc\",\"HYyCaFclz7\"";
 
-            CsvWriter writer = new CsvWriter(_filename);
-            writer.Write(contents[0]).Write(contents[1]);
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename))
+            {
+                writer.Write(contents[0]).Write(contents[1]);
+            }
 
             Assert.AreEqual(expected, File.ReadAllText(_filename));
         }
@@ -72,9 +74,10 @@ namespace KragleTests
             const int contents = 927;
             const string expected = "927";
 
-            CsvWriter writer = new CsvWriter(_filename);
-            writer.Write(contents);
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename))
+            {
+                writer.Write(contents);
+            }
 
             Assert.AreEqual(expected, File.ReadAllText(_filename));
         }
@@ -85,9 +88,10 @@ namespace KragleTests
             int[] contents = {-3917, 1709};
             const string expected = "-3917,1709";
 
-            CsvWriter writer = new CsvWriter(_filename);
-            writer.Write(contents[0]).Write(contents[1]);
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename))
+            {
+                writer.Write(contents[0]).Write(contents[1]);
+            }
 
             Assert.AreEqual(expected, File.ReadAllText(_filename));
         }
@@ -99,9 +103,10 @@ namespace KragleTests
             string expected = "8093,-6965" + _n
                               + "7944";
 
-            CsvWriter writer = new CsvWriter(_filename, 2);
-            writer.Write(contents[0]).Write(contents[1]).Write(contents[2]);
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename, 2))
+            {
+                writer.Write(contents[0]).Write(contents[1]).Write(contents[2]);
+            }
 
             Assert.AreEqual(expected, File.ReadAllText(_filename));
         }
@@ -115,9 +120,15 @@ namespace KragleTests
                               + "7060,\"DQW0kwtwOZ\"" + _n
                               + "-3597";
 
-            CsvWriter writer = new CsvWriter(_filename, 2);
-            writer.Write(contentsS[0]).Write(contentsI[0]).Write(contentsI[1]).Write(contentsS[1]).Write(contentsI[2]);
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename, 2))
+            {
+                writer
+                    .Write(contentsS[0])
+                    .Write(contentsI[0])
+                    .Write(contentsI[1])
+                    .Write(contentsS[1])
+                    .Write(contentsI[2]);
+            }
 
             Assert.AreEqual(expected, File.ReadAllText(_filename));
         }
@@ -125,9 +136,10 @@ namespace KragleTests
         [TestMethod]
         public void NewlineTest()
         {
-            CsvWriter writer = new CsvWriter(_filename);
-            writer.Newline();
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename))
+            {
+                writer.Newline();
+            }
 
             Assert.AreEqual(Environment.NewLine, File.ReadAllText(_filename));
         }
@@ -141,13 +153,14 @@ namespace KragleTests
                               + "\"ewbJqVYdsW\",\"dow4NkCYC8\"" + _n
                               + "\"6HELnIkMIg\"";
 
-            CsvWriter writer = new CsvWriter(_filename, 2);
-            writer
-                .Write(contents[0]).Write(contents[1]) // Auto-newline
-                .Write(contents[2]).Newline()
-                .Write(contents[3]).Write(contents[4]) // Auto-newline
-                .Write(contents[5]);
-            writer.Dispose();
+            using (CsvWriter writer = new CsvWriter(_filename, 2))
+            {
+                writer
+                    .Write(contents[0]).Write(contents[1]) // Auto-newline
+                    .Write(contents[2]).Newline()
+                    .Write(contents[3]).Write(contents[4]) // Auto-newline
+                    .Write(contents[5]);
+            }
 
             Assert.AreEqual(expected, File.ReadAllText(_filename));
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 
 namespace Kragle
@@ -83,7 +84,7 @@ namespace Kragle
         /// <returns>the escaped data</returns>
         private static string EscapeData(string data)
         {
-            return "\"" + data + "\"";
+            return Regex.Replace("\"" + data + "\"", @"\r\n?|\n", "\\n");
         }
 
         /// <summary>
