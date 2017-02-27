@@ -63,6 +63,61 @@ namespace Kragle
             }
         }
 
+        //
+        public void WriteUsers()
+        {
+            FileInfo[] files = _fs.GetFiles("users");
+            Console.WriteLine("Writing " + files.Length + " users to CSV.");
+
+            using (CsvWriter writer = new CsvWriter(_fs.GetRootPath() + "/users.csv", 2))
+            {
+                foreach (FileInfo file in files)
+                {
+                    JObject user = JObject.Parse(File.ReadAllText(file.FullName));
+
+                    writer
+                        .Write(int.Parse(user["id"].ToString()))
+                        .Write(user["username"].ToString());
+                }
+            }
+        }
+
+        //
+        public void WriteProjects()
+        {
+            DirectoryInfo[] users = _fs.GetDirectories("projects"); // Project directory contains directory per user
+            Console.WriteLine("Writing " + users.Length + " projects to CSV.");
+
+            using (CsvWriter projectWriter = new CsvWriter(_fs.GetRootPath() + "/projects.csv", 3))
+            using (CsvWriter userProjectWriter = new CsvWriter(_fs.GetRootPath() + "/userprojects.csv", 2))
+            {
+                foreach (DirectoryInfo user in users)
+                {
+                    JArray projectInfo = JArray.Parse(File.ReadAllText(user.FullName + "/list"));
+
+                    foreach (JToken jToken in projectInfo)
+                    {
+                        if (!(jToken is JObject))
+                        {
+                            continue;
+                        }
+
+                        JObject project = (JObject) jToken;
+                        int authorId = int.Parse(project["author"]["id"].ToString());
+                        int projectId = int.Parse(project["id"].ToString());
+
+                        userProjectWriter
+                            .Write(authorId)
+                            .Write(projectId);
+                        projectWriter
+                            .Write(projectId)
+                            .Write(project["title"].ToString())
+                            .Write(project["description"].ToString());
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         ///     This class represents an instance of a project's code at a single moment in time.
