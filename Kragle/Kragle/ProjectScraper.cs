@@ -15,7 +15,7 @@ namespace Kragle
         ///     Constructs a new <code>ProjectScraper</code>.
         /// </summary>
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
-        /// <param name="noCache">true if requests should be made without using the cache in requests</param>
+        /// <param name="downloader">the <code>Downloader</code> to use for downloading data from the API</param>
         public ProjectScraper(FileStore fs, Downloader downloader)
         {
             _fs = fs;
