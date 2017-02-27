@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 
@@ -7,8 +6,8 @@ namespace Kragle
 {
     public class ProjectScraper
     {
-        private readonly FileStore _fs;
         private readonly Downloader _downloader;
+        private readonly FileStore _fs;
 
 
         /// <summary>
@@ -36,12 +35,16 @@ namespace Kragle
 
             foreach (FileInfo user in users)
             {
-                string userName = user.Name;
-                ICollection<dynamic> projects = GetUserProjects(userName);
+                dynamic projects = GetUserProjects(user.Name);
+                if (projects == null)
+                {
+                    continue;
+                }
 
+                _fs.WriteFile($"projects/{user.Name}", "list", projects.ToString());
                 foreach (dynamic project in projects)
                 {
-                    _fs.WriteFile("projects", project.id.ToString(), "");
+                    _fs.WriteFile($"projects/{user.Name}", project.id.ToString(), "");
                 }
 
                 userCurrent++;
@@ -54,20 +57,36 @@ namespace Kragle
         /// </summary>
         public void DownloadProjects()
         {
-            FileInfo[] projects = _fs.GetFiles("projects");
-            int projectTotal = projects.Length;
-            int projectCurrent = 0;
+            DirectoryInfo[] users = _fs.GetDirectories("projects");
+            int userTotal = users.Length;
+            int userCurrent = 0;
 
-            Console.WriteLine("Downloading code for " + projects.Length + " projects.");
+            Console.WriteLine("Downloading code for " + users.Length + " users.");
 
-            foreach (FileInfo project in projects)
+            foreach (DirectoryInfo user in users)
             {
-                int projectId = Convert.ToInt32(project.Name);
+                string username = user.Name;
+                FileInfo[] projects = _fs.GetFiles($"projects/{username}");
 
-                _fs.WriteFile("code/" + DateTime.Now.ToString("yyyy-MM-dd"), projectId.ToString(), GetProjectCode(projectId));
+                foreach (FileInfo project in projects)
+                {
+                    if (project.Name == "list")
+                    {
+                        continue;
+                    }
 
-                projectCurrent++;
-                Console.WriteLine("{0:P2}", projectCurrent / (double) projectTotal);
+                    int projectId = Convert.ToInt32(project.Name);
+                    string projectDir = $"code/{projectId}";
+                    string fileName = DateTime.Now.ToString("yyyy-MM-dd");
+
+                    if (!_fs.FileExists(projectDir, fileName))
+                    {
+                        _fs.WriteFile(projectDir, fileName, GetProjectCode(projectId));
+                    }
+                }
+
+                userCurrent++;
+                Console.WriteLine("{0:P2}", userCurrent / (double) userTotal);
             }
         }
 
@@ -77,25 +96,12 @@ namespace Kragle
         /// </summary>
         /// <param name="username">the user's username</param>
         /// <returns>the list of projects of the given user</returns>
-        protected ICollection<dynamic> GetUserProjects(string username)
+        protected dynamic GetUserProjects(string username)
         {
-            // Fetch JSON
             const string url = "https://api.scratch.mit.edu/users/{0}/projects";
             dynamic projectList = _downloader.GetJson(string.Format(url, username));
 
-            if (projectList == null)
-            {
-                return null;
-            }
-
-            // Parse to collection
-            ICollection<dynamic> projects = new List<dynamic>();
-            foreach (dynamic project in projectList)
-            {
-                projects.Add(project);
-            }
-
-            return projects;
+            return projectList;
         }
 
         /// <summary>
