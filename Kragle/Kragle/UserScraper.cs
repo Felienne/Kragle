@@ -12,9 +12,9 @@ namespace Kragle
     {
         private const string SubDirectory = "users";
         private const int PageSize = 20;
+        private readonly Downloader _downloader;
 
         private readonly FileStore _fs;
-        private readonly Downloader _downloader;
         private readonly int _targetUserCount;
 
 
@@ -63,6 +63,10 @@ namespace Kragle
                     // Add user
                     _fs.WriteFile(SubDirectory, fileName, "");
                     userCount++;
+                    if (userCount >= _targetUserCount)
+                    {
+                        break;
+                    }
                 }
 
                 Console.WriteLine(userCount + " / " + _targetUserCount + " users\n");
@@ -71,7 +75,8 @@ namespace Kragle
         }
 
         /// <summary>
-        ///     Downloads meta-data for all users. If the <code>noCache</code> attribute is set, existing meta-data is updated.
+        ///     Downloads meta-data for all users. If the <code>noCache</code> attribute is set, existing meta-data is
+        ///     updated.
         /// </summary>
         public void DownloadMetaData()
         {
@@ -124,7 +129,7 @@ namespace Kragle
         }
 
         /// <summary>
-        /// Downloads meta-data on a user.
+        ///     Downloads meta-data on a user.
         /// </summary>
         /// <param name="username">the user's username</param>
         /// <returns>the meta-data on the user</returns>
