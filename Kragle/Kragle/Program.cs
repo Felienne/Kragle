@@ -64,6 +64,17 @@ namespace Kragle
                 case "users":
                 {
                     UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    Downloader downloader = new Downloader(subOptions.NoCache);
+                    UserScraper scraper = new UserScraper(fs, downloader, subOptions.Count);
+
+                    scraper.ScrapeUsers();
+                    if (subOptions.Meta)
+                    {
+                        scraper.DownloadMetaData();
+                    }
+
                     break;
                 }
 
@@ -171,8 +182,11 @@ namespace Kragle
     /// </summary>
     internal class UsersSubOptions : FileSystemSharedOptions
     {
-        [Option('n', "number", HelpText = "The number of users to scrape")]
+        [Option('n', "number", DefaultValue = int.MaxValue, HelpText = "The number of users to scrape")]
         public int Count { get; set; }
+
+        [Option('m', "meta", HelpText = "Download user meta-data")]
+        public bool Meta { get; set; }
     }
 
     /// <summary>

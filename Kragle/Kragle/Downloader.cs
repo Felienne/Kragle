@@ -8,8 +8,8 @@ using Newtonsoft.Json.Linq;
 namespace Kragle
 {
     /// <summary>
-    ///     The <code>Downloader</code> class is responsible for downloading contents (mainly JSON) from the Internet (mainly
-    ///     the Scratch API).
+    ///     The <code>Downloader</code> class is responsible for downloading contents (mainly JSON) from the Internet
+    ///     (mainly the Scratch API).
     /// </summary>
     public class Downloader
     {
