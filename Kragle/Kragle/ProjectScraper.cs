@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 
 namespace Kragle
@@ -33,18 +34,23 @@ namespace Kragle
 
             Console.WriteLine("Downloading project lists for " + users.Length + " users.");
 
+            // Iterate over users
             foreach (FileInfo user in users)
             {
-                dynamic projects = GetUserProjects(user.Name);
+                // Get list of user projects
+                JArray projects = GetUserProjects(user.Name);
                 if (projects == null)
                 {
                     continue;
                 }
 
+                // Save list of projects
                 _fs.WriteFile($"projects/{user.Name}", "list", projects.ToString());
-                foreach (dynamic project in projects)
+
+                // Create empty files for each project
+                foreach (JToken project in projects)
                 {
-                    _fs.WriteFile($"projects/{user.Name}", project.id.ToString(), "");
+                    _fs.WriteFile($"projects/{user.Name}", project["id"].ToString(), "");
                 }
 
                 userCurrent++;
@@ -63,11 +69,13 @@ namespace Kragle
 
             Console.WriteLine("Downloading code for " + users.Length + " users.");
 
+            // Iterate over users
             foreach (DirectoryInfo user in users)
             {
                 string username = user.Name;
                 FileInfo[] projects = _fs.GetFiles($"projects/{username}");
 
+                // Iterate over user projects
                 foreach (FileInfo project in projects)
                 {
                     if (project.Name == "list")
@@ -78,11 +86,20 @@ namespace Kragle
                     int projectId = Convert.ToInt32(project.Name);
                     string projectDir = $"code/{projectId}";
                     string fileName = DateTime.Now.ToString("yyyy-MM-dd");
-
-                    if (!_fs.FileExists(projectDir, fileName))
+                    
+                    if (_fs.FileExists(projectDir, fileName))
                     {
-                        _fs.WriteFile(projectDir, fileName, GetProjectCode(projectId));
+                        // Code already downloaded today
+                        continue;
                     }
+
+                    string projectCode = GetProjectCode(projectId);
+                    if (!Downloader.IsValidJson(projectCode))
+                    {
+                        // Invalid JSON, no need to save it
+                        continue;
+                    }
+                    _fs.WriteFile(projectDir, fileName, projectCode);
                 }
 
                 userCurrent++;
@@ -96,12 +113,12 @@ namespace Kragle
         /// </summary>
         /// <param name="username">the user's username</param>
         /// <returns>the list of projects of the given user</returns>
-        protected dynamic GetUserProjects(string username)
+        protected JArray GetUserProjects(string username)
         {
             const string url = "https://api.scratch.mit.edu/users/{0}/projects";
-            dynamic projectList = _downloader.GetJson(string.Format(url, username));
+            JToken projectList = _downloader.GetJson(string.Format(url, username));
 
-            return projectList;
+            return projectList as JArray;
         }
 
         /// <summary>

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace Kragle
@@ -25,6 +25,25 @@ namespace Kragle
             _noCache = noCache;
         }
 
+
+        /// <summary>
+        ///     Validates JSON.
+        /// </summary>
+        /// <param name="json">a JSON string</param>
+        /// <returns>true if the given JSON is valid</returns>
+        public static bool IsValidJson(string json)
+        {
+            try
+            {
+                JToken.Parse(json);
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         /// <summary>
         ///     Fetches the contents from the given URL as a string.
@@ -68,14 +87,13 @@ namespace Kragle
         /// </summary>
         /// <param name="url">the valid url to fetch the JSON from</param>
         /// <returns>a deserialised JSON object, or <code>null</code> if the JSON could not be deserialised</returns>
-        public dynamic GetJson(string url)
+        public JToken GetJson(string url)
         {
             string rawJson = GetContents(url);
 
-            // Verify parsability
             try
             {
-                return JsonConvert.DeserializeObject(rawJson);
+                return JToken.Parse(rawJson);
             }
             catch (Exception)
             {
