@@ -94,6 +94,11 @@ namespace Kragle
                     }
 
                     string projectCode = GetProjectCode(projectId);
+                    if (projectCode == null)
+                    {
+                        // Code not downloaded for whatever reason
+                        continue;
+                    }
                     if (!Downloader.IsValidJson(projectCode))
                     {
                         // Invalid JSON, no need to save it
