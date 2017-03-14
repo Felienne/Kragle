@@ -45,12 +45,12 @@ namespace Kragle
                 }
 
                 // Save list of projects
-                _fs.WriteFile($"projects/{user.Name}", "list", projects.ToString());
+                _fs.WriteFile("projects/" + user.Name, "list", projects.ToString());
 
                 // Create empty files for each project
                 foreach (JToken project in projects)
                 {
-                    _fs.WriteFile($"projects/{user.Name}", project["id"].ToString(), "");
+                    _fs.WriteFile("projects/" + user.Name, project["id"].ToString(), "");
                 }
 
                 userCurrent++;
@@ -73,7 +73,7 @@ namespace Kragle
             foreach (DirectoryInfo user in users)
             {
                 string username = user.Name;
-                FileInfo[] projects = _fs.GetFiles($"projects/{username}");
+                FileInfo[] projects = _fs.GetFiles("projects/" + username);
 
                 // Iterate over user projects
                 foreach (FileInfo project in projects)
@@ -84,7 +84,7 @@ namespace Kragle
                     }
 
                     int projectId = Convert.ToInt32(project.Name);
-                    string projectDir = $"code/{projectId}";
+                    string projectDir = "code/" + projectId;
                     string fileName = DateTime.Now.ToString("yyyy-MM-dd");
                     
                     if (_fs.FileExists(projectDir, fileName))
