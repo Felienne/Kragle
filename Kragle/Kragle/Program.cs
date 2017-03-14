@@ -81,6 +81,20 @@ namespace Kragle
                 case "projects":
                 {
                     ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    Downloader downloader = new Downloader(subOptions.NoCache);
+                    ProjectScraper scraper = new ProjectScraper(fs, downloader);
+
+                    if (subOptions.Update)
+                    {
+                        scraper.UpdateProjectList();
+                    }
+                    if (subOptions.Download)
+                    {
+                        scraper.DownloadProjects();
+                    }
+
                     break;
                 }
 
@@ -180,6 +194,11 @@ namespace Kragle
     /// </summary>
     internal class ProjectsSubOptions : FileSystemSharedOptions
     {
+        [Option('u', "update", HelpText = "Update the list of registered projects")]
+        public bool Update { get; set; }
+
+        [Option('d', "download", HelpText = "Download project code")]
+        public bool Download { get; set; }
     }
 
     /// <summary>
