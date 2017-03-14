@@ -17,6 +17,32 @@ namespace KragleTests
 
 
         [TestMethod]
+        public void GetContentsInvalidUrlTest()
+        {
+            const string url = "http://invalid-url.net/";
+
+            Assert.IsNull(GetContents(url));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void GetContentsMalformedUrlTest()
+        {
+            const string url = "qABkq6C0oi";
+
+            GetContents(url);
+        }
+
+        [TestMethod]
+        public void GetContentsValidTest()
+        {
+            const string url = "https://jsonplaceholder.typicode.com/posts";
+
+            Assert.IsNotNull(GetContents(url));
+        }
+
+
+        [TestMethod]
         public void GetJsonUnparsableTest()
         {
             const string url = "https://www.google.com/";
@@ -48,6 +74,7 @@ namespace KragleTests
 
             Assert.IsNotNull(GetJson(url));
         }
+
 
         [TestMethod]
         public void AppendRandomParameterStartsWithTest()

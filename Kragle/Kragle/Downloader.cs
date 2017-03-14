@@ -32,11 +32,11 @@ namespace Kragle
 
 
         /// <summary>
-        ///     Fetches JSON from the given URL and returns the serialised string.
+        ///     Fetches the contents from the given URL as a string.
         /// </summary>
-        /// <param name="url">the valid url to fetch the JSON from</param>
-        /// <returns>a deserialised JSON object, or <code>null</code> if the JSON could not be deserialised</returns>
-        public dynamic GetJson(string url)
+        /// <param name="url">the valid url to fetch the contents from</param>
+        /// <returns>the contents of the webpage, or <code>null</code> if the url could not be accessed</returns>
+        public string GetContents(string url)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
@@ -45,12 +45,12 @@ namespace Kragle
             url = _noCache ? AppendRandomParameter(url) : url;
 
             // Download webpage contents
-            string rawJson;
+            string contents;
             using (WebClient client = new WebClient())
             {
                 try
                 {
-                    rawJson = client.DownloadString(url);
+                    contents = client.DownloadString(url);
                 }
                 catch (WebException e)
                 {
@@ -60,10 +60,22 @@ namespace Kragle
             }
 
             // Check download size
-            if (_maxDownloadSize > 0 && rawJson.Length > _maxDownloadSize)
+            if (_maxDownloadSize > 0 && contents.Length > _maxDownloadSize)
             {
                 return null;
             }
+
+            return contents;
+        }
+
+        /// <summary>
+        ///     Fetches JSON from the given URL.
+        /// </summary>
+        /// <param name="url">the valid url to fetch the JSON from</param>
+        /// <returns>a deserialised JSON object, or <code>null</code> if the JSON could not be deserialised</returns>
+        public dynamic GetJson(string url)
+        {
+            string rawJson = GetContents(url);
 
             // Verify parsability
             try
