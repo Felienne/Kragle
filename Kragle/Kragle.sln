@@ -5,16 +5,27 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kragle", "Kragle\Kragle.csproj", "{BAB35749-6034-41CC-99E6-63253DD29922}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KragleTests", "KragleTests\KragleTests.csproj", "{A034225E-6726-4EB9-88AE-FF8C0BDEF941}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Reset|Any CPU = Reset|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{BAB35749-6034-41CC-99E6-63253DD29922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BAB35749-6034-41CC-99E6-63253DD29922}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAB35749-6034-41CC-99E6-63253DD29922}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAB35749-6034-41CC-99E6-63253DD29922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAB35749-6034-41CC-99E6-63253DD29922}.Reset|Any CPU.ActiveCfg = Reset|Any CPU
+		{BAB35749-6034-41CC-99E6-63253DD29922}.Reset|Any CPU.Build.0 = Reset|Any CPU
+		{A034225E-6726-4EB9-88AE-FF8C0BDEF941}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A034225E-6726-4EB9-88AE-FF8C0BDEF941}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A034225E-6726-4EB9-88AE-FF8C0BDEF941}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A034225E-6726-4EB9-88AE-FF8C0BDEF941}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A034225E-6726-4EB9-88AE-FF8C0BDEF941}.Reset|Any CPU.ActiveCfg = Release|Any CPU
+		{A034225E-6726-4EB9-88AE-FF8C0BDEF941}.Reset|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

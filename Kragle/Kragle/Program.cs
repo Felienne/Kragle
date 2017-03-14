@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using CommandLine;
+using CommandLine.Text;
 
 
 namespace Kragle
@@ -20,6 +22,11 @@ namespace Kragle
         private static void Main(string[] args)
         {
             // Parse options
+            if (args == null || args.Length == 0)
+            {
+                Environment.Exit(1);
+            }
+
             Options options = new Options();
             if (!Parser.Default.ParseArguments(args, options, (verb, subOptions) =>
             {
@@ -34,33 +41,54 @@ namespace Kragle
             switch (_invokedVerb)
             {
                 case "reset":
-                    ResetSubOptions resetSubOptions = (ResetSubOptions) _invokedVerbInstance;
+                {
+                    ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    fs.RemoveDirectory("./");
+                    Console.WriteLine("Removed all files.");
+
                     break;
+                }
+
+                case "open":
+                {
+                    OpenSubOptions subOptions = (OpenSubOptions) _invokedVerbInstance;
+
+                    Process.Start(new FileStore(subOptions.Path).GetRootPath());
+
+                    Environment.Exit(0); // Suppress exit message
+                    break;
+                }
 
                 case "users":
-                    UsersSubOptions userSubOptions = (UsersSubOptions) _invokedVerbInstance;
+                {
+                    UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
                     break;
+                }
 
                 case "projects":
-                    ProjectsSubOptions projectsSubOptions = (ProjectsSubOptions) _invokedVerbInstance;
+                {
+                    ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
                     break;
+                }
 
                 case "code":
-                    CodeSubOptions codeSubOptions = (CodeSubOptions) _invokedVerbInstance;
+                {
+                    CodeSubOptions subOptions = (CodeSubOptions) _invokedVerbInstance;
                     break;
-
-                case "parse":
-                    ParseSubOptions parseSubOptions = (ParseSubOptions) _invokedVerbInstance;
-                    break;
-
-                case "analyse":
-                    AnalyzeSubOptions analyzeSubOptions = (AnalyzeSubOptions) _invokedVerbInstance;
-                    break;
+                }
 
                 default:
+                {
                     Environment.Exit(Parser.DefaultExitCodeFail);
                     break;
+                }
             }
+
+            // Exit message
+            Console.WriteLine("\nDone. Press enter to close this window.");
+            Console.ReadLine();
         }
     }
 
@@ -70,10 +98,13 @@ namespace Kragle
     /// </summary>
     internal class Options
     {
-        [VerbOption("reset", HelpText = "Reset the database file, deleting all contents")]
+        [VerbOption("reset", HelpText = "Reset all files")]
         public ResetSubOptions ResetSubOptions { get; set; }
 
-        [VerbOption("users", HelpText = "Generate the list of users who most recently shared a project")]
+        [VerbOption("open", HelpText = "Opens the data folder in Windows Explorer")]
+        public OpenSubOptions OpenSubOptions { get; set; }
+
+        [VerbOption("users", HelpText = "Generate/update the list of users who most recently shared a project")]
         public UsersSubOptions UsersSubOptions { get; set; }
 
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
@@ -82,70 +113,65 @@ namespace Kragle
         [VerbOption("code", HelpText = "Download the latest code of all registered projects")]
         public CodeSubOptions CodeSubOptions { get; set; }
 
-        [VerbOption("parse", HelpText = "Parse all registered code")]
-        public ParseSubOptions ParseSubOptions { get; set; }
+        [HelpOption]
+        public string GetUsage()
+        {
+            return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
+        }
 
-        [VerbOption("analyse", HelpText = "Analyse all parsed code")]
-        public AnalyzeSubOptions AnalyzeSubOptions { get; set; }
+        [HelpVerbOption]
+        public string GetUsage(string verb)
+        {
+            return HelpText.AutoBuild(this, verb);
+        }
     }
 
     /// <summary>
-    ///     Command-line options for all verbs interacting with the database.
+    ///     Command-line options for all verbs interacting with the file system.
     /// </summary>
-    internal abstract class DatabaseSharedOptions
+    internal abstract class FileSystemSharedOptions
     {
-        [Option('d', "database", DefaultValue = "database.sqlite", HelpText = "The location of the database file")]
-        public string DatabaseFile { get; set; }
-    }
+        [Option('p', "path", HelpText = "The path files should be read from and written to")]
+        public string Path { get; set; }
 
-    /// <summary>
-    ///     Command-line options for the `reset` verb.
-    /// </summary>
-    internal class ResetSubOptions : DatabaseSharedOptions
-    {
-    }
-
-    /// <summary>
-    ///     Command-line options for the `users` verb.
-    /// </summary>
-    internal class UsersSubOptions : DatabaseSharedOptions
-    {
-        [Option('n', "number", HelpText = "The number of users to scrape")]
-        public int Count { get; set; }
-
-        [Option('r', "reset database", HelpText = "Reset the database")]
-        public bool Reset { get; set; }
-
-        [Option('c', "disable caching", HelpText = "Disable caching with requests; slows down the process significantly"
-         )]
+        [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
         public bool NoCache { get; set; }
     }
 
     /// <summary>
-    ///     Command-line options for the `projects` verb.
+    ///     Command-line options for the 'reset' verb.
     /// </summary>
-    internal class ProjectsSubOptions : DatabaseSharedOptions
+    internal class ResetSubOptions : FileSystemSharedOptions
     {
     }
 
     /// <summary>
-    ///     Command-line options for the `code` verb.
+    ///     Command-line options for the 'open' verb.
     /// </summary>
-    internal class CodeSubOptions : DatabaseSharedOptions
+    internal class OpenSubOptions : FileSystemSharedOptions
     {
     }
 
     /// <summary>
-    ///     Command-line options for the `parse` verb.
+    ///     Command-line options for the 'users' verb.
     /// </summary>
-    internal class ParseSubOptions : DatabaseSharedOptions
+    internal class UsersSubOptions : FileSystemSharedOptions
+    {
+        [Option('n', "number", HelpText = "The number of users to scrape")]
+        public int Count { get; set; }
+    }
+
+    /// <summary>
+    ///     Command-line options for the 'projects' verb.
+    /// </summary>
+    internal class ProjectsSubOptions : FileSystemSharedOptions
     {
     }
 
     /// <summary>
-    ///     Command-line options for the `analyze` verb.
+    ///     Command-line options for the 'code' verb.
     /// </summary>
-    internal class AnalyzeSubOptions : DatabaseSharedOptions
+    internal class CodeSubOptions : FileSystemSharedOptions
     {
     }
 }
