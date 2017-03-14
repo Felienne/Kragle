@@ -13,6 +13,7 @@ namespace Kragle
     /// </summary>
     public class Downloader
     {
+        private readonly int _maxDownloadSize;
         private readonly bool _noCache;
 
 
@@ -20,9 +21,14 @@ namespace Kragle
         ///     Constructs a new <code>Downloader</code>.
         /// </summary>
         /// <param name="noCache">true if requests should be made without using the cache in requests</param>
-        public Downloader(bool noCache)
+        /// <param name="maxDownloadSize">
+        ///     the maximum size of any data to be downloaded. If this value is exceeded, download methods will return
+        ///     <code>null</code>
+        /// </param>
+        public Downloader(bool noCache, int maxDownloadSize = 0)
         {
             _noCache = noCache;
+            _maxDownloadSize = maxDownloadSize;
         }
 
 
@@ -74,6 +80,11 @@ namespace Kragle
                 }
             }
 
+            if (_maxDownloadSize > 0 && contents.Length > _maxDownloadSize)
+            {
+                // Contents exceed download size
+                return null;
+            }
             if (minify)
             {
                 // Strip unnecessary whitespace
