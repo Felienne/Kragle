@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 
@@ -29,8 +30,9 @@ namespace Kragle
         ///     Fetches the contents from the given URL as a string.
         /// </summary>
         /// <param name="url">the valid url to fetch the contents from</param>
+        /// <param name="minify">true if the returned string should be stripped of unnecessary spaces</param>
         /// <returns>the contents of the webpage, or <code>null</code> if the url could not be accessed</returns>
-        public string GetContents(string url)
+        public string GetContents(string url, bool minify = false)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
@@ -53,6 +55,11 @@ namespace Kragle
                 }
             }
 
+            if (minify)
+            {
+                // Strip unnecessary whitespace
+                Regex.Replace(contents, "(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", "$1");
+            }
             return contents;
         }
 
