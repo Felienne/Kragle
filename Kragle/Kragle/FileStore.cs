@@ -167,6 +167,28 @@ namespace Kragle
         }
 
         /// <summary>
+        ///     Copies a file.
+        /// </summary>
+        /// <param name="fromDirectory">the directory of the source file</param>
+        /// <param name="fromFile">the name of the source file</param>
+        /// <param name="toDirectory">the directory of the destination file</param>
+        /// <param name="toFile">the name of the destination file</param>
+        public void CopyFile(string fromDirectory, string fromFile, string toDirectory, string toFile)
+        {
+            File.Copy(GetAbsolutePath(fromDirectory, fromFile), GetAbsolutePath(toDirectory, toFile));
+        }
+
+        /// <summary>
+        ///     Copies a file.
+        /// </summary>
+        /// <param name="fromFile">the name of the source file</param>
+        /// <param name="toFile">the name of the destination file</param>
+        public void CopyFile(string fromFile, string toFile)
+        {
+            CopyFile("./", fromFile, "./", toFile);
+        }
+
+        /// <summary>
         ///     Returns true if the specified directory exists.
         /// </summary>
         /// <param name="directory">true if the specified directory exists</param>

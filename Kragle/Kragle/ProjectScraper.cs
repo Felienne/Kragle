@@ -45,13 +45,7 @@ namespace Kragle
                 }
 
                 // Save list of projects
-                _fs.WriteFile("projects/" + user.Name, "list", projects.ToString());
-
-                // Create empty files for each project
-                foreach (JToken project in projects)
-                {
-                    _fs.WriteFile("projects/" + user.Name, project["id"].ToString(), "");
-                }
+                _fs.WriteFile("projects", user.Name, projects.ToString());
 
                 userCurrent++;
                 Console.WriteLine("{0:P2}", userCurrent / (double) userTotal);
@@ -63,31 +57,37 @@ namespace Kragle
         /// </summary>
         public void DownloadProjects()
         {
-            DirectoryInfo[] users = _fs.GetDirectories("projects");
+            FileInfo[] users = _fs.GetFiles("projects");
             int userTotal = users.Length;
             int userCurrent = 0;
 
             Console.WriteLine("Downloading code for " + users.Length + " users.");
 
             // Iterate over users
-            foreach (DirectoryInfo user in users)
+            foreach (FileInfo user in users)
             {
                 string username = user.Name;
-                FileInfo[] projects = _fs.GetFiles("projects/" + username);
+                JArray projects = JArray.Parse(_fs.ReadFile("projects", username));
 
                 // Iterate over user projects
-                foreach (FileInfo project in projects)
+                foreach (JToken project in projects)
                 {
-                    if (project.Name == "list")
+                    DateTime currentDate = DateTime.Now.Date;
+                    DateTime modifyDate = DateTime.Parse(project["history"]["modified"].ToString()).Date;
+
+                    int projectId = Convert.ToInt32(project["id"].ToString());
+                    string codeDir = "code/" + projectId;
+                    string fileName = currentDate.ToString("yyyy-MM-dd");
+
+                    if (currentDate.Subtract(modifyDate).Days > 0)
                     {
+                        // No code modifications in last day, copy old file
+                        string yesterdayFileName = currentDate.AddDays(-1).ToString("yyyy-MM-dd");
+                        _fs.CopyFile(codeDir, yesterdayFileName, codeDir, fileName);
                         continue;
                     }
 
-                    int projectId = Convert.ToInt32(project.Name);
-                    string projectDir = "code/" + projectId;
-                    string fileName = DateTime.Now.ToString("yyyy-MM-dd");
-                    
-                    if (_fs.FileExists(projectDir, fileName))
+                    if (_fs.FileExists(codeDir, fileName))
                     {
                         // Code already downloaded today
                         continue;
@@ -104,7 +104,7 @@ namespace Kragle
                         // Invalid JSON, no need to save it
                         continue;
                     }
-                    _fs.WriteFile(projectDir, fileName, projectCode);
+                    _fs.WriteFile(codeDir, fileName, projectCode);
                 }
 
                 userCurrent++;
