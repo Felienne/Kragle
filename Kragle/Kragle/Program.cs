@@ -112,8 +112,7 @@ namespace Kragle
             }
 
             // Exit message
-            Console.WriteLine("\nDone. Press enter to close this window.");
-            Console.ReadLine();
+            Console.WriteLine("\nDone.");
         }
     }
 

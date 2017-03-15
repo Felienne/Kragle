@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Kragle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace KragleTests
@@ -39,7 +40,7 @@ namespace KragleTests
         [TestMethod]
         public void UserScraperRecentProjectsSizeTest()
         {
-            ICollection<dynamic> projects = GetRecentProjects(98, 14);
+            JArray projects = GetRecentProjects(98, 14);
 
             Assert.AreEqual(14, projects.Count);
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 
 namespace Kragle
@@ -47,12 +48,12 @@ namespace Kragle
             while (userCount < _targetUserCount)
             {
                 Console.WriteLine("Downloading page " + pageNumber);
-                ICollection<dynamic> projects = GetRecentProjects(pageNumber, PageSize);
+                JArray projects = GetRecentProjects(pageNumber, PageSize);
 
                 // Loop over projects
-                foreach (dynamic project in projects)
+                foreach (JToken project in projects)
                 {
-                    string fileName = project.author.username;
+                    string fileName = project["author"]["username"].ToString();
 
                     // Skip project if user is already known
                     if (_fs.FileExists(SubDirectory, fileName))
@@ -103,7 +104,7 @@ namespace Kragle
         /// <param name="pageNumber">the number of the page to return; must be at least 0</param>
         /// <param name="pageSize">the number of projects per page; must be between 1 and 20 (inclusive)</param>
         /// <returns>the <code>ICollection</code> of most recently published projects</returns>
-        protected ICollection<dynamic> GetRecentProjects(int pageNumber, int pageSize)
+        protected JArray GetRecentProjects(int pageNumber, int pageSize)
         {
             if (pageNumber < 0)
             {
@@ -116,16 +117,9 @@ namespace Kragle
 
             // Fetch JSON
             const string url = "https://api.scratch.mit.edu/search/projects?mode=recent&offset={0}&limit={1}";
-            dynamic projectList = _downloader.GetJson(string.Format(url, pageNumber, pageSize));
-
-            // Parse to collection
-            ICollection<dynamic> projects = new List<dynamic>(pageSize);
-            foreach (dynamic project in projectList)
-            {
-                projects.Add(project);
-            }
-
-            return projects;
+            JToken projects = _downloader.GetJson(string.Format(url, pageNumber, pageSize));
+            
+            return projects as JArray;
         }
 
         /// <summary>

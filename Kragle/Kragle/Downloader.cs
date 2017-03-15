@@ -43,7 +43,7 @@ namespace Kragle
             {
                 JToken.Parse(json);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
