@@ -86,7 +86,7 @@ namespace Kragle
                     int projectId = Convert.ToInt32(project.Name);
                     string projectDir = "code/" + projectId;
                     string fileName = DateTime.Now.ToString("yyyy-MM-dd");
-                    
+
                     if (_fs.FileExists(projectDir, fileName))
                     {
                         // Code already downloaded today

@@ -45,7 +45,7 @@ namespace Kragle
                     ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
 
                     FileStore fs = new FileStore(subOptions.Path);
-                    fs.RemoveDirectory("./");
+                    fs.RemoveDirectory();
                     Console.WriteLine("Removed all files.");
 
                     break;
@@ -98,12 +98,6 @@ namespace Kragle
                     break;
                 }
 
-                case "code":
-                {
-                    CodeSubOptions subOptions = (CodeSubOptions) _invokedVerbInstance;
-                    break;
-                }
-
                 default:
                 {
                     Environment.Exit(Parser.DefaultExitCodeFail);
@@ -133,9 +127,6 @@ namespace Kragle
 
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
         public ProjectsSubOptions ProjectsSubOptions { get; set; }
-
-        [VerbOption("code", HelpText = "Download the latest code of all registered projects")]
-        public CodeSubOptions CodeSubOptions { get; set; }
 
         [HelpOption]
         public string GetUsage()
