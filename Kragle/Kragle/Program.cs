@@ -67,8 +67,9 @@ namespace Kragle
 
                     FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
-                    UserScraper scraper = new UserScraper(fs, downloader, subOptions.Count);
+                    Logger logger = new Logger("logger.log");
 
+                    UserScraper scraper = new UserScraper(fs, downloader, logger, subOptions.Count);
                     scraper.ScrapeUsers();
                     if (subOptions.Meta)
                     {
@@ -84,8 +85,9 @@ namespace Kragle
 
                     FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
-                    ProjectScraper scraper = new ProjectScraper(fs, downloader);
+                    Logger logger = new Logger("logger.log");
 
+                    ProjectScraper scraper = new ProjectScraper(fs, downloader, logger);
                     if (subOptions.Update)
                     {
                         scraper.UpdateProjectList();

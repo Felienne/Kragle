@@ -12,9 +12,10 @@ namespace Kragle
     {
         private const string SubDirectory = "users";
         private const int PageSize = 20;
-        private readonly Downloader _downloader;
 
+        private readonly Downloader _downloader;
         private readonly FileStore _fs;
+        private readonly Logger _logger;
         private readonly int _targetUserCount;
 
 
@@ -23,11 +24,13 @@ namespace Kragle
         /// </summary>
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to download user data with</param>
+        /// <param name="logger">the <code>Logger</code> to log to</param>
         /// <param name="targetUserCount">the target number of scraped users</param>
-        public UserScraper(FileStore fs, Downloader downloader, int targetUserCount)
+        public UserScraper(FileStore fs, Downloader downloader, Logger logger, int targetUserCount)
         {
             _fs = fs;
             _downloader = downloader;
+            _logger = logger;
             _targetUserCount = targetUserCount;
         }
 
@@ -40,13 +43,13 @@ namespace Kragle
             int pageNumber = 0;
             int userCount = _fs.GetFiles(SubDirectory).Length;
 
-            Console.WriteLine("Starting user scraping...\n" +
+            _logger.LogLine("Starting user scraping...\n" +
                               userCount + " users already registered.\n\n");
 
             // Keep downloading projects until the target has been reached
             while (userCount < _targetUserCount)
             {
-                Console.WriteLine("Downloading page " + pageNumber);
+                _logger.LogLine("Downloading page " + pageNumber);
                 JArray projects = GetRecentProjects(pageNumber, PageSize);
 
                 // Loop over projects
@@ -69,7 +72,7 @@ namespace Kragle
                     }
                 }
 
-                Console.WriteLine(userCount + " / " + _targetUserCount + " users\n");
+                _logger.LogLine(userCount + " / " + _targetUserCount + " users\n");
                 pageNumber++;
             }
         }
@@ -82,7 +85,7 @@ namespace Kragle
         {
             FileInfo[] users = _fs.GetFiles(SubDirectory);
 
-            Console.WriteLine("Downloading meta-data for " + users.Length + " users.\n");
+            _logger.LogLine("Downloading meta-data for " + users.Length + " users.\n");
 
             foreach (FileInfo user in users)
             {

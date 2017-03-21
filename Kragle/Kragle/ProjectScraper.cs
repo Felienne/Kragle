@@ -9,6 +9,7 @@ namespace Kragle
     {
         private readonly Downloader _downloader;
         private readonly FileStore _fs;
+        private readonly Logger _logger;
 
 
         /// <summary>
@@ -16,10 +17,12 @@ namespace Kragle
         /// </summary>
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to use for downloading data from the API</param>
-        public ProjectScraper(FileStore fs, Downloader downloader)
+        /// <param name="logger">the <code>Logger</code> to log to</param>
+        public ProjectScraper(FileStore fs, Downloader downloader, Logger logger)
         {
             _fs = fs;
             _downloader = downloader;
+            _logger = logger;
         }
 
 
@@ -32,7 +35,7 @@ namespace Kragle
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Console.WriteLine("Downloading project lists for " + users.Length + " users.");
+            _logger.LogLine("Downloading project lists for " + users.Length + " users.");
 
             // Iterate over users
             foreach (FileInfo user in users)
@@ -54,7 +57,7 @@ namespace Kragle
                 }
 
                 userCurrent++;
-                Console.WriteLine("{0:P2}", userCurrent / (double) userTotal);
+                _logger.LogLine(string.Format("{0:P2}", userCurrent / (double) userTotal));
             }
         }
 
@@ -67,7 +70,7 @@ namespace Kragle
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Console.WriteLine("Downloading code for " + users.Length + " users.");
+            _logger.LogLine("Downloading code for " + users.Length + " users.");
 
             // Iterate over users
             foreach (DirectoryInfo user in users)
@@ -108,7 +111,7 @@ namespace Kragle
                 }
 
                 userCurrent++;
-                Console.WriteLine("{0:P2}", userCurrent / (double) userTotal);
+                _logger.LogLine(string.Format("{0:P2}", userCurrent / (double) userTotal));
             }
         }
 
