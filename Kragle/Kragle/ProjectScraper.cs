@@ -17,12 +17,11 @@ namespace Kragle
         /// </summary>
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to use for downloading data from the API</param>
-        /// <param name="logger">the <code>Logger</code> to log to</param>
-        public ProjectScraper(FileStore fs, Downloader downloader, Logger logger)
+        public ProjectScraper(FileStore fs, Downloader downloader)
         {
             _fs = fs;
             _downloader = downloader;
-            _logger = logger;
+            _logger = Logger.GetLogger("ProjectScraper");
         }
 
 
@@ -35,11 +34,15 @@ namespace Kragle
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            _logger.LogLine("Downloading project lists for " + users.Length + " users.");
+            _logger.Log("Downloading project lists for " + users.Length + " users.");
 
             // Iterate over users
             foreach (FileInfo user in users)
             {
+                userCurrent++;
+                _logger.Log(string.Format("{0} / {1} ({2:P2})", userCurrent, userTotal,
+                    userCurrent / (double) userTotal));
+
                 // Get list of user projects
                 JArray projects = GetUserProjects(user.Name);
                 if (projects == null)
@@ -55,9 +58,6 @@ namespace Kragle
                 {
                     _fs.WriteFile("projects/" + user.Name, project["id"].ToString(), "");
                 }
-
-                userCurrent++;
-                _logger.LogLine(string.Format("{0:P2}", userCurrent / (double) userTotal));
             }
         }
 
@@ -70,7 +70,7 @@ namespace Kragle
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            _logger.LogLine("Downloading code for " + users.Length + " users.");
+            _logger.Log("Downloading code for " + users.Length + " users.");
 
             // Iterate over users
             foreach (DirectoryInfo user in users)
@@ -111,7 +111,7 @@ namespace Kragle
                 }
 
                 userCurrent++;
-                _logger.LogLine(string.Format("{0:P2}", userCurrent / (double) userTotal));
+                _logger.Log(string.Format("{0:P2}", userCurrent / (double) userTotal));
             }
         }
 

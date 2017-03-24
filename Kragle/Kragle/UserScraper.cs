@@ -24,13 +24,12 @@ namespace Kragle
         /// </summary>
         /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to download user data with</param>
-        /// <param name="logger">the <code>Logger</code> to log to</param>
         /// <param name="targetUserCount">the target number of scraped users</param>
-        public UserScraper(FileStore fs, Downloader downloader, Logger logger, int targetUserCount)
+        public UserScraper(FileStore fs, Downloader downloader, int targetUserCount)
         {
             _fs = fs;
+            _logger = Logger.GetLogger("UserScraper");
             _downloader = downloader;
-            _logger = logger;
             _targetUserCount = targetUserCount;
         }
 
@@ -43,13 +42,13 @@ namespace Kragle
             int pageNumber = 0;
             int userCount = _fs.GetFiles(SubDirectory).Length;
 
-            _logger.LogLine("Starting user scraping...\n" +
-                              userCount + " users already registered.\n\n");
+            _logger.Log("Scraping list of recent projects.");
 
             // Keep downloading projects until the target has been reached
             while (userCount < _targetUserCount)
             {
-                _logger.LogLine("Downloading page " + pageNumber);
+                _logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)", pageNumber, userCount,
+                    _targetUserCount));
                 JArray projects = GetRecentProjects(pageNumber, PageSize);
 
                 // Loop over projects
@@ -72,7 +71,6 @@ namespace Kragle
                     }
                 }
 
-                _logger.LogLine(userCount + " / " + _targetUserCount + " users\n");
                 pageNumber++;
             }
         }
@@ -84,13 +82,19 @@ namespace Kragle
         public void DownloadMetaData()
         {
             FileInfo[] users = _fs.GetFiles(SubDirectory);
+            int userCurrent = 0;
 
-            _logger.LogLine("Downloading meta-data for " + users.Length + " users.\n");
+            _logger.Log("Downloading user meta-data.");
 
             foreach (FileInfo user in users)
             {
+                userCurrent++;
+                _logger.Log(string.Format("{0} / {1} ({2:P2})", userCurrent, users.Length,
+                    userCurrent / (double) users.Length));
+
                 if (user.Length > 0)
                 {
+                    // Meta-data already downloaded
                     continue;
                 }
 

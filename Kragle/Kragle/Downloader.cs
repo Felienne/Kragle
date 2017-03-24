@@ -15,6 +15,7 @@ namespace Kragle
     {
         private readonly int _maxDownloadSize;
         private readonly bool _noCache;
+        private readonly Logger _logger;
 
 
         /// <summary>
@@ -29,6 +30,7 @@ namespace Kragle
         {
             _noCache = noCache;
             _maxDownloadSize = maxDownloadSize;
+            _logger = Logger.GetLogger("Downloader");
         }
 
 
@@ -75,7 +77,7 @@ namespace Kragle
                 }
                 catch (WebException e)
                 {
-                    Console.WriteLine("Failed to get JSON: " + e.Message);
+                    _logger.Log("Failed to get JSON: " + e.Message);
                     return null;
                 }
             }

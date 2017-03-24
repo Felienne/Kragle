@@ -13,6 +13,7 @@ namespace Kragle
     {
         private static string _invokedVerb;
         private static object _invokedVerbInstance;
+        private static readonly Logger _logger = Logger.GetLogger("Program");
 
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace Kragle
 
                     FileStore fs = new FileStore(subOptions.Path);
                     fs.RemoveDirectory();
-                    Console.WriteLine("Removed all files.");
+                    _logger.Log("Removed all files.");
 
                     break;
                 }
@@ -67,9 +68,8 @@ namespace Kragle
 
                     FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
-                    Logger logger = new Logger("logger.log");
 
-                    UserScraper scraper = new UserScraper(fs, downloader, logger, subOptions.Count);
+                    UserScraper scraper = new UserScraper(fs, downloader, subOptions.Count);
                     scraper.ScrapeUsers();
                     if (subOptions.Meta)
                     {
@@ -85,9 +85,8 @@ namespace Kragle
 
                     FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
-                    Logger logger = new Logger("logger.log");
 
-                    ProjectScraper scraper = new ProjectScraper(fs, downloader, logger);
+                    ProjectScraper scraper = new ProjectScraper(fs, downloader);
                     if (subOptions.Update)
                     {
                         scraper.UpdateProjectList();
@@ -108,7 +107,7 @@ namespace Kragle
             }
 
             // Exit message
-            Console.WriteLine("\nDone.");
+            _logger.Log("Done.");
         }
     }
 
