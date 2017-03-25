@@ -45,12 +45,23 @@ namespace Kragle
                 {
                     ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
 
-                    FileStore fs = new FileStore(subOptions.Path);
-                    fs.RemoveDirectory("users");
-                    fs.RemoveDirectory("projects");
-                    fs.RemoveDirectory("code");
-                    Logger.Log("Removed all users, projects, and code.");
+                    Console.Write("Remove all users, projects, and code? (y/n)");
+                    string confirm = Console.ReadLine();
 
+                    if (confirm != null && confirm.ToLower() == "y")
+                    {
+                        FileStore fs = new FileStore(subOptions.Path);
+                        fs.RemoveDirectory("users");
+                        fs.RemoveDirectory("projects");
+                        fs.RemoveDirectory("code");
+                        Logger.Log("Removed all users, projects, and code.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Cancelled.");
+                    }
+
+                    Environment.Exit(0); // Suppress exit message
                     break;
                 }
 
