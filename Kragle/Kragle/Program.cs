@@ -13,7 +13,7 @@ namespace Kragle
     {
         private static string _invokedVerb;
         private static object _invokedVerbInstance;
-        private static readonly Logger _logger = Logger.GetLogger("Program");
+        private static readonly Logger Logger = Logger.GetLogger("Program");
 
 
         /// <summary>
@@ -46,8 +46,10 @@ namespace Kragle
                     ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
 
                     FileStore fs = new FileStore(subOptions.Path);
-                    fs.RemoveDirectory();
-                    _logger.Log("Removed all files.");
+                    fs.RemoveDirectory("users");
+                    fs.RemoveDirectory("projects");
+                    fs.RemoveDirectory("code");
+                    Logger.Log("Removed all users, projects, and code.");
 
                     break;
                 }
@@ -107,7 +109,7 @@ namespace Kragle
             }
 
             // Exit message
-            _logger.Log("Done.");
+            Logger.Log("Done.");
         }
     }
 

@@ -20,9 +20,11 @@ namespace Kragle
 
         static Logger()
         {
-            string logFile = string.Format("log_{0:yyyyMMMMddhhmmss}.log", DateTime.Now);
-            FileStream = new StreamWriter(logFile);
+            string logFile = string.Format("log_{0:yyyy-MM-dd hh-mm-ss}.log", DateTime.Now);
+            string logDir = new FileStore().GetRootPath();
+            FileStream = new StreamWriter(logDir + "/" + logFile);
         }
+
 
         /// <summary>
         ///     Constructs a new <code>Logger</code>. This logger only writes to the console output, not to a file.
