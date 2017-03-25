@@ -13,9 +13,10 @@ namespace Kragle
         private const string SubDirectory = "users";
         private const int PageSize = 20;
 
+        private static readonly Logger Logger = Logger.GetLogger("UserScraper");
+
         private readonly Downloader _downloader;
         private readonly FileStore _fs;
-        private readonly Logger _logger;
         private readonly int _targetUserCount;
 
 
@@ -28,7 +29,6 @@ namespace Kragle
         public UserScraper(FileStore fs, Downloader downloader, int targetUserCount)
         {
             _fs = fs;
-            _logger = Logger.GetLogger("UserScraper");
             _downloader = downloader;
             _targetUserCount = targetUserCount;
         }
@@ -42,12 +42,12 @@ namespace Kragle
             int pageNumber = 0;
             int userCount = _fs.GetFiles(SubDirectory).Length;
 
-            _logger.Log("Scraping list of recent projects.");
+            Logger.Log("Scraping list of recent projects.");
 
             // Keep downloading projects until the target has been reached
             while (userCount < _targetUserCount)
             {
-                _logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)",
+                Logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)",
                     pageNumber, userCount, _targetUserCount));
 
                 // Loop over projects
@@ -74,7 +74,7 @@ namespace Kragle
                 pageNumber++;
             }
 
-            _logger.Log(string.Format("Successfully registered {0} users.\n", userCount));
+            Logger.Log(string.Format("Successfully registered {0} users.\n", userCount));
         }
 
         /// <summary>
@@ -87,12 +87,12 @@ namespace Kragle
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            _logger.Log(string.Format("Downloading meta-data for {0} users.", userTotal));
+            Logger.Log(string.Format("Downloading meta-data for {0} users.", userTotal));
 
             foreach (FileInfo user in users)
             {
                 userCurrent++;
-                _logger.Log(string.Format("Downloading meta-data for user {0} ({1} / {2}) ({3:P2})",
+                Logger.Log(string.Format("Downloading meta-data for user {0} ({1} / {2}) ({3:P2})",
                     user.Name.Length > 10 ? user.Name.Substring(0, 10) + "..." : user.Name.PadRight(13, ' '),
                     userCurrent, userTotal, userCurrent / (double) userTotal));
 
@@ -106,7 +106,7 @@ namespace Kragle
                 _fs.WriteFile(SubDirectory, user.Name, metaData);
             }
 
-            _logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));
+            Logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));
         }
 
 
