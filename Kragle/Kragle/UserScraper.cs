@@ -47,11 +47,11 @@ namespace Kragle
             // Keep downloading projects until the target has been reached
             while (userCount < _targetUserCount)
             {
-                _logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)", pageNumber, userCount,
-                    _targetUserCount));
-                JArray projects = GetRecentProjects(pageNumber, PageSize);
+                _logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)",
+                    pageNumber, userCount, _targetUserCount));
 
                 // Loop over projects
+                JArray projects = GetRecentProjects(pageNumber, PageSize);
                 foreach (JToken project in projects)
                 {
                     string fileName = project["author"]["username"].ToString();
@@ -73,6 +73,8 @@ namespace Kragle
 
                 pageNumber++;
             }
+
+            _logger.Log(string.Format("Successfully registered {0} users.\n", userCount));
         }
 
         /// <summary>
@@ -82,15 +84,17 @@ namespace Kragle
         public void DownloadMetaData()
         {
             FileInfo[] users = _fs.GetFiles(SubDirectory);
+            int userTotal = users.Length;
             int userCurrent = 0;
 
-            _logger.Log("Downloading user meta-data.");
+            _logger.Log(string.Format("Downloading meta-data for {0} users.", userTotal));
 
             foreach (FileInfo user in users)
             {
                 userCurrent++;
-                _logger.Log(string.Format("{0} / {1} ({2:P2})", userCurrent, users.Length,
-                    userCurrent / (double) users.Length));
+                _logger.Log(string.Format("Downloading meta-data for user {0} ({1} / {2}) ({3:P2})",
+                    user.Name.Length > 10 ? user.Name.Substring(0, 10) + "..." : user.Name.PadRight(13, ' '),
+                    userCurrent, userTotal, userCurrent / (double) userTotal));
 
                 if (user.Length > 0)
                 {
@@ -101,6 +105,8 @@ namespace Kragle
                 string metaData = GetMetaData(user.Name);
                 _fs.WriteFile(SubDirectory, user.Name, metaData);
             }
+
+            _logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));
         }
 
 

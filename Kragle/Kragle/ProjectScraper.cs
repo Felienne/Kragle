@@ -34,14 +34,15 @@ namespace Kragle
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            _logger.Log("Downloading project lists for " + users.Length + " users.");
+            _logger.Log(string.Format("Downloading project lists for {0} users.", userTotal));
 
             // Iterate over users
             foreach (FileInfo user in users)
             {
                 userCurrent++;
-                _logger.Log(string.Format("{0} / {1} ({2:P2})", userCurrent, userTotal,
-                    userCurrent / (double) userTotal));
+                _logger.Log(string.Format("Downloading project list for user {0} ({1} / {2}) ({3:P2})",
+                    user.Name.Length > 13 ? user.Name.Substring(0, 10) + "..." : user.Name.PadRight(13, ' '),
+                    userCurrent, userTotal, userCurrent / (double) userTotal));
 
                 // Get list of user projects
                 JArray projects = GetUserProjects(user.Name);
@@ -59,6 +60,8 @@ namespace Kragle
                     _fs.WriteFile("projects/" + user.Name, project["id"].ToString(), "");
                 }
             }
+
+            _logger.Log(string.Format("Successfully downloaded project lists for {0} users.\n", userCurrent));
         }
 
         /// <summary>
@@ -70,11 +73,16 @@ namespace Kragle
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            _logger.Log("Downloading code for " + users.Length + " users.");
+            _logger.Log(string.Format("Downloading code for {0} users.", userTotal));
 
             // Iterate over users
             foreach (DirectoryInfo user in users)
             {
+                userCurrent++;
+                _logger.Log(string.Format("Downloading code for for user {0} ({1} / {2}) ({3:P2})",
+                    user.Name.Length > 13 ? user.Name.Substring(0, 10) + "..." : user.Name.PadRight(13, ' '),
+                    userCurrent, userTotal, userCurrent / (double) userTotal));
+
                 string username = user.Name;
                 FileInfo[] projects = _fs.GetFiles("projects/" + username);
 
@@ -109,10 +117,9 @@ namespace Kragle
                     }
                     _fs.WriteFile(projectDir, fileName, projectCode);
                 }
-
-                userCurrent++;
-                _logger.Log(string.Format("{0:P2}", userCurrent / (double) userTotal));
             }
+
+            _logger.Log(string.Format("Successfully downloaded code for {0} users.\n", userCurrent));
         }
 
 
