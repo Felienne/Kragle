@@ -85,10 +85,10 @@ namespace Kragle
         private static string EscapeData(string data)
         {
             return "\"" + Regex.Replace(Regex.Replace(Regex.Replace(data,
-                @"\r\n?|\n", "\\n"), // Replace newlines
-                "\"", "\"\""), // Replace quotes with double quotes
-                "\0", "") // Remove NUL bytes
-            + "\"";
+                               @"\r\n?|\n", "\\n"), // Replace newlines
+                           "\"", "\"\""), // Replace quotes with double quotes
+                       "\0", "") // Remove NUL bytes
+                   + "\"";
         }
 
         /// <summary>

@@ -77,19 +77,19 @@ namespace Kragle
 
                     int projectId = Convert.ToInt32(project["id"].ToString());
                     string codeDir = "code/" + projectId;
-                    string fileName = currentDate.ToString("yyyy-MM-dd");
+                    string yesterdayFileName = currentDate.AddDays(-1).ToString("yyyy-MM-dd");
+                    string todayFileName = currentDate.ToString("yyyy-MM-dd");
 
-                    if (currentDate.Subtract(modifyDate).Days > 0)
+                    if (_fs.FileExists(codeDir, todayFileName))
                     {
-                        // No code modifications in last day, copy old file
-                        string yesterdayFileName = currentDate.AddDays(-1).ToString("yyyy-MM-dd");
-                        _fs.CopyFile(codeDir, yesterdayFileName, codeDir, fileName);
+                        // Code already downloaded today
                         continue;
                     }
 
-                    if (_fs.FileExists(codeDir, fileName))
+                    if (currentDate.Subtract(modifyDate).Days > 0 && _fs.FileExists(codeDir, yesterdayFileName))
                     {
-                        // Code already downloaded today
+                        // No code modifications in last day, copy old file
+                        _fs.CopyFile(codeDir, yesterdayFileName, codeDir, todayFileName);
                         continue;
                     }
 
@@ -104,7 +104,7 @@ namespace Kragle
                         // Invalid JSON, no need to save it
                         continue;
                     }
-                    _fs.WriteFile(codeDir, fileName, projectCode);
+                    _fs.WriteFile(codeDir, todayFileName, projectCode);
                 }
 
                 userCurrent++;

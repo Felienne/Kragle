@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
@@ -118,7 +117,7 @@ namespace Kragle
             // Fetch JSON
             const string url = "https://api.scratch.mit.edu/search/projects?mode=recent&offset={0}&limit={1}";
             JToken projects = _downloader.GetJson(string.Format(url, pageNumber, pageSize));
-            
+
             return projects as JArray;
         }
 
