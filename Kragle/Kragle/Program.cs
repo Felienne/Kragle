@@ -44,10 +44,21 @@ namespace Kragle
                 {
                     ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
 
-                    FileStore fs = new FileStore(subOptions.Path);
-                    fs.RemoveDirectory("./");
-                    Console.WriteLine("Removed all files.");
+                    Console.Write("Remove all users, projects, and code? (y/n)");
+                    string confirm = Console.ReadLine();
 
+                    if (confirm != null && confirm.ToLower() == "y")
+                    {
+                        FileStore fs = new FileStore(subOptions.Path);
+                        fs.RemoveDirectory();
+                        Console.WriteLine("Removed all files.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Cancelled.");
+                    }
+
+                    Environment.Exit(0); // Suppress exit message
                     break;
                 }
 
@@ -64,12 +75,37 @@ namespace Kragle
                 case "users":
                 {
                     UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    Downloader downloader = new Downloader(subOptions.NoCache);
+                    UserScraper scraper = new UserScraper(fs, downloader, subOptions.Count);
+
+                    scraper.ScrapeUsers();
+                    if (subOptions.Meta)
+                    {
+                        scraper.DownloadMetaData();
+                    }
+
                     break;
                 }
 
                 case "projects":
                 {
                     ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
+
+                    FileStore fs = new FileStore(subOptions.Path);
+                    Downloader downloader = new Downloader(subOptions.NoCache);
+                    ProjectScraper scraper = new ProjectScraper(fs, downloader);
+
+                    if (subOptions.Update)
+                    {
+                        scraper.UpdateProjectList();
+                    }
+                    if (subOptions.Download)
+                    {
+                        scraper.DownloadProjects();
+                    }
+
                     break;
                 }
 
@@ -93,8 +129,7 @@ namespace Kragle
             }
 
             // Exit message
-            Console.WriteLine("\nDone. Press enter to close this window.");
-            Console.ReadLine();
+            Console.WriteLine("\nDone.");
         }
     }
 
@@ -115,9 +150,6 @@ namespace Kragle
 
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
         public ProjectsSubOptions ProjectsSubOptions { get; set; }
-
-        [VerbOption("parse", HelpText = "Parse the downloaded code")]
-        public ParseSubOptions ParseSubOptions { get; set; }
 
         [HelpOption]
         public string GetUsage()
@@ -163,8 +195,11 @@ namespace Kragle
     /// </summary>
     internal class UsersSubOptions : FileSystemSharedOptions
     {
-        [Option('n', "number", HelpText = "The number of users to scrape")]
+        [Option('n', "number", DefaultValue = int.MaxValue, HelpText = "The number of users to scrape")]
         public int Count { get; set; }
+
+        [Option('m', "meta", HelpText = "Download user meta-data")]
+        public bool Meta { get; set; }
     }
 
     /// <summary>
@@ -172,6 +207,11 @@ namespace Kragle
     /// </summary>
     internal class ProjectsSubOptions : FileSystemSharedOptions
     {
+        [Option('u', "update", HelpText = "Update the list of registered projects")]
+        public bool Update { get; set; }
+
+        [Option('d', "download", HelpText = "Download project code")]
+        public bool Download { get; set; }
     }
 
     /// <summary>

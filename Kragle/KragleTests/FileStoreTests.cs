@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.IO.Pipes;
 using Kragle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,8 +19,13 @@ namespace KragleTests
             _directory = Path.GetRandomFileName().Substring(0, 8);
             _fileName = Path.GetRandomFileName();
             _fileContents = Path.GetRandomFileName();
+        }
 
-            RemoveDirectory("./");
+        [TestCleanup]
+        public void TearDown()
+        {
+            RemoveFile(_fileName);
+            RemoveDirectory(_directory);
         }
 
 
@@ -191,7 +195,7 @@ namespace KragleTests
 
             Assert.AreEqual(0, GetDirectories(_directory).Length);
         }
-        
+
         [TestMethod]
         public void GetDirectoriesSizeTest()
         {
