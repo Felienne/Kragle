@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 
@@ -92,22 +94,78 @@ namespace Kragle
         public void WriteCode()
         {
             using (CsvWriter projectCodeWriter = new CsvWriter(_fs.GetRootPath() + "/projectcode.csv"))
+            using (CsvWriter codeProcedureWriter = new CsvWriter(_fs.GetRootPath() + "/codeprocedure.csv"))
             {
                 DirectoryInfo[] projects = _fs.GetDirectories("code"); // Code directory contains directory per code
                 Console.WriteLine("Writing " + projects.Length + " projects' code to CSV.");
 
                 foreach (DirectoryInfo project in projects)
                 {
-                    foreach (FileInfo code in project.GetFiles())
+                    foreach (FileInfo codeFile in project.GetFiles())
                     {
+                        string code = File.ReadAllText(codeFile.FullName);
+
                         projectCodeWriter
                             .Write(int.Parse(project.Name))
-                            .Write(code.Name)
-                            .Write(File.ReadAllText(code.FullName))
+                            .Write(codeFile.Name)
+                            .Write(code)
                             .Newline();
+
+                        foreach (Tuple<string, string> procedure in GetProcedures(code))
+                        {
+                            codeProcedureWriter
+                                .Write(int.Parse(project.Name))
+                                .Write(codeFile.Name)
+                                .Write(procedure.Item1 ?? "null")
+                                .Write(procedure.Item2)
+                                .Newline();
+                        }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        ///     Compiles the list of procedure definitions in the given code.
+        /// </summary>
+        /// <param name="rawCode">the complete code of a project</param>
+        /// <returns>the list of procedure definitions in the given code</returns>
+        public List<Tuple<string, string>> GetProcedures(string rawCode)
+        {
+            List<Tuple<string, string>> procedures = new List<Tuple<string, string>>();
+
+            // Procedure definitions in root
+            JObject code = JObject.Parse(rawCode);
+            {
+                JArray scripts = code.GetValue("scripts") as JArray;
+                if (scripts != null)
+                {
+                    procedures.AddRange(
+                        from script in scripts.OfType<JArray>()
+                        where script[2].First.First.ToString() == "procDef"
+                        select new Tuple<string, string>("null", script[2].ToString())
+                    );
+                }
+            }
+
+            // Procedure definitions in sprites
+            JArray sprites = (JArray) code.GetValue("children");
+            foreach (JObject sprite in sprites.OfType<JObject>())
+            {
+                JArray scripts = sprite.GetValue("scripts") as JArray;
+                if (scripts == null)
+                {
+                    continue;
+                }
+
+                procedures.AddRange(
+                    from script in scripts.OfType<JArray>()
+                    where script[2].First.First.ToString() == "procDef"
+                    select new Tuple<string, string>(sprite.GetValue("objName").ToString(), script[2].ToString())
+                );
+            }
+
+            return procedures;
         }
     }
 }

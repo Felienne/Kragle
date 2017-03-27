@@ -151,6 +151,9 @@ namespace Kragle
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
         public ProjectsSubOptions ProjectsSubOptions { get; set; }
 
+        [VerbOption("parse", HelpText = "Generate the list of projects of all registered users")]
+        public ParseSubOptions ParseSubOptions { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
