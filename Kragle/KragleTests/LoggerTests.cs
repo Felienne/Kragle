@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Kragle;
+﻿using Kragle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
@@ -19,7 +18,7 @@ namespace KragleTests
         public void EqualsTrueTest()
         {
             Logger logger1 = Logger.GetLogger("logger1");
-            Logger logger2= Logger.GetLogger("logger1");
+            Logger logger2 = Logger.GetLogger("logger1");
             Assert.AreEqual(logger1, logger2);
         }
 

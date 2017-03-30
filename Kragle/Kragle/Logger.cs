@@ -20,9 +20,11 @@ namespace Kragle
 
         static Logger()
         {
-            string logFile = string.Format("log_{0:yyyy-MM-dd hh-mm-ss}.log", DateTime.Now);
-            string logDir = new FileStore().GetRootPath();
-            FileStream = new StreamWriter(logDir + "/" + logFile);
+            FileStore.CreateDirectory("log");
+
+            string logFile = FileStore.GetAbsolutePath("log",
+                string.Format("log_{0:yyyy-MM-dd hh-mm-ss}.log", DateTime.Now));
+            FileStream = new StreamWriter(logFile);
         }
 
 

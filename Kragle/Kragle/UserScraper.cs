@@ -16,19 +16,16 @@ namespace Kragle
         private static readonly Logger Logger = Logger.GetLogger("UserScraper");
 
         private readonly Downloader _downloader;
-        private readonly FileStore _fs;
         private readonly int _targetUserCount;
 
 
         /// <summary>
         ///     Constructs a new <code>UserScraper</code>.
         /// </summary>
-        /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to download user data with</param>
         /// <param name="targetUserCount">the target number of scraped users</param>
-        public UserScraper(FileStore fs, Downloader downloader, int targetUserCount)
+        public UserScraper(Downloader downloader, int targetUserCount)
         {
-            _fs = fs;
             _downloader = downloader;
             _targetUserCount = targetUserCount;
         }
@@ -40,7 +37,7 @@ namespace Kragle
         public void ScrapeUsers()
         {
             int pageNumber = 0;
-            int userCount = _fs.GetFiles(SubDirectory).Length;
+            int userCount = FileStore.GetFiles(SubDirectory).Length;
 
             Logger.Log("Scraping list of recent projects.");
 
@@ -57,13 +54,13 @@ namespace Kragle
                     string fileName = project["author"]["username"].ToString();
 
                     // Skip project if user is already known
-                    if (_fs.FileExists(SubDirectory, fileName))
+                    if (FileStore.FileExists(SubDirectory, fileName))
                     {
                         continue;
                     }
 
                     // Add user
-                    _fs.WriteFile(SubDirectory, fileName, "");
+                    FileStore.WriteFile(SubDirectory, fileName, "");
                     userCount++;
                     if (userCount >= _targetUserCount)
                     {
@@ -83,7 +80,7 @@ namespace Kragle
         /// </summary>
         public void DownloadMetaData()
         {
-            FileInfo[] users = _fs.GetFiles(SubDirectory);
+            FileInfo[] users = FileStore.GetFiles(SubDirectory);
             int userTotal = users.Length;
             int userCurrent = 0;
 
@@ -103,7 +100,7 @@ namespace Kragle
                 }
 
                 string metaData = GetMetaData(user.Name);
-                _fs.WriteFile(SubDirectory, user.Name, metaData);
+                FileStore.WriteFile(SubDirectory, user.Name, metaData);
             }
 
             Logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));

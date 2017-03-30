@@ -10,17 +10,14 @@ namespace Kragle
         private static readonly Logger Logger = Logger.GetLogger("ProjectScraper");
 
         private readonly Downloader _downloader;
-        private readonly FileStore _fs;
 
 
         /// <summary>
         ///     Constructs a new <code>ProjectScraper</code>.
         /// </summary>
-        /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to use for downloading data from the API</param>
-        public ProjectScraper(FileStore fs, Downloader downloader)
+        public ProjectScraper(Downloader downloader)
         {
-            _fs = fs;
             _downloader = downloader;
         }
 
@@ -30,7 +27,7 @@ namespace Kragle
         /// </summary>
         public void UpdateProjectList()
         {
-            FileInfo[] users = _fs.GetFiles("users");
+            FileInfo[] users = FileStore.GetFiles("users");
             int userTotal = users.Length;
             int userCurrent = 0;
 
@@ -52,12 +49,12 @@ namespace Kragle
                 }
 
                 // Save list of projects
-                _fs.WriteFile("projects/" + user.Name, "list", projects.ToString());
+                FileStore.WriteFile("projects/" + user.Name, "list", projects.ToString());
 
                 // Create empty files for each project
                 foreach (JToken project in projects)
                 {
-                    _fs.WriteFile("projects/" + user.Name, project["id"].ToString(), "");
+                    FileStore.WriteFile("projects/" + user.Name, project["id"].ToString(), "");
                 }
             }
 
@@ -69,7 +66,7 @@ namespace Kragle
         /// </summary>
         public void DownloadProjects()
         {
-            DirectoryInfo[] users = _fs.GetDirectories("projects");
+            DirectoryInfo[] users = FileStore.GetDirectories("projects");
             int userTotal = users.Length;
             int userCurrent = 0;
 
@@ -84,7 +81,7 @@ namespace Kragle
                     userCurrent, userTotal, userCurrent / (double) userTotal));
 
                 string username = user.Name;
-                FileInfo[] projects = _fs.GetFiles("projects/" + username);
+                FileInfo[] projects = FileStore.GetFiles("projects/" + username);
 
                 // Iterate over user projects
                 foreach (FileInfo project in projects)
@@ -98,7 +95,7 @@ namespace Kragle
                     string projectDir = "code/" + projectId;
                     string fileName = DateTime.Now.ToString("yyyy-MM-dd");
 
-                    if (_fs.FileExists(projectDir, fileName))
+                    if (FileStore.FileExists(projectDir, fileName))
                     {
                         // Code already downloaded today
                         continue;
@@ -115,7 +112,7 @@ namespace Kragle
                         // Invalid JSON, no need to save it
                         continue;
                     }
-                    _fs.WriteFile(projectDir, fileName, projectCode);
+                    FileStore.WriteFile(projectDir, fileName, projectCode);
                 }
             }
 

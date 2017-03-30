@@ -13,7 +13,6 @@ namespace Kragle
     {
         private static string _invokedVerb;
         private static object _invokedVerbInstance;
-        private static readonly Logger Logger = Logger.GetLogger("Program");
 
 
         /// <summary>
@@ -44,17 +43,17 @@ namespace Kragle
                 case "reset":
                 {
                     ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
                     Console.Write("Remove all users, projects, and code? (y/n)");
                     string confirm = Console.ReadLine();
 
                     if (confirm != null && confirm.ToLower() == "y")
                     {
-                        FileStore fs = new FileStore(subOptions.Path);
-                        fs.RemoveDirectory("users");
-                        fs.RemoveDirectory("projects");
-                        fs.RemoveDirectory("code");
-                        Logger.Log("Removed all users, projects, and code.");
+                        FileStore.RemoveDirectory("users");
+                        FileStore.RemoveDirectory("projects");
+                        FileStore.RemoveDirectory("code");
+                        Console.WriteLine("Removed all users, projects, and code.");
                     }
                     else
                     {
@@ -68,8 +67,9 @@ namespace Kragle
                 case "open":
                 {
                     OpenSubOptions subOptions = (OpenSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
-                    Process.Start(new FileStore(subOptions.Path).GetRootPath());
+                    Process.Start(FileStore.GetRootPath());
 
                     Environment.Exit(0); // Suppress exit message
                     break;
@@ -78,11 +78,11 @@ namespace Kragle
                 case "users":
                 {
                     UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
-                    FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
 
-                    UserScraper scraper = new UserScraper(fs, downloader, subOptions.Count);
+                    UserScraper scraper = new UserScraper(downloader, subOptions.Count);
                     scraper.ScrapeUsers();
                     if (subOptions.Meta)
                     {
@@ -95,11 +95,11 @@ namespace Kragle
                 case "projects":
                 {
                     ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
-                    FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
 
-                    ProjectScraper scraper = new ProjectScraper(fs, downloader);
+                    ProjectScraper scraper = new ProjectScraper(downloader);
                     if (subOptions.Update)
                     {
                         scraper.UpdateProjectList();
@@ -120,7 +120,7 @@ namespace Kragle
             }
 
             // Exit message
-            Logger.Log("Done.");
+            Console.WriteLine("Done.");
         }
     }
 

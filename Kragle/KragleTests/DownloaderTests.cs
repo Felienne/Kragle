@@ -96,7 +96,7 @@ namespace KragleTests
         public void AppendRandomParameterNameWithQueryComponentTest()
         {
             const string url = "https://another-website.net/?";
-            
+
             Assert.IsTrue(AppendRandomParameter(url).StartsWith(url + "random="));
         }
     }
