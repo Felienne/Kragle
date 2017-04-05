@@ -112,6 +112,18 @@ namespace Kragle
                     break;
                 }
 
+                case "parse":
+                {
+                    ParseSubOptions subOptions = (ParseSubOptions) _invokedVerbInstance;
+
+                    CodeParser parser = new CodeParser(new FileStore(subOptions.Path));
+                    parser.WriteUsers();
+                    parser.WriteProjects();
+                    parser.WriteCode();
+
+                    break;
+                }
+
                 default:
                 {
                     Environment.Exit(Parser.DefaultExitCodeFail);
@@ -141,6 +153,9 @@ namespace Kragle
 
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
         public ProjectsSubOptions ProjectsSubOptions { get; set; }
+
+        [VerbOption("parse", HelpText = "Generate the list of projects of all registered users")]
+        public ParseSubOptions ParseSubOptions { get; set; }
 
         [HelpOption]
         public string GetUsage()
@@ -206,9 +221,9 @@ namespace Kragle
     }
 
     /// <summary>
-    ///     Command-line options for the 'code' verb.
+    ///     Command-line options for the 'parse' verb.
     /// </summary>
-    internal class CodeSubOptions : FileSystemSharedOptions
+    internal class ParseSubOptions : FileSystemSharedOptions
     {
     }
 }
