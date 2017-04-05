@@ -17,6 +17,25 @@ namespace KragleTests
 
 
         [TestMethod]
+        public void IsValidJsonTrueTest()
+        {
+            Assert.IsTrue(IsValidJson("{\"valid\":true}"));
+        }
+
+        [TestMethod]
+        public void IsValidJsonFalseTest()
+        {
+            Assert.IsFalse(IsValidJson("not valid"));
+        }
+
+        [TestMethod]
+        public void IsValidJsonNullTest()
+        {
+            Assert.IsFalse(IsValidJson(null));
+        }
+
+
+        [TestMethod]
         public void GetContentsInvalidUrlTest()
         {
             const string url = "http://invalid-url.net/";
@@ -97,7 +116,6 @@ namespace KragleTests
         {
             const string url = "https://another-website.net/?";
 
-            Console.WriteLine(AppendRandomParameter(url));
             Assert.IsTrue(AppendRandomParameter(url).StartsWith(url + "random="));
         }
     }

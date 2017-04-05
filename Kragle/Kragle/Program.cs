@@ -43,15 +43,17 @@ namespace Kragle
                 case "reset":
                 {
                     ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
                     Console.Write("Remove all users, projects, and code? (y/n)");
                     string confirm = Console.ReadLine();
 
                     if (confirm != null && confirm.ToLower() == "y")
                     {
-                        FileStore fs = new FileStore(subOptions.Path);
-                        fs.RemoveDirectory();
-                        Console.WriteLine("Removed all files.");
+                        FileStore.RemoveDirectory("users");
+                        FileStore.RemoveDirectory("projects");
+                        FileStore.RemoveDirectory("code");
+                        Console.WriteLine("Removed all users, projects, and code.");
                     }
                     else
                     {
@@ -65,8 +67,9 @@ namespace Kragle
                 case "open":
                 {
                     OpenSubOptions subOptions = (OpenSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
-                    Process.Start(new FileStore(subOptions.Path).GetRootPath());
+                    Process.Start(FileStore.GetRootPath());
 
                     Environment.Exit(0); // Suppress exit message
                     break;
@@ -75,11 +78,11 @@ namespace Kragle
                 case "users":
                 {
                     UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
-                    FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
-                    UserScraper scraper = new UserScraper(fs, downloader, subOptions.Count);
 
+                    UserScraper scraper = new UserScraper(downloader, subOptions.Count);
                     scraper.ScrapeUsers();
                     if (subOptions.Meta)
                     {
@@ -92,11 +95,11 @@ namespace Kragle
                 case "projects":
                 {
                     ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
-                    FileStore fs = new FileStore(subOptions.Path);
                     Downloader downloader = new Downloader(subOptions.NoCache);
-                    ProjectScraper scraper = new ProjectScraper(fs, downloader);
 
+                    ProjectScraper scraper = new ProjectScraper(downloader);
                     if (subOptions.Update)
                     {
                         scraper.UpdateProjectList();
@@ -109,6 +112,18 @@ namespace Kragle
                     break;
                 }
 
+                case "parse":
+                {
+                    ParseSubOptions subOptions = (ParseSubOptions) _invokedVerbInstance;
+
+                    CodeParser parser = new CodeParser();
+                    parser.WriteUsers();
+                    parser.WriteProjects();
+                    parser.WriteCode();
+
+                    break;
+                }
+
                 default:
                 {
                     Environment.Exit(Parser.DefaultExitCodeFail);
@@ -117,7 +132,7 @@ namespace Kragle
             }
 
             // Exit message
-            Console.WriteLine("\nDone.");
+            Console.WriteLine("Done.");
         }
     }
 
@@ -138,6 +153,9 @@ namespace Kragle
 
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
         public ProjectsSubOptions ProjectsSubOptions { get; set; }
+
+        [VerbOption("parse", HelpText = "Generate the list of projects of all registered users")]
+        public ParseSubOptions ParseSubOptions { get; set; }
 
         [HelpOption]
         public string GetUsage()
@@ -203,9 +221,9 @@ namespace Kragle
     }
 
     /// <summary>
-    ///     Command-line options for the 'code' verb.
+    ///     Command-line options for the 'parse' verb.
     /// </summary>
-    internal class CodeSubOptions : FileSystemSharedOptions
+    internal class ParseSubOptions : FileSystemSharedOptions
     {
     }
 }

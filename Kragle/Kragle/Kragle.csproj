@@ -64,8 +64,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeParser.cs" />
     <Compile Include="CsvWriter.cs" />
     <Compile Include="FileStore.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectScraper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
