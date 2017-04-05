@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="CsvWriter.cs" />
     <Compile Include="FileStore.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectScraper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

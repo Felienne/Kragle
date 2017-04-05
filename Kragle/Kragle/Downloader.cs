@@ -13,6 +13,7 @@ namespace Kragle
     /// </summary>
     public class Downloader
     {
+        private static readonly Logger Logger = Logger.GetLogger("Downloader");
         private readonly int _maxDownloadSize;
         private readonly bool _noCache;
 
@@ -75,7 +76,7 @@ namespace Kragle
                 }
                 catch (WebException e)
                 {
-                    Console.WriteLine("Failed to get JSON: " + e.Message);
+                    Logger.Log("Failed to get JSON: " + e.Message);
                     return null;
                 }
             }

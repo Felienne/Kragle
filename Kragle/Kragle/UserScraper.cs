@@ -12,21 +12,20 @@ namespace Kragle
     {
         private const string SubDirectory = "users";
         private const int PageSize = 20;
-        private readonly Downloader _downloader;
 
-        private readonly FileStore _fs;
+        private static readonly Logger Logger = Logger.GetLogger("UserScraper");
+
+        private readonly Downloader _downloader;
         private readonly int _targetUserCount;
 
 
         /// <summary>
         ///     Constructs a new <code>UserScraper</code>.
         /// </summary>
-        /// <param name="fs">the <code>FileStore</code> to use to access the filesystem</param>
         /// <param name="downloader">the <code>Downloader</code> to download user data with</param>
         /// <param name="targetUserCount">the target number of scraped users</param>
-        public UserScraper(FileStore fs, Downloader downloader, int targetUserCount)
+        public UserScraper(Downloader downloader, int targetUserCount)
         {
-            _fs = fs;
             _downloader = downloader;
             _targetUserCount = targetUserCount;
         }
@@ -38,30 +37,30 @@ namespace Kragle
         public void ScrapeUsers()
         {
             int pageNumber = 0;
-            int userCount = _fs.GetFiles(SubDirectory).Length;
+            int userCount = FileStore.GetFiles(SubDirectory).Length;
 
-            Console.WriteLine("Starting user scraping...\n" +
-                              userCount + " users already registered.\n\n");
+            Logger.Log("Scraping list of recent projects.");
 
             // Keep downloading projects until the target has been reached
             while (userCount < _targetUserCount)
             {
-                Console.WriteLine("Downloading page " + pageNumber);
-                JArray projects = GetRecentProjects(pageNumber, PageSize);
+                Logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)",
+                    pageNumber, userCount, _targetUserCount));
 
                 // Loop over projects
+                JArray projects = GetRecentProjects(pageNumber, PageSize);
                 foreach (JToken project in projects)
                 {
                     string fileName = project["author"]["username"].ToString();
 
                     // Skip project if user is already known
-                    if (_fs.FileExists(SubDirectory, fileName))
+                    if (FileStore.FileExists(SubDirectory, fileName))
                     {
                         continue;
                     }
 
                     // Add user
-                    _fs.WriteFile(SubDirectory, fileName, "");
+                    FileStore.WriteFile(SubDirectory, fileName, "");
                     userCount++;
                     if (userCount >= _targetUserCount)
                     {
@@ -69,9 +68,10 @@ namespace Kragle
                     }
                 }
 
-                Console.WriteLine(userCount + " / " + _targetUserCount + " users\n");
                 pageNumber++;
             }
+
+            Logger.Log(string.Format("Successfully registered {0} users.\n", userCount));
         }
 
         /// <summary>
@@ -80,20 +80,30 @@ namespace Kragle
         /// </summary>
         public void DownloadMetaData()
         {
-            FileInfo[] users = _fs.GetFiles(SubDirectory);
+            FileInfo[] users = FileStore.GetFiles(SubDirectory);
+            int userTotal = users.Length;
+            int userCurrent = 0;
 
-            Console.WriteLine("Downloading meta-data for " + users.Length + " users.\n");
+            Logger.Log(string.Format("Downloading meta-data for {0} users.", userTotal));
 
             foreach (FileInfo user in users)
             {
+                userCurrent++;
+                Logger.Log(string.Format("Downloading meta-data for user {0} ({1} / {2}) ({3:P2})",
+                    user.Name.Length > 10 ? user.Name.Substring(0, 10) + "..." : user.Name.PadRight(13, ' '),
+                    userCurrent, userTotal, userCurrent / (double) userTotal));
+
                 if (user.Length > 0)
                 {
+                    // Meta-data already downloaded
                     continue;
                 }
 
                 string metaData = GetMetaData(user.Name);
-                _fs.WriteFile(SubDirectory, user.Name, metaData);
+                FileStore.WriteFile(SubDirectory, user.Name, metaData);
             }
+
+            Logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));
         }
 
 
