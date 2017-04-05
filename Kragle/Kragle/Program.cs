@@ -116,7 +116,7 @@ namespace Kragle
                 {
                     ParseSubOptions subOptions = (ParseSubOptions) _invokedVerbInstance;
 
-                    CodeParser parser = new CodeParser(new FileStore(subOptions.Path));
+                    CodeParser parser = new CodeParser();
                     parser.WriteUsers();
                     parser.WriteProjects();
                     parser.WriteCode();

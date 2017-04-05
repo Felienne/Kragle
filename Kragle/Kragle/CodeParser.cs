@@ -13,16 +13,11 @@ namespace Kragle
     /// </summary>
     public sealed class CodeParser
     {
-        private readonly FileStore _fs;
-
-
         /// <summary>
         ///     Constructs a new <code>CodeParser</code>.
         /// </summary>
-        /// <param name="fs">the <code>FileStore</code> to interact with</param>
-        public CodeParser(FileStore fs)
+        public CodeParser()
         {
-            _fs = fs;
         }
 
 
@@ -31,10 +26,10 @@ namespace Kragle
         /// </summary>
         public void WriteUsers()
         {
-            FileInfo[] files = _fs.GetFiles("users");
+            FileInfo[] files = FileStore.GetFiles("users");
             Console.WriteLine("Writing " + files.Length + " users to CSV.");
 
-            using (CsvWriter writer = new CsvWriter(_fs.GetRootPath() + "/users.csv"))
+            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath("/users.csv")))
             {
                 foreach (FileInfo file in files)
                 {
@@ -53,10 +48,10 @@ namespace Kragle
         /// </summary>
         public void WriteProjects()
         {
-            using (CsvWriter projectWriter = new CsvWriter(_fs.GetRootPath() + "/projects.csv"))
-            using (CsvWriter userProjectWriter = new CsvWriter(_fs.GetRootPath() + "/userprojects.csv"))
+            using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath("/projects.csv")))
+            using (CsvWriter userProjectWriter = new CsvWriter(FileStore.GetAbsolutePath("/userprojects.csv")))
             {
-                DirectoryInfo[] users = _fs.GetDirectories("projects"); // Project directory contains directory per user
+                DirectoryInfo[] users = FileStore.GetDirectories("projects"); // Project directory contains directory per user
                 Console.WriteLine("Writing " + users.Length + " projects to CSV.");
 
                 foreach (DirectoryInfo user in users)
@@ -70,7 +65,7 @@ namespace Kragle
                             continue;
                         }
 
-                        JObject project = (JObject) jToken;
+                        JObject project = (JObject)jToken;
                         int authorId = int.Parse(project["author"]["id"].ToString());
                         int projectId = int.Parse(project["id"].ToString());
 
@@ -93,10 +88,10 @@ namespace Kragle
         /// </summary>
         public void WriteCode()
         {
-            using (CsvWriter projectCodeWriter = new CsvWriter(_fs.GetRootPath() + "/projectcode.csv"))
-            using (CsvWriter codeProcedureWriter = new CsvWriter(_fs.GetRootPath() + "/codeprocedure.csv"))
+            using (CsvWriter projectCodeWriter = new CsvWriter(FileStore.GetAbsolutePath("/projectcode.csv")))
+            using (CsvWriter codeProcedureWriter = new CsvWriter(FileStore.GetAbsolutePath("/codeprocedure.csv")))
             {
-                DirectoryInfo[] projects = _fs.GetDirectories("code"); // Code directory contains directory per code
+                DirectoryInfo[] projects = FileStore.GetDirectories("code"); // Code directory contains directory per code
                 Console.WriteLine("Writing " + projects.Length + " projects' code to CSV.");
 
                 foreach (DirectoryInfo project in projects)
