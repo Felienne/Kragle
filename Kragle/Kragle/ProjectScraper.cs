@@ -49,13 +49,7 @@ namespace Kragle
                 }
 
                 // Save list of projects
-                FileStore.WriteFile("projects/" + user.Name, "list", projects.ToString());
-
-                // Create empty files for each project
-                foreach (JToken project in projects)
-                {
-                    FileStore.WriteFile("projects/" + user.Name, project["id"].ToString(), "");
-                }
+                FileStore.WriteFile("projects", user.Name, projects.ToString());
             }
 
             Logger.Log(string.Format("Successfully downloaded project lists for {0} users.\n", userCurrent));
@@ -66,14 +60,15 @@ namespace Kragle
         /// </summary>
         public void DownloadProjects()
         {
-            DirectoryInfo[] users = FileStore.GetDirectories("projects");
+            FileInfo[] users = FileStore.GetFiles("projects");
+
             int userTotal = users.Length;
             int userCurrent = 0;
 
             Logger.Log(string.Format("Downloading code for {0} users.", userTotal));
 
             // Iterate over users
-            foreach (DirectoryInfo user in users)
+            foreach (FileInfo user in users)
             {
                 userCurrent++;
                 Logger.Log(string.Format("Downloading code for for user {0} ({1} / {2}) ({3:P2})",
@@ -81,23 +76,29 @@ namespace Kragle
                     userCurrent, userTotal, userCurrent / (double) userTotal));
 
                 string username = user.Name;
-                FileInfo[] projects = FileStore.GetFiles("projects/" + username);
+                JArray projects = JArray.Parse(FileStore.ReadFile("projects", username));
 
                 // Iterate over user projects
-                foreach (FileInfo project in projects)
+                foreach (JToken project in projects)
                 {
-                    if (project.Name == "list")
+                    DateTime currentDate = DateTime.Now.Date;
+                    DateTime modifyDate = DateTime.Parse(project["history"]["modified"].ToString()).Date;
+
+                    int projectId = Convert.ToInt32(project["id"].ToString());
+                    string codeDir = "code/" + projectId;
+                    string yesterdayFileName = currentDate.AddDays(-1).ToString("yyyy-MM-dd");
+                    string todayFileName = currentDate.ToString("yyyy-MM-dd");
+
+                    if (FileStore.FileExists(codeDir, todayFileName))
                     {
+                        // Code already downloaded today
                         continue;
                     }
 
-                    int projectId = Convert.ToInt32(project.Name);
-                    string projectDir = "code/" + projectId;
-                    string fileName = DateTime.Now.ToString("yyyy-MM-dd");
-
-                    if (FileStore.FileExists(projectDir, fileName))
+                    if (currentDate.Subtract(modifyDate).Days > 0 && FileStore.FileExists(codeDir, yesterdayFileName))
                     {
-                        // Code already downloaded today
+                        // No code modifications in last day, copy old file
+                        FileStore.CopyFile(codeDir, yesterdayFileName, codeDir, todayFileName);
                         continue;
                     }
 
@@ -112,7 +113,8 @@ namespace Kragle
                         // Invalid JSON, no need to save it
                         continue;
                     }
-                    FileStore.WriteFile(projectDir, fileName, projectCode);
+
+                    FileStore.WriteFile(codeDir, todayFileName, projectCode);
                 }
             }
 
