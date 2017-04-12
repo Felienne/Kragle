@@ -14,6 +14,7 @@ namespace Kragle
     public class Downloader
     {
         private static readonly Logger Logger = Logger.GetLogger("Downloader");
+
         private readonly int _maxDownloadSize;
         private readonly bool _noCache;
 

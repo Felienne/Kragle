@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Kragle.Properties;
 using Newtonsoft.Json.Linq;
 
 
@@ -21,11 +22,11 @@ namespace Kragle
         /// </summary>
         public void WriteUsers()
         {
-            FileInfo[] users = FileStore.GetFiles("users");
-            Logger.Log("Writing " + users.Length + " users to CSV.");
-
-            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath("", "/users.csv")))
+            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv)))
             {
+                FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
+                Logger.Log("Writing " + users.Length + " users to CSV.");
+
                 foreach (FileInfo userFile in users)
                 {
                     JObject user = JObject.Parse(File.ReadAllText(userFile.FullName));
@@ -43,10 +44,11 @@ namespace Kragle
         /// </summary>
         public void WriteProjects()
         {
-            using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath("", "/projects.csv")))
-            using (CsvWriter userProjectWriter = new CsvWriter(FileStore.GetAbsolutePath("", "/userprojects.csv")))
+            using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
+            using (CsvWriter userProjectWriter =
+                new CsvWriter(FileStore.GetAbsolutePath(Resources.UserProjectsCsv)))
             {
-                FileInfo[] users = FileStore.GetFiles("projects"); // Project directory contains directory per user
+                FileInfo[] users = FileStore.GetFiles(Resources.ProjectDirectory);
                 Logger.Log("Writing " + users.Length + " projects to CSV.");
 
                 foreach (FileInfo user in users)
@@ -83,11 +85,11 @@ namespace Kragle
         /// </summary>
         public void WriteCode()
         {
-            using (CsvWriter projectCodeWriter = new CsvWriter(FileStore.GetAbsolutePath("", "/projectcode.csv")))
-            using (CsvWriter codeProcedureWriter = new CsvWriter(FileStore.GetAbsolutePath("", "/codeprocedure.csv")))
+            using (CsvWriter projectCodeWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectCodeCsv)))
+            using (CsvWriter codeProcedureWriter =
+                new CsvWriter(FileStore.GetAbsolutePath(Resources.CodeProceduresCsv)))
             {
-                DirectoryInfo[] projects =
-                    FileStore.GetDirectories("code"); // Code directory contains directory per code
+                DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
                 Logger.Log("Writing " + projects.Length + " projects' code to CSV.");
 
                 foreach (DirectoryInfo project in projects)

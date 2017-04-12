@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using CommandLine;
 using CommandLine.Text;
+using Kragle.Properties;
 
 
 namespace Kragle
@@ -45,19 +46,19 @@ namespace Kragle
                     ResetSubOptions subOptions = (ResetSubOptions) _invokedVerbInstance;
                     FileStore.Init(subOptions.Path);
 
-                    Console.Write("Remove all users, projects, and code? (y/n)");
+                    Console.Write(Resources.ResetRequestConfirmation);
                     string confirm = Console.ReadLine();
 
                     if (confirm != null && confirm.ToLower() == "y")
                     {
-                        FileStore.RemoveDirectory("users");
-                        FileStore.RemoveDirectory("projects");
-                        FileStore.RemoveDirectory("code");
-                        Console.WriteLine("Removed all users, projects, and code.");
+                        FileStore.RemoveDirectory(Resources.UserDirectory);
+                        FileStore.RemoveDirectory(Resources.ProjectDirectory);
+                        FileStore.RemoveDirectory(Resources.CodeDirectory);
+                        Console.WriteLine(Resources.ResetConfirmSuccess);
                     }
                     else
                     {
-                        Console.WriteLine("Cancelled.");
+                        Console.WriteLine(Resources.ResetConfirmCancel);
                     }
 
                     Environment.Exit(0); // Suppress exit message

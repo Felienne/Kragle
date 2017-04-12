@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Kragle.Properties;
 using Newtonsoft.Json.Linq;
 
 
@@ -27,7 +28,7 @@ namespace Kragle
         /// </summary>
         public void UpdateProjectList()
         {
-            FileInfo[] users = FileStore.GetFiles("users");
+            FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
             int userTotal = users.Length;
             int userCurrent = 0;
 
@@ -39,9 +40,9 @@ namespace Kragle
                 string username = user.Name.Remove(user.Name.Length - 5);
 
                 userCurrent++;
-                Logger.Log(string.Format("Downloading project list for user {0} ({1} / {2}) ({3:P2})",
-                    username.Length > 13 ? username.Substring(0, 10) + "..." : username.PadRight(13, ' '),
-                    userCurrent, userTotal, userCurrent / (double) userTotal));
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Downloading project list for user " + LoggerHelper.ForceLength(username, 10), userCurrent,
+                    userTotal));
 
                 // Get list of user projects
                 JArray projects = GetUserProjects(username);
@@ -51,7 +52,7 @@ namespace Kragle
                 }
 
                 // Save list of projects
-                FileStore.WriteFile("projects", username + ".json", projects.ToString());
+                FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects.ToString());
             }
 
             Logger.Log(string.Format("Successfully downloaded project lists for {0} users.\n", userCurrent));
@@ -62,7 +63,7 @@ namespace Kragle
         /// </summary>
         public void DownloadProjects()
         {
-            FileInfo[] users = FileStore.GetFiles("projects");
+            FileInfo[] users = FileStore.GetFiles(Resources.ProjectDirectory);
 
             int userTotal = users.Length;
             int userCurrent = 0;
@@ -75,11 +76,10 @@ namespace Kragle
                 string username = user.Name.Remove(user.Name.Length - 5);
 
                 userCurrent++;
-                Logger.Log(string.Format("Downloading code for for user {0} ({1} / {2}) ({3:P2})",
-                    username.Length > 13 ? username.Substring(0, 10) + "..." : username.PadRight(13, ' '),
-                    userCurrent, userTotal, userCurrent / (double) userTotal));
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Downloading code for user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
 
-                JArray projects = JArray.Parse(FileStore.ReadFile("projects", username + ".json"));
+                JArray projects = JArray.Parse(FileStore.ReadFile(Resources.ProjectDirectory, username + ".json"));
 
                 // Iterate over user projects
                 foreach (JToken project in projects)
@@ -88,7 +88,7 @@ namespace Kragle
                     DateTime modifyDate = DateTime.Parse(project["history"]["modified"].ToString()).Date;
 
                     int projectId = Convert.ToInt32(project["id"].ToString());
-                    string codeDir = "code/" + projectId;
+                    string codeDir = Resources.CodeDirectory + "/" + projectId;
                     string yesterdayFileName = currentDate.AddDays(-1).ToString("yyyy-MM-dd") + ".json";
                     string todayFileName = currentDate.ToString("yyyy-MM-dd") + ".json";
 

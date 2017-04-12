@@ -54,12 +54,22 @@ namespace Kragle
         }
 
         /// <summary>
+        ///     Returns the absolute path to the file.
+        /// </summary>
+        /// <param name="file">the file</param>
+        /// <returns>the absolute path to the file</returns>
+        public static string GetAbsolutePath(string file)
+        {
+            return Path.GetFullPath(_rootDir.FullName + "/" + file);
+        }
+
+        /// <summary>
         ///     Returns the absolute path to the directory and file.
         /// </summary>
         /// <param name="directory">the subdirectory</param>
         /// <param name="file">the file</param>
         /// <returns>the absolute path to the directory and file</returns>
-        public static string GetAbsolutePath(string directory, string file = "")
+        public static string GetAbsolutePath(string directory, string file)
         {
             return Path.GetFullPath(_rootDir.FullName + "/" + directory + "/" + file);
         }
@@ -205,7 +215,8 @@ namespace Kragle
             CopyFile("./", fromFile, "./", toFile);
         }
 
-        /// Creates a new subdirectory.
+        /// <summary>
+        ///     Creates a new subdirectory.
         /// </summary>
         /// <param name="directory">he name of the subdirectory</param>
         /// <returns>the <code>DirectoryInfo</code> on the new subdirectory</returns>
@@ -220,7 +231,7 @@ namespace Kragle
         /// <param name="directory">true if the specified directory exists</param>
         public static bool DirectoryExists(string directory)
         {
-            return Directory.Exists(GetAbsolutePath(directory));
+            return Directory.Exists(GetAbsolutePath(directory, ""));
         }
 
         /// <summary>
@@ -267,7 +278,7 @@ namespace Kragle
         /// <returns>the <code>DirectoryInfo</code> on the specified subdirectory</returns>
         private static DirectoryInfo GetDirectory(string directory = "./")
         {
-            return Directory.CreateDirectory(GetAbsolutePath(directory));
+            return Directory.CreateDirectory(GetAbsolutePath(directory, ""));
         }
     }
 }

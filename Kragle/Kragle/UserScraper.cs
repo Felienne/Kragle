@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Kragle.Properties;
 using Newtonsoft.Json.Linq;
 
 
@@ -10,7 +11,6 @@ namespace Kragle
     /// </summary>
     public class UserScraper
     {
-        private const string SubDirectory = "users";
         private const int PageSize = 20;
 
         private static readonly Logger Logger = Logger.GetLogger("UserScraper");
@@ -37,7 +37,7 @@ namespace Kragle
         public void ScrapeUsers()
         {
             int pageNumber = 0;
-            int userCount = FileStore.GetFiles(SubDirectory).Length;
+            int userCount = FileStore.GetFiles(Resources.UserDirectory).Length;
 
             Logger.Log("Scraping list of recent projects.");
 
@@ -54,13 +54,13 @@ namespace Kragle
                     string fileName = project["author"]["username"].ToString();
 
                     // Skip project if user is already known
-                    if (FileStore.FileExists(SubDirectory, fileName + ".json"))
+                    if (FileStore.FileExists(Resources.UserDirectory, fileName + ".json"))
                     {
                         continue;
                     }
 
                     // Add user
-                    FileStore.WriteFile(SubDirectory, fileName + ".json", "");
+                    FileStore.WriteFile(Resources.UserDirectory, fileName + ".json", "");
 
                     userCount++;
                     if (userCount >= _targetUserCount)
@@ -81,7 +81,7 @@ namespace Kragle
         /// </summary>
         public void DownloadMetaData()
         {
-            FileInfo[] users = FileStore.GetFiles(SubDirectory);
+            FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
             int userTotal = users.Length;
             int userCurrent = 0;
 
@@ -92,9 +92,9 @@ namespace Kragle
                 string username = user.Name.Remove(user.Name.Length - 5);
 
                 userCurrent++;
-                Logger.Log(string.Format("Downloading meta-data for user {0} ({1} / {2}) ({3:P2})",
-                    username.Length > 10 ? username.Substring(0, 10) + "..." : username.PadRight(13, ' '),
-                    userCurrent, userTotal, userCurrent / (double) userTotal));
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Downloading meta-data for user " + LoggerHelper.ForceLength(username, 10), userCurrent,
+                    userTotal));
 
                 if (user.Length > 0)
                 {
@@ -103,7 +103,7 @@ namespace Kragle
                 }
 
                 string metaData = GetMetaData(username);
-                FileStore.WriteFile(SubDirectory, username + ".json", metaData);
+                FileStore.WriteFile(Resources.UserDirectory, username + ".json", metaData);
             }
 
             Logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));

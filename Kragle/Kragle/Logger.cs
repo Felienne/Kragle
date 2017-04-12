@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Kragle.Properties;
 
 
 namespace Kragle
@@ -20,9 +21,9 @@ namespace Kragle
 
         static Logger()
         {
-            FileStore.CreateDirectory("log");
+            FileStore.CreateDirectory(Resources.LogDirectory);
 
-            string logFile = FileStore.GetAbsolutePath("log",
+            string logFile = FileStore.GetAbsolutePath(Resources.LogDirectory,
                 string.Format("log_{0:yyyy-MM-dd hh-mm-ss}.log", DateTime.Now));
             FileStream = new StreamWriter(logFile);
         }
