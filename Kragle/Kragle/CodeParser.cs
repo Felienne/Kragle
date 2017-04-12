@@ -13,6 +13,9 @@ namespace Kragle
     /// </summary>
     public sealed class CodeParser
     {
+        private static readonly Logger Logger = Logger.GetLogger("CodeParser");
+
+        
         /// <summary>
         ///     Constructs a new <code>CodeParser</code>.
         /// </summary>
@@ -27,7 +30,7 @@ namespace Kragle
         public void WriteUsers()
         {
             FileInfo[] files = FileStore.GetFiles("users");
-            Console.WriteLine("Writing " + files.Length + " users to CSV.");
+            Logger.Log("Writing " + files.Length + " users to CSV.");
 
             using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath("", "/users.csv")))
             {
@@ -52,7 +55,7 @@ namespace Kragle
             using (CsvWriter userProjectWriter = new CsvWriter(FileStore.GetAbsolutePath("", "/userprojects.csv")))
             {
                 FileInfo[] users = FileStore.GetFiles("projects"); // Project directory contains directory per user
-                Console.WriteLine("Writing " + users.Length + " projects to CSV.");
+                Logger.Log("Writing " + users.Length + " projects to CSV.");
 
                 foreach (FileInfo user in users)
                 {
@@ -92,7 +95,7 @@ namespace Kragle
             using (CsvWriter codeProcedureWriter = new CsvWriter(FileStore.GetAbsolutePath("", "/codeprocedure.csv")))
             {
                 DirectoryInfo[] projects = FileStore.GetDirectories("code"); // Code directory contains directory per code
-                Console.WriteLine("Writing " + projects.Length + " projects' code to CSV.");
+                Logger.Log("Writing " + projects.Length + " projects' code to CSV.");
 
                 foreach (DirectoryInfo project in projects)
                 {

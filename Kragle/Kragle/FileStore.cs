@@ -205,7 +205,7 @@ namespace Kragle
             CopyFile("./", fromFile, "./", toFile);
         }
 
-        ///     Creates a new subdirectory.
+        /// Creates a new subdirectory.
         /// </summary>
         /// <param name="directory">he name of the subdirectory</param>
         /// <returns>the <code>DirectoryInfo</code> on the new subdirectory</returns>
