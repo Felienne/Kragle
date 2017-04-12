@@ -54,13 +54,14 @@ namespace Kragle
                     string fileName = project["author"]["username"].ToString();
 
                     // Skip project if user is already known
-                    if (FileStore.FileExists(SubDirectory, fileName))
+                    if (FileStore.FileExists(SubDirectory, fileName + ".json"))
                     {
                         continue;
                     }
 
                     // Add user
-                    FileStore.WriteFile(SubDirectory, fileName, "");
+                    FileStore.WriteFile(SubDirectory, fileName + ".json", "");
+
                     userCount++;
                     if (userCount >= _targetUserCount)
                     {
@@ -88,9 +89,11 @@ namespace Kragle
 
             foreach (FileInfo user in users)
             {
+                string username = user.Name.Remove(user.Name.Length - 5);
+
                 userCurrent++;
                 Logger.Log(string.Format("Downloading meta-data for user {0} ({1} / {2}) ({3:P2})",
-                    user.Name.Length > 10 ? user.Name.Substring(0, 10) + "..." : user.Name.PadRight(13, ' '),
+                    username.Length > 10 ? username.Substring(0, 10) + "..." : username.PadRight(13, ' '),
                     userCurrent, userTotal, userCurrent / (double) userTotal));
 
                 if (user.Length > 0)
@@ -99,8 +102,8 @@ namespace Kragle
                     continue;
                 }
 
-                string metaData = GetMetaData(user.Name);
-                FileStore.WriteFile(SubDirectory, user.Name, metaData);
+                string metaData = GetMetaData(username);
+                FileStore.WriteFile(SubDirectory, username + ".json", metaData);
             }
 
             Logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));
