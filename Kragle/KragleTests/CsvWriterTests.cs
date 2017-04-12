@@ -156,9 +156,12 @@ namespace KragleTests
             using (CsvWriter writer = new CsvWriter(_filename, 2))
             {
                 writer
-                    .Write(contents[0]).Write(contents[1]) // Auto-newline
-                    .Write(contents[2]).Newline()
-                    .Write(contents[3]).Write(contents[4]) // Auto-newline
+                    .Write(contents[0])
+                    .Write(contents[1]) // Auto-newline
+                    .Write(contents[2])
+                    .Newline()
+                    .Write(contents[3])
+                    .Write(contents[4]) // Auto-newline
                     .Write(contents[5]);
             }
 

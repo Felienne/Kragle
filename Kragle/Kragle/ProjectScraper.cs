@@ -45,14 +45,14 @@ namespace Kragle
                     userTotal));
 
                 // Get list of user projects
-                JArray projects = GetUserProjects(username);
+                string projects = GetUserProjects(username);
                 if (projects == null)
                 {
                     continue;
                 }
 
                 // Save list of projects
-                FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects.ToString());
+                FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects);
             }
 
             Logger.Log(string.Format("Successfully downloaded project lists for {0} users.\n", userCurrent));
@@ -130,12 +130,12 @@ namespace Kragle
         /// </summary>
         /// <param name="username">the user's username</param>
         /// <returns>the list of projects of the given user</returns>
-        protected JArray GetUserProjects(string username)
+        protected string GetUserProjects(string username)
         {
             const string url = "https://api.scratch.mit.edu/users/{0}/projects";
-            JToken projectList = _downloader.GetJson(string.Format(url, username));
 
-            return projectList as JArray;
+            string contents = _downloader.GetContents(string.Format(url, username));
+            return Downloader.IsValidJson(contents) ? contents : null;
         }
 
         /// <summary>

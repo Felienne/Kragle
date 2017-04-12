@@ -1,5 +1,6 @@
 ﻿using Kragle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 
 namespace KragleTests
@@ -7,7 +8,7 @@ namespace KragleTests
     [TestClass]
     public class ProjectScraperTests : ProjectScraper
     {
-        public ProjectScraperTests() : base(new Downloader(false))
+        public ProjectScraperTests() : base(new Downloader())
         {
         }
 
@@ -22,7 +23,7 @@ namespace KragleTests
         [TestMethod]
         public void GetUserProjectsValidTest()
         {
-            Assert.AreEqual(0, GetUserProjects("kragle_user").Count);
+            Assert.AreEqual(0, JArray.Parse(GetUserProjects("kragle_user")).Count);
         }
 
         [TestMethod]

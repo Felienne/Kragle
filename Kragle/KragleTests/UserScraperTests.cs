@@ -10,7 +10,7 @@ namespace KragleTests
     [TestClass]
     public class UserScraperTests : UserScraper
     {
-        public UserScraperTests() : base(new Downloader(true), int.MaxValue)
+        public UserScraperTests() : base(new Downloader(), int.MaxValue)
         {
         }
 

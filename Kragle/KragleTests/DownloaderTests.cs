@@ -11,11 +11,6 @@ namespace KragleTests
     [TestClass]
     public class DownloaderTests : Downloader
     {
-        public DownloaderTests() : base(false)
-        {
-        }
-
-
         [TestMethod]
         public void IsValidJsonTrueTest()
         {

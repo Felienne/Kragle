@@ -15,23 +15,9 @@ namespace Kragle
     {
         private static readonly Logger Logger = Logger.GetLogger("Downloader");
 
-        private readonly int _maxDownloadSize;
-        private readonly bool _noCache;
-
-
-        /// <summary>
-        ///     Constructs a new <code>Downloader</code>.
-        /// </summary>
-        /// <param name="noCache">true if requests should be made without using the cache in requests</param>
-        /// <param name="maxDownloadSize">
-        ///     the maximum size of any data to be downloaded. If this value is exceeded, download methods will return
-        ///     <code>null</code>
-        /// </param>
-        public Downloader(bool noCache, int maxDownloadSize = 0)
-        {
-            _noCache = noCache;
-            _maxDownloadSize = maxDownloadSize;
-        }
+        public int MaxDownloadSize = 0;
+        public bool Minify = true;
+        public bool UseCache = false;
 
 
         /// <summary>
@@ -57,15 +43,14 @@ namespace Kragle
         ///     Fetches the contents from the given URL as a string.
         /// </summary>
         /// <param name="url">the valid url to fetch the contents from</param>
-        /// <param name="minify">true if the returned string should be stripped of unnecessary spaces</param>
         /// <returns>the contents of the webpage, or <code>null</code> if the url could not be accessed</returns>
-        public string GetContents(string url, bool minify = false)
+        public string GetContents(string url)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
                 throw new ArgumentException("Invalid URL provided");
             }
-            url = _noCache ? AppendRandomParameter(url) : url;
+            url = UseCache ? url : AppendRandomParameter(url);
 
             // Download webpage contents
             string contents;
@@ -82,17 +67,13 @@ namespace Kragle
                 }
             }
 
-            if (_maxDownloadSize > 0 && contents.Length > _maxDownloadSize)
+            if (MaxDownloadSize > 0 && contents.Length > MaxDownloadSize)
             {
                 // Contents exceed download size
                 return null;
             }
-            if (minify)
-            {
-                // Strip unnecessary whitespace
-                Regex.Replace(contents, "(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", "$1");
-            }
-            return contents;
+
+            return Minify ? Regex.Replace(contents, "(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", "$1") : contents;
         }
 
         /// <summary>

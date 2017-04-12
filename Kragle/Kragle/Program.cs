@@ -68,8 +68,8 @@ namespace Kragle
                 case "open":
                 {
                     OpenSubOptions subOptions = (OpenSubOptions) _invokedVerbInstance;
-                    FileStore.Init(subOptions.Path);
 
+                    FileStore.Init(subOptions.Path);
                     Process.Start(FileStore.GetRootPath());
 
                     Environment.Exit(0); // Suppress exit message
@@ -79,11 +79,11 @@ namespace Kragle
                 case "users":
                 {
                     UsersSubOptions subOptions = (UsersSubOptions) _invokedVerbInstance;
+
                     FileStore.Init(subOptions.Path);
-
-                    Downloader downloader = new Downloader(subOptions.NoCache);
-
+                    Downloader downloader = new Downloader {UseCache = subOptions.Cache};
                     UserScraper scraper = new UserScraper(downloader, subOptions.Count);
+
                     scraper.ScrapeUsers();
                     if (subOptions.Meta)
                     {
@@ -98,9 +98,9 @@ namespace Kragle
                     ProjectsSubOptions subOptions = (ProjectsSubOptions) _invokedVerbInstance;
                     FileStore.Init(subOptions.Path);
 
-                    Downloader downloader = new Downloader(subOptions.NoCache);
-
+                    Downloader downloader = new Downloader {UseCache = subOptions.Cache};
                     ProjectScraper scraper = new ProjectScraper(downloader);
+
                     if (subOptions.Update)
                     {
                         scraper.UpdateProjectList();
@@ -115,7 +115,7 @@ namespace Kragle
 
                 case "parse":
                 {
-                    ParseSubOptions subOptions = (ParseSubOptions) _invokedVerbInstance;
+//                    ParseSubOptions subOptions = (ParseSubOptions) _invokedVerbInstance;
 
                     CodeParser parser = new CodeParser();
                     parser.WriteUsers();
@@ -179,8 +179,8 @@ namespace Kragle
         [Option('p', "path", HelpText = "The path files should be read from and written to")]
         public string Path { get; set; }
 
-        [Option('c', "nocache", HelpText = "Disable caching; slows down the process significantly")]
-        public bool NoCache { get; set; }
+        [Option('c', "cache", HelpText = "Enable caching; speeds up the process significantly")]
+        public bool Cache { get; set; }
     }
 
     /// <summary>
