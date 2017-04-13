@@ -34,6 +34,8 @@ namespace Kragle
                     writer
                         .Write(int.Parse(user["id"].ToString()))
                         .Write(user["username"].ToString())
+                        .Write(user["history"]["joined"].ToString())
+                        .Write(user["profile"]["country"].ToString())
                         .Newline();
                 }
             }
@@ -45,6 +47,7 @@ namespace Kragle
         public void WriteProjects()
         {
             using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
+            using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv)))
             using (CsvWriter userProjectWriter =
                 new CsvWriter(FileStore.GetAbsolutePath(Resources.UserProjectsCsv)))
             {
@@ -65,6 +68,7 @@ namespace Kragle
                         JObject project = (JObject) jToken;
                         int authorId = int.Parse(project["author"]["id"].ToString());
                         int projectId = int.Parse(project["id"].ToString());
+                        string remixParentId = project["remix"]["parent"].ToString();
 
                         userProjectWriter
                             .Write(authorId)
@@ -73,8 +77,16 @@ namespace Kragle
                         projectWriter
                             .Write(projectId)
                             .Write(project["title"].ToString())
-                            .Write(project["description"].ToString())
+                            .Write(project["history"]["created"].ToString())
                             .Newline();
+
+                        if (remixParentId != "")
+                        {
+                            projectRemixWriter
+                                .Write(projectId)
+                                .Write(int.Parse(remixParentId))
+                                .Newline();
+                        }
                     }
                 }
             }
