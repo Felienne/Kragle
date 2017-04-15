@@ -115,7 +115,8 @@ namespace Kragle
 
                 case "parse":
                 {
-//                    ParseSubOptions subOptions = (ParseSubOptions) _invokedVerbInstance;
+                    ParseSubOptions subOptions = (ParseSubOptions) _invokedVerbInstance;
+                    FileStore.Init(subOptions.Path);
 
                     CodeParser parser = new CodeParser();
                     parser.WriteUsers();
