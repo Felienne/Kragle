@@ -52,7 +52,9 @@ namespace Kragle
                 }
 
                 // Save list of projects
+                DateTime currentDate = DateTime.Now.Date;
                 FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects);
+                FileStore.WriteFile(Resources.ProjectDirectory + "/" + username, currentDate.ToString("yyyy-MM-dd") + ".json", projects);
             }
 
             Logger.Log(string.Format("Successfully downloaded project lists for {0} users.\n", userCurrent));
