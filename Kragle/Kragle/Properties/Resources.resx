@@ -154,10 +154,6 @@
     <value>projects.csv</value>
     <comment>Parser output file for projects.</comment>
   </data>
-  <data name="UserProjectsCsv" xml:space="preserve">
-    <value>userprojects.csv</value>
-    <comment>Parser output file for user-projects.</comment>
-  </data>
   <data name="UsersCsv" xml:space="preserve">
     <value>users.csv</value>
     <comment>Parser output file for users.</comment>
@@ -165,5 +161,9 @@
   <data name="ProjectRemixCsv" xml:space="preserve">
     <value>projectremix.csv</value>
     <comment>Parser output for remix relationships.</comment>
+  </data>
+  <data name="ProjectMetaCsv" xml:space="preserve">
+    <value>projectmeta.csv</value>
+    <comment>Parser output for project meta data.</comment>
   </data>
 </root>

@@ -106,6 +106,15 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to projectmeta.csv.
+        /// </summary>
+        internal static string ProjectMetaCsv {
+            get {
+                return ResourceManager.GetString("ProjectMetaCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to projectremix.csv.
         /// </summary>
         internal static string ProjectRemixCsv {
@@ -156,15 +165,6 @@ namespace Kragle.Properties {
         internal static string UserDirectory {
             get {
                 return ResourceManager.GetString("UserDirectory", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to userprojects.csv.
-        /// </summary>
-        internal static string UserProjectsCsv {
-            get {
-                return ResourceManager.GetString("UserProjectsCsv", resourceCulture);
             }
         }
         

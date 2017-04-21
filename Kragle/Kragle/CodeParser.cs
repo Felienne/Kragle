@@ -48,8 +48,6 @@ namespace Kragle
         {
             using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
             using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv)))
-            using (CsvWriter userProjectWriter =
-                new CsvWriter(FileStore.GetAbsolutePath(Resources.UserProjectsCsv)))
             {
                 FileInfo[] users = FileStore.GetFiles(Resources.ProjectDirectory);
                 Logger.Log("Writing " + users.Length + " projects to CSV.");
@@ -70,14 +68,11 @@ namespace Kragle
                         int projectId = int.Parse(project["id"].ToString());
                         string remixParentId = project["remix"]["parent"].ToString();
 
-                        userProjectWriter
+                        projectWriter
                             .Write(authorId)
                             .Write(projectId)
-                            .Newline();
-                        projectWriter
-                            .Write(projectId)
-                            .Write(project["title"].ToString())
                             .Write(project["history"]["created"].ToString())
+                            .Write(project["history"]["shared"].ToString())
                             .Newline();
 
                         if (remixParentId != "")
@@ -85,6 +80,43 @@ namespace Kragle
                             projectRemixWriter
                                 .Write(projectId)
                                 .Write(int.Parse(remixParentId))
+                                .Newline();
+                        }
+                    }
+                }
+            }
+
+            using (CsvWriter projectMetaWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectMetaCsv)))
+            {
+                DirectoryInfo[] users = FileStore.GetDirectories(Resources.ProjectDirectory);
+                Logger.Log("Writing meta data for " + users.Length + " projects to CSV.");
+
+                foreach (DirectoryInfo user in users)
+                {
+                    foreach (FileInfo metaFile in user.GetFiles())
+                    {
+                        JArray projectInfo = JArray.Parse(File.ReadAllText(metaFile.FullName));
+
+                        foreach (JToken jToken in projectInfo)
+                        {
+                            if (!(jToken is JObject))
+                            {
+                                continue;
+                            }
+
+                            JObject metaData = (JObject) jToken;
+                            int projectId = int.Parse(metaData["id"].ToString());
+                            string dataDate = metaFile.Name.Substring(0, metaFile.Name.Length - 5);
+
+                            projectMetaWriter
+                                .Write(projectId)
+                                .Write(dataDate)
+                                .Write(metaData["title"].ToString())
+                                .Write(metaData["history"]["modified"].ToString())
+                                .Write(int.Parse(metaData["stats"]["views"].ToString()))
+                                .Write(int.Parse(metaData["stats"]["loves"].ToString()))
+                                .Write(int.Parse(metaData["stats"]["favorites"].ToString()))
+                                .Write(int.Parse(metaData["stats"]["comments"].ToString()))
                                 .Newline();
                         }
                     }
