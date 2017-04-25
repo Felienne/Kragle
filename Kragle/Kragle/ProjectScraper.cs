@@ -28,6 +28,7 @@ namespace Kragle
         /// </summary>
         public void UpdateProjectList()
         {
+            DateTime currentDate = DateTime.Now.Date;
             FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
             int userTotal = users.Length;
             int userCurrent = 0;
@@ -52,7 +53,6 @@ namespace Kragle
                 }
 
                 // Save list of projects
-                DateTime currentDate = DateTime.Now.Date;
                 FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects);
                 FileStore.WriteFile(Resources.ProjectDirectory + "/" + username, currentDate.ToString("yyyy-MM-dd") + ".json", projects);
             }
@@ -65,6 +65,7 @@ namespace Kragle
         /// </summary>
         public void DownloadProjects()
         {
+            DateTime currentDate = DateTime.Now.Date;
             FileInfo[] users = FileStore.GetFiles(Resources.ProjectDirectory);
 
             int userTotal = users.Length;
@@ -86,7 +87,6 @@ namespace Kragle
                 // Iterate over user projects
                 foreach (JToken project in projects)
                 {
-                    DateTime currentDate = DateTime.Now.Date;
                     DateTime modifyDate = DateTime.Parse(project["history"]["modified"].ToString()).Date;
 
                     int projectId = Convert.ToInt32(project["id"].ToString());
