@@ -113,5 +113,25 @@ namespace Kragle
         {
             Log(Name, text);
         }
+
+        /// <summary>
+        ///     Logs an <code>Exception</code>. The <code>Exception</code> is converted to a string and logged.
+        /// </summary>
+        /// <param name="e">an <code>Exception</code></param>
+        public void Log(Exception e)
+        {
+            Log(e.ToString());
+        }
+
+        /// <summary>
+        ///     Logs an <code>Exception</code> and a description of why the <code>Exception</code> may have occurred.
+        /// </summary>
+        /// <param name="description">a description of why the <code>Exception</code> may have occurred</param>
+        /// <param name="e">an <code>Exception</code></param>
+        public void Log(string description, Exception e)
+        {
+            Log("\n" + description);
+            Log(e);
+        }
     }
 }
