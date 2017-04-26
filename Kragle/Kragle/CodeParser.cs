@@ -27,9 +27,26 @@ namespace Kragle
                 FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
                 Logger.Log("Writing " + users.Length + " users to CSV.");
 
+                if (users.Length > 0 && File.ReadAllText(users[0].FullName).Length == 0)
+                {
+                    Logger.Log("Missing meta-data for users.");
+                    Logger.Log("Parsing was aborted.");
+                    Console.ReadLine();
+                    Environment.Exit(-1);
+                }
+
                 foreach (FileInfo userFile in users)
                 {
-                    JObject user = JObject.Parse(File.ReadAllText(userFile.FullName));
+                    string contents = File.ReadAllText(userFile.FullName);
+                    if (contents.Length == 0)
+                    {
+                        Logger.Log("Missing meta-data for user " + userFile.Name);
+                        Logger.Log("Parsing was aborted.");
+                        Console.ReadLine();
+                        Environment.Exit(-1);
+                    }
+
+                    JObject user = JObject.Parse(contents);
 
                     writer
                         .Write(int.Parse(user["id"].ToString()))
