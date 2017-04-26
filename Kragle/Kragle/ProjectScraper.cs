@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Kragle.Properties;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
@@ -54,7 +55,8 @@ namespace Kragle
 
                 // Save list of projects
                 FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects);
-                FileStore.WriteFile(Resources.ProjectDirectory + "/" + username, currentDate.ToString("yyyy-MM-dd") + ".json", projects);
+                FileStore.WriteFile(Resources.ProjectDirectory + "/" + username,
+                    currentDate.ToString("yyyy-MM-dd") + ".json", projects);
             }
 
             Logger.Log(string.Format("Successfully downloaded project lists for {0} users.\n", userCurrent));
@@ -82,7 +84,16 @@ namespace Kragle
                 Logger.Log(LoggerHelper.FormatProgress(
                     "Downloading code for user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
 
-                JArray projects = JArray.Parse(FileStore.ReadFile(Resources.ProjectDirectory, username + ".json"));
+                JArray projects;
+                try
+                {
+                    projects = JArray.Parse(FileStore.ReadFile(Resources.ProjectDirectory, username + ".json"));
+                }
+                catch (JsonReaderException e)
+                {
+                    Logger.Log("Could not parse list of projects of user `" + username + "`", e);
+                    return;
+                }
 
                 // Iterate over user projects
                 foreach (JToken project in projects)
