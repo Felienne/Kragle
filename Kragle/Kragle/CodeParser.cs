@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Kragle.Properties;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
@@ -24,29 +25,34 @@ namespace Kragle
         {
             using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv)))
             {
-                FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
-                Logger.Log("Writing " + users.Length + " users to CSV.");
+                FileInfo[] userFiles = FileStore.GetFiles(Resources.UserDirectory);
+                Logger.Log("Writing " + userFiles.Length + " users to CSV.");
 
-                if (users.Length > 0 && File.ReadAllText(users[0].FullName).Length == 0)
+                if (userFiles.Length > 0 && File.ReadAllText(userFiles[0].FullName).Length == 0)
                 {
-                    Logger.Log("Missing meta-data for users.");
-                    Logger.Log("Parsing was aborted.");
-                    Console.ReadLine();
-                    Environment.Exit(-1);
+                    Logger.Log("\nMissing meta-data for users.");
+                    return;
                 }
 
-                foreach (FileInfo userFile in users)
+                foreach (FileInfo userFile in userFiles)
                 {
                     string contents = File.ReadAllText(userFile.FullName);
                     if (contents.Length == 0)
                     {
-                        Logger.Log("Missing meta-data for user " + userFile.Name);
-                        Logger.Log("Parsing was aborted.");
-                        Console.ReadLine();
-                        Environment.Exit(-1);
+                        Logger.Log("\nMissing meta-data for user " + userFile.Name);
+                        return;
                     }
 
-                    JObject user = JObject.Parse(contents);
+                    JObject user;
+                    try
+                    {
+                        user = JObject.Parse(File.ReadAllText(userFile.FullName));
+                    }
+                    catch (JsonReaderException e)
+                    {
+                        Logger.Log("The user meta data for user `" + userFile.Name + "` could not be parsed.", e);
+                        return;
+                    }
 
                     writer
                         .Write(int.Parse(user["id"].ToString()))
@@ -66,21 +72,31 @@ namespace Kragle
             using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
             using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv)))
             {
-                FileInfo[] users = FileStore.GetFiles(Resources.ProjectDirectory);
-                Logger.Log("Writing " + users.Length + " projects to CSV.");
+                FileInfo[] userFiles = FileStore.GetFiles(Resources.ProjectDirectory);
+                Logger.Log("Writing " + userFiles.Length + " projects to CSV.");
 
-                foreach (FileInfo user in users)
+                foreach (FileInfo userFile in userFiles)
                 {
-                    JArray projectInfo = JArray.Parse(File.ReadAllText(user.FullName));
-
-                    foreach (JToken jToken in projectInfo)
+                    JArray projectFiles;
+                    try
                     {
-                        if (!(jToken is JObject))
+                        projectFiles = JArray.Parse(File.ReadAllText(userFile.FullName));
+                    }
+                    catch (JsonReaderException e)
+                    {
+                        Logger.Log("The project list for user `" + userFile.Name + "` could not be parsed.", e);
+                        return;
+                    }
+
+                    foreach (JToken projectFile in projectFiles)
+                    {
+                        if (!(projectFile is JObject))
                         {
-                            continue;
+                            Logger.Log("\nA project of user `" + userFile.Name + "` could not be parsed.");
+                            return;
                         }
 
-                        JObject project = (JObject) jToken;
+                        JObject project = (JObject) projectFile;
                         int authorId = int.Parse(project["author"]["id"].ToString());
                         int projectId = int.Parse(project["id"].ToString());
                         string remixParentId = project["remix"]["parent"].ToString();
@@ -105,25 +121,37 @@ namespace Kragle
 
             using (CsvWriter projectMetaWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectMetaCsv)))
             {
-                DirectoryInfo[] users = FileStore.GetDirectories(Resources.ProjectDirectory);
-                Logger.Log("Writing meta data for " + users.Length + " projects to CSV.");
+                DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
+                Logger.Log("Writing meta data for " + userDirs.Length + " projects to CSV.");
 
-                foreach (DirectoryInfo user in users)
+                foreach (DirectoryInfo userDir in userDirs)
                 {
-                    foreach (FileInfo metaFile in user.GetFiles())
+                    foreach (FileInfo projectFile in userDir.GetFiles())
                     {
-                        JArray projectInfo = JArray.Parse(File.ReadAllText(metaFile.FullName));
-
-                        foreach (JToken jToken in projectInfo)
+                        JArray projects;
+                        try
                         {
-                            if (!(jToken is JObject))
+                            projects = JArray.Parse(File.ReadAllText(projectFile.FullName));
+                        }
+                        catch (JsonReaderException e)
+                        {
+                            Logger.Log("The project meta data list of user `" + userDir.Name + "` could not be parsed.",
+                                e);
+                            return;
+                        }
+
+                        foreach (JToken project in projects)
+                        {
+                            if (!(project is JObject))
                             {
-                                continue;
+                                Logger.Log("\nThe meta data of a project of user `" + userDir.Name +
+                                           "` could not be parsed.");
+                                return;
                             }
 
-                            JObject metaData = (JObject) jToken;
+                            JObject metaData = (JObject) project;
                             int projectId = int.Parse(metaData["id"].ToString());
-                            string dataDate = metaFile.Name.Substring(0, metaFile.Name.Length - 5);
+                            string dataDate = projectFile.Name.Substring(0, projectFile.Name.Length - 5);
 
                             projectMetaWriter
                                 .Write(projectId)
