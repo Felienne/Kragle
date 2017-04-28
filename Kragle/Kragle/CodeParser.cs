@@ -28,8 +28,21 @@ namespace Kragle
                 FileInfo[] userFiles = FileStore.GetFiles(Resources.UserDirectory);
                 Logger.Log("Writing " + userFiles.Length + " users to CSV.");
 
+                if (userFiles.Length > 0 && File.ReadAllText(userFiles[0].FullName).Length == 0)
+                {
+                    Logger.Log("\nMissing meta-data for users.");
+                    return;
+                }
+
                 foreach (FileInfo userFile in userFiles)
                 {
+                    string contents = File.ReadAllText(userFile.FullName);
+                    if (contents.Length == 0)
+                    {
+                        Logger.Log("\nMissing meta-data for user " + userFile.Name);
+                        return;
+                    }
+
                     JObject user;
                     try
                     {
