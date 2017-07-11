@@ -34,9 +34,14 @@ namespace Kragle
         /// <summary>
         ///     Scrapes users until the target has been reached.
         /// </summary>
-        public void ScrapeUsers()
+        /// <param name="pageNumber">the number of the page to start scraping at</param>
+        public void ScrapeUsers(int pageNumber)
         {
-            int pageNumber = 0;
+            if (pageNumber < 0)
+            {
+                throw new ArgumentOutOfRangeException("Page number must be at least 0.");
+            }
+            
             int userCount = FileStore.GetFiles(Resources.UserDirectory).Length;
 
             Logger.Log("Scraping list of recent projects.");
