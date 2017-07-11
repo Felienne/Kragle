@@ -166,4 +166,8 @@
     <value>projectmeta.csv</value>
     <comment>Parser output for project meta data.</comment>
   </data>
+  <data name="ArchiveDirectory" xml:space="preserve">
+    <value>archives</value>
+    <comment>Subdirectory to store archives.</comment>
+  </data>
 </root>

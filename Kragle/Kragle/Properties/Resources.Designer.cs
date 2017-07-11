@@ -61,6 +61,15 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to archives.
+        /// </summary>
+        internal static string ArchiveDirectory {
+            get {
+                return ResourceManager.GetString("ArchiveDirectory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to code.
         /// </summary>
         internal static string CodeDirectory {

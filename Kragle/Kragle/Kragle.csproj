@@ -62,9 +62,14 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Archiver.cs" />
     <Compile Include="CodeParser.cs" />
+    <Compile Include="ConsoleOptions\ArchiveSubOptions.cs" />
+    <Compile Include="ConsoleOptions\ExtractSubOptions.cs" />
     <Compile Include="ConsoleOptions\ParseSubOptions.cs" />
     <Compile Include="ConsoleOptions\SubOptions.cs" />
     <Compile Include="ConsoleOptions\OpenSubOptions.cs" />
