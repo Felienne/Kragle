@@ -8,21 +8,31 @@ using Newtonsoft.Json.Linq;
 
 namespace Kragle
 {
+    /// <summary>
+    ///     Manages archives.
+    /// </summary>
     public class Archiver
     {
         private static readonly Logger Logger = Logger.GetLogger("Archiver");
 
 
+        /// <summary>
+        ///    Creates a separate archive for each user containing all that user's data.
+        /// </summary>
         public void Archive()
         {
             FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
 
             foreach (FileInfo user in users)
             {
-                Archive(user);
+                string username = user.Name.Remove(user.Name.Length - 5);
+                Archive(username);
             }
         }
 
+        /// <summary>
+        ///     Extracts all archives into the data folder.
+        /// </summary>
         public void Extract()
         {
             FileInfo[] archives = FileStore.GetFiles(Resources.ArchiveDirectory);
@@ -34,10 +44,70 @@ namespace Kragle
         }
 
 
-        private void Archive(FileInfo user)
+        /// <summary>
+        ///     Creates an archive for the specified user containing all that user's data.
+        /// </summary>
+        /// <param name="username">a username</param>
+        private static void Archive(string username)
         {
-            string username = user.Name.Remove(user.Name.Length - 5);
+            FileStore.CreateDirectory(Resources.ArchiveDirectory);
 
+            string archivePath = FileStore.GetAbsolutePath(Resources.ArchiveDirectory + "/" + username + ".zip");
+            using (var fileStream = new FileStream(archivePath, FileMode.CreateNew))
+            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create, true))
+            {
+                ArchiveUserData(archive, username);
+                ArchiveCurrentProjectList(archive, username);
+                ArchiveOldProjectLists(archive, username);
+                ArchiveProjectCode(archive, username);
+            }
+        }
+
+        /// <summary>
+        ///     Archives the metadata of the specified user.
+        /// </summary>
+        /// <param name="archive">the archive to write to</param>
+        /// <param name="username">the username</param>
+        private static void ArchiveUserData(ZipArchive archive, string username)
+        {
+            string userDataPath = Resources.UserDirectory + "/" + username + ".json";
+            archive.CreateEntryFromFile(FileStore.GetAbsolutePath(userDataPath), userDataPath);
+        }
+
+        /// <summary>
+        ///     Archives the most recent project list of the specified user.
+        /// </summary>
+        /// <param name="archive">the archive to write to</param>
+        /// <param name="username">the username</param>
+        private static void ArchiveCurrentProjectList(ZipArchive archive, string username)
+        {
+            string projectListPath = Resources.ProjectDirectory + "/" + username + ".json";
+            archive.CreateEntryFromFile(FileStore.GetAbsolutePath(projectListPath), projectListPath);
+        }
+
+        /// <summary>
+        ///     Archives previous project lists of the specified user.
+        /// </summary>
+        /// <param name="archive">the archive to write to</param>
+        /// <param name="username">the username</param>
+        private static void ArchiveOldProjectLists(ZipArchive archive, string username)
+        {
+            string oldProjectListsPath = Resources.ProjectDirectory + "/" + username;
+            FileInfo[] oldProjectLists = FileStore.GetFiles(oldProjectListsPath);
+            foreach (FileInfo oldProjectList in oldProjectLists)
+            {
+                string oldProjectListPath = oldProjectListsPath + "/" + oldProjectList.Name;
+                archive.CreateEntryFromFile(FileStore.GetAbsolutePath(oldProjectListPath), oldProjectListPath);
+            }
+        }
+
+        /// <summary>
+        ///     Archives all code files of the specified user.
+        /// </summary>
+        /// <param name="archive">the archive to write to</param>
+        /// <param name="username">the username</param>
+        private static void ArchiveProjectCode(ZipArchive archive, string username)
+        {
             JArray projects;
             try
             {
@@ -49,35 +119,15 @@ namespace Kragle
                 return;
             }
 
-            FileStore.CreateDirectory(Resources.ArchiveDirectory);
-
-            string archivePath = FileStore.GetAbsolutePath(Resources.ArchiveDirectory + "/" + username + ".zip");
-            using (var fileStream = new FileStream(archivePath, FileMode.CreateNew))
-            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create, true))
+            foreach (JToken project in projects)
             {
-                string userData = Resources.UserDirectory + "/" + username + ".json";
-                archive.CreateEntryFromFile(FileStore.GetAbsolutePath(userData), userData);
+                int projectId = Convert.ToInt32(project["id"]);
 
-                string projectList = Resources.ProjectDirectory + "/" + username + ".json";
-                archive.CreateEntryFromFile(FileStore.GetAbsolutePath(projectList), projectList);
-
-                FileInfo[] oldProjectLists = FileStore.GetFiles(Resources.ProjectDirectory + "/" + username);
-                foreach (FileInfo oldProjectList in oldProjectLists)
+                FileInfo[] projectCodeFiles = FileStore.GetFiles(Resources.CodeDirectory + "/" + projectId);
+                foreach (FileInfo projectCodeFile in projectCodeFiles)
                 {
-                    archive.CreateEntryFromFile(oldProjectList.FullName,
-                        Resources.ProjectDirectory + "/" + username + "/" + oldProjectList.Name);
-                }
-
-                foreach (JToken project in projects)
-                {
-                    int projectId = Convert.ToInt32(project["id"]);
-
-                    FileInfo[] projectCodeFiles = FileStore.GetFiles(Resources.CodeDirectory + "/" + projectId);
-                    foreach (FileInfo projectCodeFile in projectCodeFiles)
-                    {
-                        archive.CreateEntryFromFile(projectCodeFile.FullName,
-                            Resources.CodeDirectory + "/" + projectId + "/" + projectCodeFile.Name);
-                    }
+                    archive.CreateEntryFromFile(projectCodeFile.FullName,
+                        Resources.CodeDirectory + "/" + projectId + "/" + projectCodeFile.Name);
                 }
             }
         }
