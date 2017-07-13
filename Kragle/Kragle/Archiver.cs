@@ -19,7 +19,8 @@ namespace Kragle
         /// <summary>
         ///    Creates a separate archive for each user containing all that user's data.
         /// </summary>
-        public void Archive()
+        /// <param name="overwrite">true if existing archives should be overwritten</param>
+        public void Archive(bool overwrite = false)
         {
             FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
             int userTotal = users.Length;
@@ -30,7 +31,7 @@ namespace Kragle
                 userCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
                     "Archiving user " + LoggerHelper.ForceLength(user.Name, 10), userCurrent, userTotal));
-                
+
                 string username = user.Name.Remove(user.Name.Length - 5);
                 Archive(username);
             }
@@ -50,7 +51,7 @@ namespace Kragle
                 archiveCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
                     "Extracting archive " + LoggerHelper.ForceLength(archive.Name, 10), archiveCurrent, archiveTotal));
-                
+
                 ZipFile.ExtractToDirectory(archive.FullName, FileStore.GetRootPath());
             }
         }
@@ -63,8 +64,13 @@ namespace Kragle
         private static void Archive(string username)
         {
             FileStore.CreateDirectory(Resources.ArchiveDirectory);
+            
+            if (FileStore.FileExists(Resources.ArchiveDirectory, username + ".zip"))
+            {
+                return;
+            }
+            string archivePath = FileStore.GetAbsolutePath(Resources.ArchiveDirectory, username + ".zip");
 
-            string archivePath = FileStore.GetAbsolutePath(Resources.ArchiveDirectory + "/" + username + ".zip");
             using (var fileStream = new FileStream(archivePath, FileMode.CreateNew))
             using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create, true))
             {
