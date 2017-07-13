@@ -22,9 +22,15 @@ namespace Kragle
         public void Archive()
         {
             FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
+            int userTotal = users.Length;
+            int userCurrent = 0;
 
             foreach (FileInfo user in users)
             {
+                userCurrent++;
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Archiving user " + LoggerHelper.ForceLength(user.Name, 10), userCurrent, userTotal));
+                
                 string username = user.Name.Remove(user.Name.Length - 5);
                 Archive(username);
             }
@@ -36,9 +42,15 @@ namespace Kragle
         public void Extract()
         {
             FileInfo[] archives = FileStore.GetFiles(Resources.ArchiveDirectory);
+            int archiveTotal = archives.Length;
+            int archiveCurrent = 0;
 
             foreach (FileInfo archive in archives)
             {
+                archiveCurrent++;
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Extracting archive " + LoggerHelper.ForceLength(archive.Name, 10), archiveCurrent, archiveTotal));
+                
                 ZipFile.ExtractToDirectory(archive.FullName, FileStore.GetRootPath());
             }
         }
