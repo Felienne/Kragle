@@ -214,11 +214,11 @@ namespace Kragle
 
                 foreach (DirectoryInfo project in projects)
                 {
-                    string projectName = project.Name.Remove(project.Name.Length - 5);
+                    string projectName = project.Name;
 
                     projectCurrent++;
                     Logger.Log(LoggerHelper.FormatProgress(
-                        "Parsing code of user " + LoggerHelper.ForceLength(projectName, 10),
+                        "Parsing code of project " + LoggerHelper.ForceLength(projectName, 10),
                         projectCurrent, projectTotal));
 
                     foreach (FileInfo codeFile in project.GetFiles())
