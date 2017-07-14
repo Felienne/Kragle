@@ -26,7 +26,10 @@ namespace Kragle
             using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv)))
             {
                 FileInfo[] userFiles = FileStore.GetFiles(Resources.UserDirectory);
-                Logger.Log("Writing " + userFiles.Length + " users to CSV.");
+                int userTotal = userFiles.Length;
+                int userCurrent = 0;
+
+                Logger.Log("Parsing " + userTotal + " users to CSV.");
 
                 if (userFiles.Length > 0 && File.ReadAllText(userFiles[0].FullName).Length == 0)
                 {
@@ -36,6 +39,12 @@ namespace Kragle
 
                 foreach (FileInfo userFile in userFiles)
                 {
+                    string username = userFile.Name.Remove(userFile.Name.Length - 5);
+
+                    userCurrent++;
+                    Logger.Log(LoggerHelper.FormatProgress(
+                        "Parsing user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
+
                     string contents = File.ReadAllText(userFile.FullName);
                     if (contents.Length == 0)
                     {
@@ -50,7 +59,7 @@ namespace Kragle
                     }
                     catch (JsonReaderException e)
                     {
-                        Logger.Log("The user metadata for user `" + userFile.Name + "` could not be parsed.", e);
+                        Logger.Log("The metadata for user `" + userFile.Name + "` could not be parsed.", e);
                         return;
                     }
 
@@ -73,10 +82,19 @@ namespace Kragle
             using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv)))
             {
                 FileInfo[] userFiles = FileStore.GetFiles(Resources.ProjectDirectory);
-                Logger.Log("Writing " + userFiles.Length + " projects to CSV.");
+                int userTotal = userFiles.Length;
+                int userCurrent = 0;
+
+                Logger.Log("Parsing " + userTotal + " projects to CSV.");
 
                 foreach (FileInfo userFile in userFiles)
                 {
+                    string username = userFile.Name.Remove(userFile.Name.Length - 5);
+
+                    userCurrent++;
+                    Logger.Log(LoggerHelper.FormatProgress(
+                        "Parsing projects of user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
+
                     JArray projectFiles;
                     try
                     {
@@ -122,10 +140,20 @@ namespace Kragle
             using (CsvWriter projectMetaWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectMetaCsv)))
             {
                 DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
-                Logger.Log("Writing metadata for " + userDirs.Length + " projects to CSV.");
+                int userTotal = userDirs.Length;
+                int userCurrent = 0;
+
+                Logger.Log("Parsing metadata for " + userDirs.Length + " projects to CSV.");
 
                 foreach (DirectoryInfo userDir in userDirs)
                 {
+                    string username = userDir.Name;
+
+                    userCurrent++;
+                    Logger.Log(LoggerHelper.FormatProgress(
+                        "Parsing project metadata of user " + LoggerHelper.ForceLength(username, 10),
+                        userCurrent, userTotal));
+
                     foreach (FileInfo projectFile in userDir.GetFiles())
                     {
                         JArray projects;
@@ -179,10 +207,20 @@ namespace Kragle
                 new CsvWriter(FileStore.GetAbsolutePath(Resources.CodeProceduresCsv)))
             {
                 DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
-                Logger.Log("Writing " + projects.Length + " projects' code to CSV.");
+                int projectTotal = projects.Length;
+                int projectCurrent = 0;
+
+                Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
                 foreach (DirectoryInfo project in projects)
                 {
+                    string projectName = project.Name.Remove(project.Name.Length - 5);
+
+                    projectCurrent++;
+                    Logger.Log(LoggerHelper.FormatProgress(
+                        "Parsing code of user " + LoggerHelper.ForceLength(projectName, 10),
+                        projectCurrent, projectTotal));
+
                     foreach (FileInfo codeFile in project.GetFiles())
                     {
                         string code = File.ReadAllText(codeFile.FullName);
