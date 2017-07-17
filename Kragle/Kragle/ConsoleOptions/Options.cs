@@ -24,6 +24,12 @@ namespace Kragle.ConsoleOptions
         [VerbOption("parse", HelpText = "Generate the list of projects of all registered users")]
         public ParseSubOptions ParseSubOptions { get; set; }
 
+        [VerbOption("archive", HelpText = "Archive all data")]
+        public ArchiveSubOptions ArchiveSubOptions { get; set; }
+
+        [VerbOption("extract", HelpText = "Extract existing archives")]
+        public ExtractSubOptions ExtractSubOptions { get; set; }
+
 
         [HelpOption]
         public string GetUsage()
