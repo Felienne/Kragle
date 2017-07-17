@@ -8,7 +8,7 @@ namespace Kragle.ConsoleOptions
     /// </summary>
     public abstract class SubOptions
     {
-        [Option('p', "path", HelpText = "The path files should be read from and written to")]
+        [Option('o', "output", HelpText = "The path files should be read from and written to")]
         public string Path { get; set; }
 
         [Option('c', "cache", HelpText = "Enable caching; speeds up the process significantly")]
