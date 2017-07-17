@@ -30,7 +30,7 @@ namespace Kragle
 
                 if (userFiles.Length > 0 && File.ReadAllText(userFiles[0].FullName).Length == 0)
                 {
-                    Logger.Log("Missing meta-data for users.");
+                    Logger.Log("Missing metadata for users.");
                     return;
                 }
 
@@ -39,7 +39,7 @@ namespace Kragle
                     string contents = File.ReadAllText(userFile.FullName);
                     if (contents.Length == 0)
                     {
-                        Logger.Log("Missing meta-data for user " + userFile.Name);
+                        Logger.Log("Missing metadata for user " + userFile.Name);
                         return;
                     }
 
@@ -50,7 +50,7 @@ namespace Kragle
                     }
                     catch (JsonReaderException e)
                     {
-                        Logger.Log("The user meta data for user `" + userFile.Name + "` could not be parsed.", e);
+                        Logger.Log("The user metadata for user `" + userFile.Name + "` could not be parsed.", e);
                         return;
                     }
 
@@ -122,7 +122,7 @@ namespace Kragle
             using (CsvWriter projectMetaWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectMetaCsv)))
             {
                 DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
-                Logger.Log("Writing meta data for " + userDirs.Length + " projects to CSV.");
+                Logger.Log("Writing metadata for " + userDirs.Length + " projects to CSV.");
 
                 foreach (DirectoryInfo userDir in userDirs)
                 {
@@ -135,7 +135,7 @@ namespace Kragle
                         }
                         catch (JsonReaderException e)
                         {
-                            Logger.Log("The project meta data list of user `" + userDir.Name + "` could not be parsed.",
+                            Logger.Log("The project metadata list of user `" + userDir.Name + "` could not be parsed.",
                                 e);
                             return;
                         }
@@ -144,24 +144,24 @@ namespace Kragle
                         {
                             if (!(project is JObject))
                             {
-                                Logger.Log("The meta data of a project of user `" + userDir.Name +
+                                Logger.Log("The metadata of a project of user `" + userDir.Name +
                                            "` could not be parsed.");
                                 return;
                             }
 
-                            JObject metaData = (JObject) project;
-                            int projectId = int.Parse(metaData["id"].ToString());
+                            JObject metadata = (JObject) project;
+                            int projectId = int.Parse(metadata["id"].ToString());
                             string dataDate = projectFile.Name.Substring(0, projectFile.Name.Length - 5);
 
                             projectMetaWriter
                                 .Write(projectId)
                                 .Write(dataDate)
-                                .Write(metaData["title"].ToString())
-                                .Write(metaData["history"]["modified"].ToString())
-                                .Write(int.Parse(metaData["stats"]["views"].ToString()))
-                                .Write(int.Parse(metaData["stats"]["loves"].ToString()))
-                                .Write(int.Parse(metaData["stats"]["favorites"].ToString()))
-                                .Write(int.Parse(metaData["stats"]["comments"].ToString()))
+                                .Write(metadata["title"].ToString())
+                                .Write(metadata["history"]["modified"].ToString())
+                                .Write(int.Parse(metadata["stats"]["views"].ToString()))
+                                .Write(int.Parse(metadata["stats"]["loves"].ToString()))
+                                .Write(int.Parse(metadata["stats"]["favorites"].ToString()))
+                                .Write(int.Parse(metadata["stats"]["comments"].ToString()))
                                 .Newline();
                         }
                     }

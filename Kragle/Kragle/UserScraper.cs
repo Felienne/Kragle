@@ -81,16 +81,16 @@ namespace Kragle
         }
 
         /// <summary>
-        ///     Downloads meta-data for all users. If the <code>noCache</code> attribute is set, existing meta-data is
+        ///     Downloads metadata for all users. If the <code>cache</code> attribute is not set, existing metadata is
         ///     updated.
         /// </summary>
-        public void DownloadMetaData()
+        public void DownloadMetadata()
         {
             FileInfo[] users = FileStore.GetFiles(Resources.UserDirectory);
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Logger.Log(string.Format("Downloading meta-data for {0} users.", userTotal));
+            Logger.Log(string.Format("Downloading metadata for {0} users.", userTotal));
 
             foreach (FileInfo user in users)
             {
@@ -98,20 +98,20 @@ namespace Kragle
 
                 userCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
-                    "Downloading meta-data for user " + LoggerHelper.ForceLength(username, 10), userCurrent,
+                    "Downloading metadata for user " + LoggerHelper.ForceLength(username, 10), userCurrent,
                     userTotal));
 
                 if (user.Length > 0)
                 {
-                    // Meta-data already downloaded
+                    // Metadata already downloaded
                     continue;
                 }
 
-                string metaData = GetMetaData(username);
-                FileStore.WriteFile(Resources.UserDirectory, username + ".json", metaData);
+                string metadata = GetMetadata(username);
+                FileStore.WriteFile(Resources.UserDirectory, username + ".json", metadata);
             }
 
-            Logger.Log(string.Format("Successfully downloaded meta-data for {0} users.\n", userCurrent));
+            Logger.Log(string.Format("Successfully downloaded metadata for {0} users.\n", userCurrent));
         }
 
 
@@ -140,11 +140,11 @@ namespace Kragle
         }
 
         /// <summary>
-        ///     Downloads meta-data on a user.
+        ///     Downloads metadata on a user.
         /// </summary>
         /// <param name="username">the user's username</param>
-        /// <returns>the meta-data on the user</returns>
-        protected string GetMetaData(string username)
+        /// <returns>the metadata on the user</returns>
+        protected string GetMetadata(string username)
         {
             const string url = "https://api.scratch.mit.edu/users/{0}";
             return _downloader.GetContents(string.Format(url, username));

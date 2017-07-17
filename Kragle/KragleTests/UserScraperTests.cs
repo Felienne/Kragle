@@ -46,18 +46,18 @@ namespace KragleTests
 
 
         [TestMethod]
-        public void UserScraperMetaDataInvalidNameTest()
+        public void UserScraperMetadataInvalidNameTest()
         {
             // Names must be at least three characters long
-            Assert.IsNull(GetMetaData("1"));
+            Assert.IsNull(GetMetadata("1"));
         }
 
         [TestMethod]
-        public void UserScraperMetaDataTest()
+        public void UserScraperMetadataTest()
         {
-            dynamic metaData = JsonConvert.DeserializeObject(GetMetaData("kragle_user"));
+            dynamic metadata = JsonConvert.DeserializeObject(GetMetadata("kragle_user"));
 
-            Assert.AreEqual("kragle_user", metaData.username.ToString());
+            Assert.AreEqual("kragle_user", metadata.username.ToString());
         }
     }
 }

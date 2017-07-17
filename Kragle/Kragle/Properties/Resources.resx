@@ -127,11 +127,11 @@
   </data>
   <data name="ProjectDirectory" xml:space="preserve">
     <value>projects</value>
-    <comment>Subdirectory to store projects and project meta data.</comment>
+    <comment>Subdirectory to store projects and project metadata.</comment>
   </data>
   <data name="UserDirectory" xml:space="preserve">
     <value>users</value>
-    <comment>Subdirectory to store usernames and user meta data.</comment>
+    <comment>Subdirectory to store usernames and user metadata.</comment>
   </data>
   <data name="ResetRequestConfirmation" xml:space="preserve">
     <value>Remove all users, projects, and code? (y/n)</value>
@@ -164,7 +164,7 @@
   </data>
   <data name="ProjectMetaCsv" xml:space="preserve">
     <value>projectmeta.csv</value>
-    <comment>Parser output for project meta data.</comment>
+    <comment>Parser output for project metadata.</comment>
   </data>
   <data name="ArchiveDirectory" xml:space="preserve">
     <value>archives</value>
