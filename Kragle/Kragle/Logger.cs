@@ -24,7 +24,7 @@ namespace Kragle
             FileStore.CreateDirectory(Resources.LogDirectory);
 
             string logFile = FileStore.GetAbsolutePath(Resources.LogDirectory,
-                string.Format("log_{0:yyyy-MM-dd hh-mm-ss}.log", DateTime.Now));
+                string.Format("log_{0:yyyy-MM-dd HH-mm-ss}.log", DateTime.Now));
             FileStream = new StreamWriter(logFile);
         }
 
