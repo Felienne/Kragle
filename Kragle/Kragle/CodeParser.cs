@@ -30,7 +30,7 @@ namespace Kragle
 
                 if (userFiles.Length > 0 && File.ReadAllText(userFiles[0].FullName).Length == 0)
                 {
-                    Logger.Log("\nMissing meta-data for users.");
+                    Logger.Log("Missing meta-data for users.");
                     return;
                 }
 
@@ -39,7 +39,7 @@ namespace Kragle
                     string contents = File.ReadAllText(userFile.FullName);
                     if (contents.Length == 0)
                     {
-                        Logger.Log("\nMissing meta-data for user " + userFile.Name);
+                        Logger.Log("Missing meta-data for user " + userFile.Name);
                         return;
                     }
 
@@ -92,7 +92,7 @@ namespace Kragle
                     {
                         if (!(projectFile is JObject))
                         {
-                            Logger.Log("\nA project of user `" + userFile.Name + "` could not be parsed.");
+                            Logger.Log("A project of user `" + userFile.Name + "` could not be parsed.");
                             return;
                         }
 
@@ -144,7 +144,7 @@ namespace Kragle
                         {
                             if (!(project is JObject))
                             {
-                                Logger.Log("\nThe meta data of a project of user `" + userDir.Name +
+                                Logger.Log("The meta data of a project of user `" + userDir.Name +
                                            "` could not be parsed.");
                                 return;
                             }
