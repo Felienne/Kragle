@@ -69,6 +69,7 @@
     <Compile Include="Archiver.cs" />
     <Compile Include="CodeParser.cs" />
     <Compile Include="ConsoleOptions\ArchiveSubOptions.cs" />
+    <Compile Include="ConsoleOptions\DownloadSubOptions.cs" />
     <Compile Include="ConsoleOptions\ExtractSubOptions.cs" />
     <Compile Include="ConsoleOptions\ParseSubOptions.cs" />
     <Compile Include="ConsoleOptions\SubOptions.cs" />
