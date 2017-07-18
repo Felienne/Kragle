@@ -8,9 +8,6 @@ namespace Kragle.ConsoleOptions
     /// </summary>
     public class ValidateSubOptions : SubOptions
     {
-        private static readonly Logger Logger = Logger.GetLogger("ValidateSubOptions");
-        
-        
         [Option('u', "users", HelpText = "Validate user data")]
         public bool Users { get; set; }
 
@@ -27,6 +24,7 @@ namespace Kragle.ConsoleOptions
         public override void Run()
         {
             FileStore.Init(Path);
+            Logger logger = Logger.GetLogger("ValidateSubOptions");
             
             Validator validator = new Validator();
 
@@ -43,19 +41,19 @@ namespace Kragle.ConsoleOptions
                 validator.ValidateCode();
             }
             
-            Logger.Log("");
+            logger.Log("");
 
             if (Users)
             {
-                Logger.Log("Found " + validator.InvalidUsers + " invalid users.");
+                logger.Log("Found " + validator.InvalidUsers + " invalid users.");
             }
             if (Projects)
             {
-                Logger.Log("Found " + validator.InvalidProjectLists + " invalid project lists.");
+                logger.Log("Found " + validator.InvalidProjectLists + " invalid project lists.");
             }
             if (Code)
             {
-                Logger.Log("Found " + validator.InvalidCodeFiles + " invalid code files.");
+                logger.Log("Found " + validator.InvalidCodeFiles + " invalid code files.");
             }
         }
     }
