@@ -1,4 +1,4 @@
-﻿namespace Kragle.ConsoleOptions
+﻿namespace Kragle.Archive
 {
     /// <summary>
     ///     Command-line options for the 'extract' verb.

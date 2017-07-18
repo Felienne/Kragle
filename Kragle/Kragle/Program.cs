@@ -1,6 +1,5 @@
 ﻿using System;
 using CommandLine;
-using Kragle.ConsoleOptions;
 
 
 namespace Kragle

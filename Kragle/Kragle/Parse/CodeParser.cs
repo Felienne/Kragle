@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
-namespace Kragle
+namespace Kragle.Parse
 {
     /// <summary>
     ///     A <code>CodeParser</code> parses all available project code. It generates several CSV files which can be

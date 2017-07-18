@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
 
-namespace Kragle
+namespace Kragle.Scrape
 {
     /// <summary>
     ///     The <code>Downloader</code> class is responsible for downloading contents (mainly JSON) from the Internet

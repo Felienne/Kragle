@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
-namespace Kragle
+namespace Kragle.Archive
 {
     /// <summary>
     ///     Manages archives.

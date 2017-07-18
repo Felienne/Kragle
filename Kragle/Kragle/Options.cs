@@ -1,8 +1,13 @@
 ﻿using CommandLine;
 using CommandLine.Text;
+using Kragle.Archive;
+using Kragle.Explore;
+using Kragle.Parse;
+using Kragle.Scrape;
+using Kragle.Validate;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle
 {
     /// <summary>
     ///     Available verb commands for the command line.

@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle.Archive
 {
     /// <summary>
     ///     Command-line options for the 'archive' verb.

@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle
 {
     /// <summary>
     ///     Command-line options for all verbs interacting with the file system.

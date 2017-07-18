@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
-namespace Kragle
+namespace Kragle.Scrape
 {
     public class ProjectScraper
     {

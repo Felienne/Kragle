@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle.Parse
 {
     /// <summary>
     ///     Command-line options for the 'parse' verb.
