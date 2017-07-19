@@ -3,6 +3,7 @@ using CommandLine.Text;
 using Kragle.Archive;
 using Kragle.Explore;
 using Kragle.Parse;
+using Kragle.Preparse;
 using Kragle.Scrape;
 using Kragle.Validate;
 
@@ -25,6 +26,9 @@ namespace Kragle
 
         [VerbOption("projects", HelpText = "Generate the list of projects of all registered users")]
         public ProjectsSubOptions ProjectsSubOptions { get; set; }
+
+        [VerbOption("preparse", HelpText = "Removes duplicate code files from the downloaded data")]
+        public PreparseSubOptions PreparseSubOptions { get; set; }
 
         [VerbOption("parse", HelpText = "Generate the list of projects of all registered users")]
         public ParseSubOptions ParseSubOptions { get; set; }
