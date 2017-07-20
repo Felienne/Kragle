@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Kragle.Properties;
+using Newtonsoft.Json.Linq;
 
 
-namespace Kragle
+namespace Kragle.Validate
 {
     /// <summary>
     ///     Validates downloaded JSON files.
@@ -46,7 +48,7 @@ namespace Kragle
                 Logger.Log(LoggerHelper.FormatProgress(
                     "Validating user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
 
-                if (!Downloader.IsValidJson(File.ReadAllText(user.FullName)))
+                if (!IsValidJson(File.ReadAllText(user.FullName)))
                 {
                     InvalidUsers++;
                     Logger.Log("Metadata of user " + username + " is invalid");
@@ -77,7 +79,7 @@ namespace Kragle
                 FileInfo[] projectLists = user.GetFiles();
                 foreach (FileInfo projectList in projectLists)
                 {
-                    if (!Downloader.IsValidJson(File.ReadAllText(projectList.FullName)))
+                    if (!IsValidJson(File.ReadAllText(projectList.FullName)))
                     {
                         InvalidProjectLists++;
                         Logger.Log("Project list of user " + username + " at date " + projectList.Name + " is invalid");
@@ -108,13 +110,33 @@ namespace Kragle
                 FileInfo[] codeFiles = project.GetFiles();
                 foreach (FileInfo codeFile in codeFiles)
                 {
-                    if (!Downloader.IsValidJson(File.ReadAllText(codeFile.FullName)))
+                    if (!IsValidJson(File.ReadAllText(codeFile.FullName)))
                     {
                         InvalidCodeFiles++;
                         Logger.Log("Code of project " + projectId + " at date " + codeFile.Name + " is invalid");
                     }
                 }
             }
+        }
+
+
+        /// <summary>
+        ///     Validates JSON.
+        /// </summary>
+        /// <param name="json">a JSON string</param>
+        /// <returns>true if the given JSON is valid</returns>
+        private static bool IsValidJson(string json)
+        {
+            try
+            {
+                JToken.Parse(json);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

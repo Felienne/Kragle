@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 
-namespace Kragle
+namespace Kragle.Parse
 {
     /// <summary>
     ///     The <code>CsvWriter</code> can be used to write data in CSV format. It can automatically append a newline

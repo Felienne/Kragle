@@ -2,7 +2,7 @@
 using System.Diagnostics;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle.Explore
 {
     /// <summary>
     ///     Command-line options for the 'open' verb.

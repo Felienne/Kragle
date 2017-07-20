@@ -2,7 +2,7 @@
 using Kragle.Properties;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle.Explore
 {
     /// <summary>
     ///     Command-line options for the 'reset' verb.

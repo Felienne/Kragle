@@ -4,7 +4,7 @@ using Kragle.Properties;
 using Newtonsoft.Json.Linq;
 
 
-namespace Kragle
+namespace Kragle.Scrape
 {
     /// <summary>
     ///     A scraper that scrapes the list of most recent users.

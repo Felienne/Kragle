@@ -66,34 +66,34 @@
     <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Archiver.cs" />
-    <Compile Include="CodeParser.cs" />
-    <Compile Include="ConsoleOptions\ArchiveSubOptions.cs" />
-    <Compile Include="ConsoleOptions\DownloadSubOptions.cs" />
-    <Compile Include="ConsoleOptions\ExtractSubOptions.cs" />
-    <Compile Include="ConsoleOptions\ParseSubOptions.cs" />
-    <Compile Include="ConsoleOptions\SubOptions.cs" />
-    <Compile Include="ConsoleOptions\OpenSubOptions.cs" />
-    <Compile Include="ConsoleOptions\ProjectsSubOptions.cs" />
-    <Compile Include="ConsoleOptions\UsersSubOptions.cs" />
-    <Compile Include="ConsoleOptions\Options.cs" />
-    <Compile Include="ConsoleOptions\ResetSubOptions.cs" />
-    <Compile Include="ConsoleOptions\ValidateSubOptions.cs" />
-    <Compile Include="CsvWriter.cs" />
+    <Compile Include="Archive\Archiver.cs" />
+    <Compile Include="Archive\ArchiveSubOptions.cs" />
+    <Compile Include="Archive\ExtractSubOptions.cs" />
     <Compile Include="FileStore.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LoggerHelper.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="Parse\CodeParser.cs" />
+    <Compile Include="Parse\CsvWriter.cs" />
+    <Compile Include="Parse\ParseSubOptions.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ProjectScraper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="UserScraper.cs" />
-    <Compile Include="Downloader.cs" />
-    <Compile Include="Validator.cs" />
+    <Compile Include="Scrape\Downloader.cs" />
+    <Compile Include="Scrape\DownloadSubOptions.cs" />
+    <Compile Include="Scrape\ProjectScraper.cs" />
+    <Compile Include="Scrape\ProjectsSubOptions.cs" />
+    <Compile Include="Scrape\UserScraper.cs" />
+    <Compile Include="Scrape\UsersSubOptions.cs" />
+    <Compile Include="Explore\OpenSubOptions.cs" />
+    <Compile Include="Explore\ResetSubOptions.cs" />
+    <Compile Include="SubOptions.cs" />
+    <Compile Include="Validate\ValidateSubOptions.cs" />
+    <Compile Include="Validate\Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

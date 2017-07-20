@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle.Scrape
 {
     /// <summary>
     ///     Command-line options for the 'users' verb.

@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 
 
-namespace Kragle.ConsoleOptions
+namespace Kragle.Validate
 {
     /// <summary>
     ///     Command-line options for the 'validate' verb.
