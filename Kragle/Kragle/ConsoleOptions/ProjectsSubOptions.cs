@@ -6,7 +6,7 @@ namespace Kragle.ConsoleOptions
     /// <summary>
     ///     Command-line options for the 'projects' verb.
     /// </summary>
-    public class ProjectsSubOptions : SubOptions
+    public class ProjectsSubOptions : DownloadSubOptions
     {
         [Option('u', "update", HelpText = "Update the list of registered projects")]
         public bool Update { get; set; }

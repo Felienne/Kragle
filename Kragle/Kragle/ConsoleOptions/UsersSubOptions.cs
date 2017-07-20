@@ -6,7 +6,7 @@ namespace Kragle.ConsoleOptions
     /// <summary>
     ///     Command-line options for the 'users' verb.
     /// </summary>
-    public class UsersSubOptions : SubOptions
+    public class UsersSubOptions : DownloadSubOptions
     {
         [Option('n', "number", HelpText = "The number of users to scrape", DefaultValue = int.MaxValue)]
         public int Count { get; set; }
