@@ -65,7 +65,11 @@ namespace Kragle.Preparse
 
                             string codePath = FileStore.GetAbsolutePath(Resources.CodeDirectory,
                                 projectId + "/" + projectList.Name);
-                            File.Delete(codePath);
+                            
+                            if (File.Exists(codePath))
+                            {
+                                File.Delete(codePath);
+                            }
                         }
 
                         projectDates[projectId] = modifyDate;
