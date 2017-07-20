@@ -78,6 +78,7 @@
     <Compile Include="ConsoleOptions\UsersSubOptions.cs" />
     <Compile Include="ConsoleOptions\Options.cs" />
     <Compile Include="ConsoleOptions\ResetSubOptions.cs" />
+    <Compile Include="ConsoleOptions\ValidateSubOptions.cs" />
     <Compile Include="CsvWriter.cs" />
     <Compile Include="FileStore.cs" />
     <Compile Include="Logger.cs" />
@@ -92,6 +93,7 @@
     </Compile>
     <Compile Include="UserScraper.cs" />
     <Compile Include="Downloader.cs" />
+    <Compile Include="Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

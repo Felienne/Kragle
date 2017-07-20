@@ -30,6 +30,9 @@ namespace Kragle.ConsoleOptions
         [VerbOption("extract", HelpText = "Extract existing archives")]
         public ExtractSubOptions ExtractSubOptions { get; set; }
 
+        [VerbOption("validate", HelpText = "Validate downloaded data")]
+        public ValidateSubOptions ValidateSubOptions { get; set; }
+
 
         [HelpOption]
         public string GetUsage()
