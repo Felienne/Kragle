@@ -97,9 +97,10 @@ namespace Kragle.Parse
         /// <returns>the escaped data</returns>
         private static string EscapeData(string data)
         {
-            return "\"" + Regex.Replace(Regex.Replace(Regex.Replace(data,
-                               @"\r\n?|\n", "\\n"), // Replace newlines
-                           "\"", "\"\""), // Replace quotes with double quotes
+            return "\"" + Regex.Replace(Regex.Replace(Regex.Replace(Regex.Replace(data,
+                                   @"\r\n?|\n", "\\n"), // Replace newlines
+                               "\"", "\"\""), // Replace quotes with double quotes
+                           "\\\\", "\\\\"), // Replace backslashes with double backslashes
                        "\0", "") // Remove NUL bytes
                    + "\"";
         }
