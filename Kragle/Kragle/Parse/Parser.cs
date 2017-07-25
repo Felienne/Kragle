@@ -78,72 +78,14 @@ namespace Kragle.Parse
         /// </summary>
         public void WriteProjects()
         {
-            using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
             using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv)))
-            {
-                FileInfo[] userFiles = FileStore.GetFiles(Resources.ProjectDirectory);
-                int userTotal = userFiles.Length;
-                int userCurrent = 0;
-
-                Logger.Log("Parsing " + userTotal + " projects to CSV.");
-
-                foreach (FileInfo userFile in userFiles)
-                {
-                    string username = userFile.Name.Remove(userFile.Name.Length - 5);
-
-                    userCurrent++;
-                    Logger.Log(LoggerHelper.FormatProgress(
-                        "Parsing projects of user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
-
-                    JArray projectFiles;
-                    try
-                    {
-                        projectFiles = JArray.Parse(File.ReadAllText(userFile.FullName));
-                    }
-                    catch (JsonReaderException e)
-                    {
-                        Logger.Log("The project list for user `" + userFile.Name + "` could not be parsed.", e);
-                        return;
-                    }
-
-                    foreach (JToken projectFile in projectFiles)
-                    {
-                        if (!(projectFile is JObject))
-                        {
-                            Logger.Log("A project of user `" + userFile.Name + "` could not be parsed.");
-                            return;
-                        }
-
-                        JObject project = (JObject) projectFile;
-                        int authorId = int.Parse(project["author"]["id"].ToString());
-                        int projectId = int.Parse(project["id"].ToString());
-                        string remixParentId = project["remix"]["parent"].ToString();
-
-                        projectWriter
-                            .Write(authorId)
-                            .Write(projectId)
-                            .Write(project["history"]["created"].ToString())
-                            .Write(project["history"]["shared"].ToString())
-                            .Newline();
-
-                        if (remixParentId != "")
-                        {
-                            projectRemixWriter
-                                .Write(projectId)
-                                .Write(int.Parse(remixParentId))
-                                .Newline();
-                        }
-                    }
-                }
-            }
-
-            using (CsvWriter projectMetaWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectMetaCsv)))
+            using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
             {
                 DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
                 int userTotal = userDirs.Length;
                 int userCurrent = 0;
 
-                Logger.Log("Parsing metadata for " + userDirs.Length + " projects to CSV.");
+                Logger.Log("Parsing metadata for " + userDirs.Length + " users to CSV.");
 
                 foreach (DirectoryInfo userDir in userDirs)
                 {
@@ -151,46 +93,57 @@ namespace Kragle.Parse
 
                     userCurrent++;
                     Logger.Log(LoggerHelper.FormatProgress(
-                        "Parsing project metadata of user " + LoggerHelper.ForceLength(username, 10),
+                        "Parsing project lists of user " + LoggerHelper.ForceLength(username, 10),
                         userCurrent, userTotal));
 
-                    foreach (FileInfo projectFile in userDir.GetFiles())
+                    foreach (FileInfo projectListFile in userDir.GetFiles())
                     {
-                        JArray projects;
+                        JArray projectList;
                         try
                         {
-                            projects = JArray.Parse(File.ReadAllText(projectFile.FullName));
+                            projectList = JArray.Parse(File.ReadAllText(projectListFile.FullName));
                         }
                         catch (JsonReaderException e)
                         {
-                            Logger.Log("The project metadata list of user `" + userDir.Name + "` could not be parsed.",
-                                e);
+                            Logger.Log("The project list for user `" + username + "` could not be parsed.", e);
                             return;
                         }
 
-                        foreach (JToken project in projects)
+                        foreach (JToken projectFile in projectList)
                         {
-                            if (!(project is JObject))
+                            if (!(projectFile is JObject))
                             {
-                                Logger.Log("The metadata of a project of user `" + userDir.Name +
-                                           "` could not be parsed.");
+                                Logger.Log("A project of user `" + username + "` could not be parsed.");
                                 return;
                             }
 
-                            JObject metadata = (JObject) project;
-                            int projectId = int.Parse(metadata["id"].ToString());
-                            string dataDate = projectFile.Name.Substring(0, projectFile.Name.Length - 5);
+                            JObject project = (JObject) projectFile;
+                            int authorId = int.Parse(project["author"]["id"].ToString());
+                            int projectId = int.Parse(project["id"].ToString());
+                            string remixParentId = project["remix"]["parent"].ToString();
+                            string dataDate = projectListFile.Name.Substring(0, projectListFile.Name.Length - 5);
 
-                            projectMetaWriter
-                                .Write(projectId)
+                            projectWriter
+                                .Write(authorId)
                                 .Write(dataDate)
-                                .Write(metadata["title"].ToString())
-                                .Write(metadata["history"]["modified"].ToString())
-                                .Write(int.Parse(metadata["stats"]["views"].ToString()))
-                                .Write(int.Parse(metadata["stats"]["loves"].ToString()))
-                                .Write(int.Parse(metadata["stats"]["favorites"].ToString()))
-                                .Write(int.Parse(metadata["stats"]["comments"].ToString()))
+                                .Write(projectId)
+                                .Write(project["title"].ToString())
+                                .Write(project["history"]["modified"].ToString())
+                                .Write(project["history"]["created"].ToString())
+                                .Write(project["history"]["shared"].ToString())
+                                .Write(int.Parse(project["stats"]["views"].ToString()))
+                                .Write(int.Parse(project["stats"]["loves"].ToString()))
+                                .Write(int.Parse(project["stats"]["favorites"].ToString()))
+                                .Write(int.Parse(project["stats"]["comments"].ToString()))
                                 .Newline();
+
+                            if (remixParentId != "")
+                            {
+                                projectRemixWriter
+                                    .Write(projectId)
+                                    .Write(int.Parse(remixParentId))
+                                    .Newline();
+                            }
                         }
                     }
                 }
@@ -224,10 +177,11 @@ namespace Kragle.Parse
                     foreach (FileInfo codeFile in project.GetFiles())
                     {
                         string code = File.ReadAllText(codeFile.FullName);
+                        string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
 
                         projectCodeWriter
                             .Write(int.Parse(project.Name))
-                            .Write(codeFile.Name)
+                            .Write(codeDate)
                             .Write(code)
                             .Newline();
 
@@ -235,7 +189,7 @@ namespace Kragle.Parse
                         {
                             codeProcedureWriter
                                 .Write(int.Parse(project.Name))
-                                .Write(codeFile.Name)
+                                .Write(codeDate)
                                 .Write(procedure.Item1 ?? "null")
                                 .Write(procedure.Item2)
                                 .Newline();
