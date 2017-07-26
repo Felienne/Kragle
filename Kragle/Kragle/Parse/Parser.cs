@@ -178,13 +178,14 @@ namespace Kragle.Parse
 
                 Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
+                ISet<int> projectHistory = new HashSet<int>();
+
                 foreach (DirectoryInfo project in projects)
                 {
-                    string projectName = project.Name;
+                    int projectId = int.Parse(project.Name);
 
                     projectCurrent++;
-                    Logger.Log(LoggerHelper.FormatProgress(
-                        "Parsing code of project " + LoggerHelper.ForceLength(projectName, 10),
+                    Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
                         projectCurrent, projectTotal));
 
                     foreach (FileInfo codeFile in project.GetFiles())
@@ -198,15 +199,20 @@ namespace Kragle.Parse
                             .Write(code)
                             .Newline();
 
-                        foreach (Tuple<string, string> procedure in GetProcedures(code))
+                        if (!projectHistory.Contains(projectId))
                         {
-                            codeProcedureWriter
-                                .Write(int.Parse(project.Name))
-                                .Write(codeDate)
-                                .Write(procedure.Item1 ?? "null")
-                                .Write(procedure.Item2)
-                                .Newline();
+                            foreach (Tuple<string, string> procedure in GetProcedures(code))
+                            {
+                                codeProcedureWriter
+                                    .Write(int.Parse(project.Name))
+                                    .Write(codeDate)
+                                    .Write(procedure.Item1 ?? "null")
+                                    .Write(procedure.Item2)
+                                    .Newline();
+                            }
                         }
+
+                        projectHistory.Add(projectId);
                     }
                 }
             }
