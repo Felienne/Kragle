@@ -25,6 +25,8 @@ namespace Kragle.Parse
         {
             using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv)))
             {
+                writer.WriteHeaders("id", "username", "joinDate", "country");
+
                 FileInfo[] userFiles = FileStore.GetFiles(Resources.UserDirectory);
                 int userTotal = userFiles.Length;
                 int userCurrent = 0;
@@ -81,6 +83,10 @@ namespace Kragle.Parse
             using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv)))
             using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
             {
+                projectRemixWriter.WriteHeaders("childId", "parentId");
+                projectWriter.WriteHeaders("authorId", "date", "projectId", "title", "modifyDate", "createDate",
+                    "shareDate", "viewCount", "loveCount", "favoriteCount", "commentCount");
+
                 DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
                 int userTotal = userDirs.Length;
                 int userCurrent = 0;
@@ -159,6 +165,9 @@ namespace Kragle.Parse
             using (CsvWriter codeProcedureWriter =
                 new CsvWriter(FileStore.GetAbsolutePath(Resources.CodeProceduresCsv)))
             {
+                projectCodeWriter.WriteHeaders("projectId", "date", "code");
+                codeProcedureWriter.WriteHeaders("projectId", "date", "stage", "code");
+
                 DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
                 int projectTotal = projects.Length;
                 int projectCurrent = 0;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 
@@ -42,6 +43,18 @@ namespace Kragle.Parse
             _writer.Dispose();
         }
 
+
+        /// <summary>
+        ///     Writes the given strings as parameters without escaping, separated by commas.
+        /// </summary>
+        /// <param name="data">the names of the columns</param>
+        /// <returns>this <code>CsvWriter</code></returns>
+        public CsvWriter WriteHeaders(params string[] data)
+        {
+            Write(string.Join(",", data), false);
+            Newline();
+            return this;
+        }
 
         /// <summary>
         ///     Writes the given string data to the CSV. All strings are escaped by surrounding them with ".
