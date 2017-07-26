@@ -1,5 +1,5 @@
 ﻿using System;
-using Kragle;
+using Kragle.Scrape;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

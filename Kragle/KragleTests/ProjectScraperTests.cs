@@ -1,4 +1,4 @@
-﻿using Kragle;
+﻿using Kragle.Scrape;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
