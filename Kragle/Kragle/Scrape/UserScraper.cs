@@ -41,13 +41,13 @@ namespace Kragle.Scrape
             {
                 throw new ArgumentOutOfRangeException("Page number must be at least 0.");
             }
-            
+
             int userCount = FileStore.GetFiles(Resources.UserDirectory).Length;
 
             Logger.Log("Scraping list of recent projects.");
 
             // Keep downloading projects until the target has been reached
-            while (userCount < _targetUserCount)
+            while (userCount < _targetUserCount && pageNumber * PageSize < 10000)
             {
                 Logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)",
                     pageNumber, userCount, _targetUserCount));
@@ -75,6 +75,12 @@ namespace Kragle.Scrape
                 }
 
                 pageNumber++;
+            }
+
+            if (userCount < _targetUserCount)
+            {
+                Logger.Log("Kragle was unable to scrape more users because the Scratch API records only the 10,000"
+                           + " latest activities.");
             }
 
             Logger.Log(string.Format("Successfully registered {0} users.\n", userCount));
