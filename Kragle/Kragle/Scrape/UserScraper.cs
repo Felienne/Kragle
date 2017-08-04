@@ -134,7 +134,7 @@ namespace Kragle.Scrape
 
             // Fetch JSON
             const string url = "https://api.scratch.mit.edu/search/projects?mode=recent&offset={0}&limit={1}";
-            JToken projects = _downloader.GetJson(string.Format(url, pageNumber, pageSize));
+            JToken projects = _downloader.GetJson(string.Format(url, pageNumber * pageSize, pageSize));
 
             return projects as JArray;
         }
