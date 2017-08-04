@@ -40,7 +40,8 @@ namespace Kragle.Archive
         /// <summary>
         ///     Extracts all archives into the data folder.
         /// </summary>
-        public void Extract()
+        /// <param name="overwrite">true if existing files should be overwritten</param>
+        public void Extract(bool overwrite = false)
         {
             FileInfo[] archives = FileStore.GetFiles(Resources.ArchiveDirectory);
             int archiveTotal = archives.Length;
@@ -52,7 +53,7 @@ namespace Kragle.Archive
                 Logger.Log(LoggerHelper.FormatProgress(
                     "Extracting archive " + LoggerHelper.ForceLength(archive.Name, 10), archiveCurrent, archiveTotal));
 
-                ZipFile.ExtractToDirectory(archive.FullName, FileStore.GetRootPath());
+                Extract(archive, overwrite);
             }
         }
 
@@ -64,7 +65,7 @@ namespace Kragle.Archive
         private static void Archive(string username)
         {
             FileStore.CreateDirectory(Resources.ArchiveDirectory);
-            
+
             if (FileStore.FileExists(Resources.ArchiveDirectory, username + ".zip"))
             {
                 return;
@@ -146,6 +147,46 @@ namespace Kragle.Archive
                 {
                     archive.CreateEntryFromFile(projectCodeFile.FullName,
                         Resources.CodeDirectory + "/" + projectId + "/" + projectCodeFile.Name);
+                }
+            }
+        }
+
+
+        /// <summary>
+        ///     Extracts the given archive.
+        /// </summary>
+        /// <param name="archive">the archive to extract</param>
+        /// <param name="overwrite">true if existing files should be overwritten</param>
+        private static void Extract(FileSystemInfo archive, bool overwrite)
+        {
+            string username = Path.GetFileNameWithoutExtension(archive.Name);
+            bool userExists = FileStore.FileExists(Resources.UserDirectory, username + ".json");
+
+            if (!userExists)
+            {
+                ZipFile.ExtractToDirectory(archive.FullName, FileStore.GetRootPath());
+            }
+            else if (overwrite)
+            {
+                using (ZipArchive zipArchive = ZipFile.OpenRead(archive.FullName))
+                {
+                    foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                    {
+                        string destination = Path.Combine(archive.FullName, entry.FullName);
+
+                        if (entry.Name == "")
+                        {
+                            string directoryName = Path.GetDirectoryName(destination);
+                            if (directoryName == null)
+                            {
+                                continue;
+                            }
+
+                            Directory.CreateDirectory(directoryName);
+                        }
+
+                        entry.ExtractToFile(destination, true);
+                    }
                 }
             }
         }
