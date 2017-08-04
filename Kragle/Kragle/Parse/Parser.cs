@@ -178,8 +178,6 @@ namespace Kragle.Parse
 
                 Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
-                ISet<int> projectHistory = new HashSet<int>();
-
                 foreach (DirectoryInfo project in projects)
                 {
                     int projectId = int.Parse(project.Name);
@@ -199,20 +197,15 @@ namespace Kragle.Parse
                             .Write(code)
                             .Newline();
 
-                        if (!projectHistory.Contains(projectId))
+                        foreach (Tuple<string, string> procedure in GetProcedures(code))
                         {
-                            foreach (Tuple<string, string> procedure in GetProcedures(code))
-                            {
-                                codeProcedureWriter
-                                    .Write(int.Parse(project.Name))
-                                    .Write(codeDate)
-                                    .Write(procedure.Item1 ?? "null")
-                                    .Write(procedure.Item2)
-                                    .Newline();
-                            }
+                            codeProcedureWriter
+                                .Write(int.Parse(project.Name))
+                                .Write(codeDate)
+                                .Write(procedure.Item1 ?? "null")
+                                .Write(procedure.Item2)
+                                .Newline();
                         }
-
-                        projectHistory.Add(projectId);
                     }
                 }
             }
