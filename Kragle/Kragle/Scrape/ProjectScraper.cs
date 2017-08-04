@@ -1,5 +1,8 @@
 ﻿using System;
+using System.CodeDom;
 using System.IO;
+using System.Linq;
+using System.Text;
 using Kragle.Properties;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -145,10 +148,47 @@ namespace Kragle.Scrape
         /// <returns>the list of projects of the given user</returns>
         protected string GetUserProjects(string username)
         {
-            const string url = "https://api.scratch.mit.edu/users/{0}/projects";
+            JArray allProjects = new JArray();
 
-            string contents = _downloader.GetContents(string.Format(url, username));
-            return Downloader.IsValidJson(contents) ? contents : null;
+            int pageNumber = 0;
+            while (true)
+            {
+                JArray projectsOnPage = GetUserProjects(username, pageNumber);
+                if (projectsOnPage == null)
+                {
+                    return null;
+                }
+                if (projectsOnPage.Count == 0)
+                {
+                    break;
+                }
+
+                allProjects.Merge(projectsOnPage);
+                pageNumber++;
+            }
+
+            return allProjects.ToString(Formatting.None);
+        }
+
+        /// <summary>
+        ///     Downloads the list of 20 projects on the given page of the given user.
+        /// </summary>
+        /// <param name="username">the user's username</param>
+        /// <param name="page">the page to download</param>
+        /// <returns>the list of 20 projects on the given page of the given user</returns>
+        private JArray GetUserProjects(string username, int page)
+        {
+            const string url = "https://api.scratch.mit.edu/users/{0}/projects?offset={1}";
+            string contents = _downloader.GetContents(string.Format(url, username, page * 20));
+
+            try
+            {
+                return JArray.Parse(contents);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         /// <summary>
