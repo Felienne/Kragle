@@ -41,7 +41,8 @@ namespace Kragle.Archive
         ///     Extracts all archives into the data folder.
         /// </summary>
         /// <param name="overwrite">true if existing files should be overwritten</param>
-        public void Extract(bool overwrite = false)
+        /// <param name="append">true if only new files should be extracted if the user is already registered</param>
+        public void Extract(bool overwrite = false, bool append = false)
         {
             FileInfo[] archives = FileStore.GetFiles(Resources.ArchiveDirectory);
             int archiveTotal = archives.Length;
@@ -53,7 +54,7 @@ namespace Kragle.Archive
                 Logger.Log(LoggerHelper.FormatProgress(
                     "Extracting archive " + LoggerHelper.ForceLength(archive.Name, 10), archiveCurrent, archiveTotal));
 
-                Extract(archive, overwrite);
+                Extract(archive, overwrite, append);
             }
         }
 
@@ -157,35 +158,31 @@ namespace Kragle.Archive
         /// </summary>
         /// <param name="archive">the archive to extract</param>
         /// <param name="overwrite">true if existing files should be overwritten</param>
-        private static void Extract(FileSystemInfo archive, bool overwrite)
+        /// <param name="append">true if only new files should be extracted if the user is already registered</param>
+        private static void Extract(FileSystemInfo archive, bool overwrite, bool append)
         {
             string username = Path.GetFileNameWithoutExtension(archive.Name);
             bool userExists = FileStore.FileExists(Resources.UserDirectory, username + ".json");
 
-            if (!userExists)
+            if (userExists && !append)
             {
-                ZipFile.ExtractToDirectory(archive.FullName, FileStore.GetRootPath());
+                return;
             }
-            else if (overwrite)
+
+            using (ZipArchive zipArchive = ZipFile.OpenRead(archive.FullName))
             {
-                using (ZipArchive zipArchive = ZipFile.OpenRead(archive.FullName))
+                foreach (ZipArchiveEntry entry in zipArchive.Entries)
                 {
-                    foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                    string destination = FileStore.GetAbsolutePath(entry.FullName);
+
+                    if (File.Exists(destination) && overwrite)
                     {
-                        string destination = Path.Combine(archive.FullName, entry.FullName);
-
-                        if (entry.Name == "")
-                        {
-                            string directoryName = Path.GetDirectoryName(destination);
-                            if (directoryName == null)
-                            {
-                                continue;
-                            }
-
-                            Directory.CreateDirectory(directoryName);
-                        }
-
                         entry.ExtractToFile(destination, true);
+                    }
+                    else if (!File.Exists(destination))
+                    {
+                        FileStore.CreateDirectory(Path.GetDirectoryName(entry.FullName));
+                        entry.ExtractToFile(destination, false);
                     }
                 }
             }

@@ -8,10 +8,13 @@ namespace Kragle.Archive
     /// </summary>
     public class ExtractSubOptions : SubOptions
     {
-        [Option('n', "new", HelpText = "Overwrite files if they already exist")]
+        [Option('f', "force", HelpText = "Overwrite files if they already exist")]
         public bool Overwrite { get; set; }
-        
-        
+
+        [Option('a', "append", HelpText = "Extract only new files if a user is already registered")]
+        public bool Append { get; set; }
+
+
         /// <summary>
         ///     Extracts backup archives.
         /// </summary>
@@ -19,7 +22,7 @@ namespace Kragle.Archive
         {
             FileStore.Init(Path);
 
-            new Archiver().Extract(Overwrite);
+            new Archiver().Extract(Overwrite, Append);
         }
     }
 }
