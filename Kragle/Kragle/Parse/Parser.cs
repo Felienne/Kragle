@@ -170,7 +170,7 @@ namespace Kragle.Parse
                 new CsvWriter(FileStore.GetAbsolutePath(Resources.CodeProceduresCsv)))
             {
                 projectCodeWriter.WriteHeaders("projectId", "date", "code");
-                codeProcedureWriter.WriteHeaders("projectId", "date", "stage", "code");
+                codeProcedureWriter.WriteHeaders("projectId", "date", "stage", "procedureName", "argumentCount");
 
                 DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
                 int projectTotal = projects.Length;
@@ -197,13 +197,14 @@ namespace Kragle.Parse
                             .Write(code)
                             .Newline();
 
-                        foreach (Tuple<string, string> procedure in GetProcedures(code))
+                        foreach (Procedure procedure in GetProcedures(code))
                         {
                             codeProcedureWriter
                                 .Write(int.Parse(project.Name))
                                 .Write(codeDate)
-                                .Write(procedure.Item1 ?? "null")
-                                .Write(procedure.Item2)
+                                .Write(procedure.ObjName)
+                                .Write(procedure.Name)
+                                .Write(procedure.ArgumentCount)
                                 .Newline();
                         }
                     }
@@ -211,14 +212,15 @@ namespace Kragle.Parse
             }
         }
 
+
         /// <summary>
-        ///     Compiles the list of procedure definitions in the given code.
+        ///     Compiles the list of procedures in the given code.
         /// </summary>
         /// <param name="rawCode">the complete code of a project</param>
-        /// <returns>the list of procedure definitions in the given code</returns>
-        public List<Tuple<string, string>> GetProcedures(string rawCode)
+        /// <returns>the list of procedures in the given code</returns>
+        private static IEnumerable<Procedure> GetProcedures(string rawCode)
         {
-            List<Tuple<string, string>> procedures = new List<Tuple<string, string>>();
+            List<Procedure> procedures = new List<Procedure>();
 
             // Procedure definitions in root
             JObject code = JObject.Parse(rawCode);
@@ -228,8 +230,8 @@ namespace Kragle.Parse
                 {
                     procedures.AddRange(
                         from script in scripts.OfType<JArray>()
-                        where script[2].First.First.ToString() == "procDef"
-                        select new Tuple<string, string>("null", script[2].ToString(Formatting.None))
+                        where script[2].First[0].ToString() == "procDef"
+                        select new Procedure("null", script)
                     );
                 }
             }
@@ -246,13 +248,36 @@ namespace Kragle.Parse
 
                 procedures.AddRange(
                     from script in scripts.OfType<JArray>()
-                    where script[2].First.First.ToString() == "procDef"
-                    select new Tuple<string, string>(sprite.GetValue("objName").ToString(),
-                        script[2].ToString(Formatting.None))
+                    where script[2].First[0].ToString() == "procDef"
+                    select new Procedure(sprite.GetValue("objName").ToString(), script)
                 );
             }
 
             return procedures;
+        }
+
+
+        /// <summary>
+        ///     A procedure.
+        /// </summary>
+        private class Procedure
+        {
+            internal string ObjName { get; private set; }
+            internal string Name { get; private set; }
+            internal int ArgumentCount { get; private set; }
+            
+
+            /// <summary>
+            ///     Constructs a new <code>Procedure</code>.
+            /// </summary>
+            /// <param name="objName">the name of the sprite the procedure is in</param>
+            /// <param name="script">the name of the procedure</param>
+            public Procedure(string objName, JArray script)
+            {
+                ObjName = objName ?? "null";
+                Name = script[2].First[1].ToString();
+                ArgumentCount = script[2].First[3].Count();
+            }
         }
     }
 }
