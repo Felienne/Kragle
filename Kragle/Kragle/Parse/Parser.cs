@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -197,16 +198,7 @@ namespace Kragle.Parse
                             .Write(code)
                             .Newline();
 
-                        foreach (Procedure procedure in GetProcedures(code))
-                        {
-                            codeProcedureWriter
-                                .Write(int.Parse(project.Name))
-                                .Write(codeDate)
-                                .Write(procedure.ObjName)
-                                .Write(procedure.Name)
-                                .Write(procedure.ArgumentCount)
-                                .Newline();
-                        }
+                        GetProcedures(projectId, code);
                     }
                 }
             }
@@ -216,23 +208,22 @@ namespace Kragle.Parse
         /// <summary>
         ///     Compiles the list of procedures in the given code.
         /// </summary>
+        /// <param name="projectId">the id of the code's project</param>
         /// <param name="rawCode">the complete code of a project</param>
         /// <returns>the list of procedures in the given code</returns>
-        private static IEnumerable<Procedure> GetProcedures(string rawCode)
+        private static void GetProcedures(int projectId, string rawCode)
         {
-            List<Procedure> procedures = new List<Procedure>();
-
             // Procedure definitions in root
             JObject code = JObject.Parse(rawCode);
             {
                 JArray scripts = code.GetValue("scripts") as JArray;
                 if (scripts != null)
                 {
-                    procedures.AddRange(
-                        from script in scripts.OfType<JArray>()
-                        where script[2].First[0].ToString() == "procDef"
-                        select new Procedure("null", script)
-                    );
+                    foreach (JArray script in scripts.OfType<JArray>())
+                    {
+                        WriteToFile(new Script(script[2] as JArray, "stage", "stage", projectId),
+                            FileStore.GetRootPath());
+                    }
                 }
             }
 
@@ -241,42 +232,184 @@ namespace Kragle.Parse
             foreach (JObject sprite in sprites.OfType<JObject>())
             {
                 JArray scripts = sprite.GetValue("scripts") as JArray;
-                if (scripts == null)
+                if (scripts != null)
+                {
+                    foreach (JArray script in scripts.OfType<JArray>())
+                    {
+                        WriteToFile(new Script(script[2] as JArray, "stage", "stage", projectId),
+                            FileStore.GetRootPath());
+                    }
+                }
+            }
+        }
+
+
+        public static void WriteToFile(Script s, string path)
+        {
+            string saveLocation = path;
+
+            // scripts have a location that is unique so we use that as an ID.
+
+            int indent = 0;
+            string scopeType = s.Scope;
+            string scopeName = s.ScopeName;
+            int order = 0;
+
+            int maxIndent = 0;
+
+            ArrayList allStatements = Flatten(ref order, s.Code, ref scopeType, ref scopeName, ref indent, s.ProgramId,
+                ref maxIndent);
+            foreach (object statement in allStatements)
+            {
+                using (StreamWriter analysisFile = new StreamWriter(saveLocation + "/NEW_analysis.csv", true))
+                {
+                    analysisFile.WriteLine(s.ProgramId + "," + statement);
+                }
+            }
+
+            //to calculate Long Method smell we need the length of all scripts, which is the number of items in flatten
+            //we also save the number of statements at the top level
+            //and the maximum depth.
+
+            using (StreamWriter scriptsFile = new StreamWriter(saveLocation + "/NEW_scripts.csv", true))
+            {
+                scriptsFile.WriteLine(s.ProgramId + "," + scopeType + "," + scopeName + "," + s.Code.Count + "," +
+                                      allStatements.Count + "," + maxIndent);
+            }
+        }
+
+        private static ArrayList Flatten(ref int order, JArray scripts, ref string scopeType, ref string scopeName,
+            ref int indent, int id, ref int maxIndent)
+        {
+            ArrayList result = new ArrayList();
+
+            if (scopeName[0] != '"')
+            {
+                //not in quotes? add them
+                scopeName = "\"" + scopeName + "\"";
+            }
+
+
+            //by default we add the order, type of the scope (scene, sprite, or proc) the name of the scope and the indent
+            string toPrint = scopeType + "," + scopeName + "," + indent;
+            bool added = false;
+
+            bool addOrder = true;
+
+            foreach (JToken innerScript in scripts)
+            {
+                //if the script is primitive, we just print it.
+                if (innerScript is JValue)
+                {
+                    if (addOrder)
+                    {
+                        toPrint += "," + order + "," + innerScript;
+                        order = order + 1;
+                        addOrder = false;
+                    }
+                    else
+                    {
+                        toPrint += "," + innerScript;
+                    }
+
+                    added = true;
+                    //it could be that there will be more primitives (arguments) so we only print at the end
+                }
+
+                JArray array = innerScript as JArray;
+                if (array == null)
                 {
                     continue;
                 }
 
-                procedures.AddRange(
-                    from script in scripts.OfType<JArray>()
-                    where script[2].First[0].ToString() == "procDef"
-                    select new Procedure(sprite.GetValue("objName").ToString(), script)
-                );
+                if (AllOneField(array))
+                {
+                    if (!array.Any())
+                    {
+                        //this is an empy array
+                        if (addOrder)
+                        {
+                            toPrint += "," + order + ",[]";
+                            order = order + 1;
+                            addOrder = false;
+                        }
+                        else
+                        {
+                            toPrint += ",[]";
+                        }
+                    }
+                    else
+                    {
+                        int j = indent + 1;
+                        if (j > maxIndent)
+                        {
+                            maxIndent = j;
+                        }
+                        foreach (
+                            object item in
+                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, id, ref maxIndent))
+                        {
+                            result.Add(item);
+                        }
+                    }
+                }
+                else
+                {
+                    if (array.Any() && innerScript[0].ToString() == "\"procDef\"")
+                    {
+                        toPrint += ",procdef";
+                        //now set the other blocks to the scope of this proc
+                        scopeType = "procDef";
+                        scopeName = innerScript[1].ToString();
+
+                        added = true;
+                    }
+                    else
+                    {
+                        int j = indent + 1;
+                        if (j > maxIndent)
+                        {
+                            maxIndent = j;
+                        }
+                        
+                        foreach (
+                            object item in
+                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, id, ref maxIndent))
+                        {
+                            result.Add(item);
+                        }
+                    }
+                }
             }
 
-            return procedures;
+            if (added)
+            {
+                result.Add(toPrint);
+            }
+
+
+            return result;
+        }
+
+        private static bool AllOneField(JArray script)
+        {
+            return script.Count <= 1 && script.OfType<JArray>().All(AllOneField);
         }
 
 
-        /// <summary>
-        ///     A procedure.
-        /// </summary>
-        private class Procedure
+        public class Script
         {
-            internal string ObjName { get; private set; }
-            internal string Name { get; private set; }
-            internal int ArgumentCount { get; private set; }
-            
+            public JArray Code;
+            public string Scope;
+            public string ScopeName;
+            public int ProgramId;
 
-            /// <summary>
-            ///     Constructs a new <code>Procedure</code>.
-            /// </summary>
-            /// <param name="objName">the name of the sprite the procedure is in</param>
-            /// <param name="script">the name of the procedure</param>
-            public Procedure(string objName, JArray script)
+            public Script(JArray code, string scope, string scopeName, int programId)
             {
-                ObjName = objName ?? "null";
-                Name = script[2].First[1].ToString();
-                ArgumentCount = script[2].First[3].Count();
+                Code = code;
+                Scope = scope;
+                ScopeName = scopeName;
+                ProgramId = programId;
             }
         }
     }
