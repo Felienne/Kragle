@@ -93,6 +93,8 @@ namespace Kragle.Parse
 
                 Logger.Log("Parsing metadata for " + userDirs.Length + " users to CSV.");
 
+                ISet<int> projectHistory = new HashSet<int>();
+
                 foreach (DirectoryInfo userDir in userDirs)
                 {
                     string username = userDir.Name;
@@ -143,13 +145,15 @@ namespace Kragle.Parse
                                 .Write(int.Parse(project["stats"]["comments"].ToString()))
                                 .Newline();
 
-                            if (remixParentId != "")
+                            if (remixParentId != "" && !projectHistory.Contains(projectId))
                             {
                                 projectRemixWriter
                                     .Write(projectId)
                                     .Write(int.Parse(remixParentId))
                                     .Newline();
                             }
+
+                            projectHistory.Add(projectId);
                         }
                     }
                 }
@@ -176,11 +180,10 @@ namespace Kragle.Parse
 
                 foreach (DirectoryInfo project in projects)
                 {
-                    string projectName = project.Name;
+                    int projectId = int.Parse(project.Name);
 
                     projectCurrent++;
-                    Logger.Log(LoggerHelper.FormatProgress(
-                        "Parsing code of project " + LoggerHelper.ForceLength(projectName, 10),
+                    Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
                         projectCurrent, projectTotal));
 
                     foreach (FileInfo codeFile in project.GetFiles())
