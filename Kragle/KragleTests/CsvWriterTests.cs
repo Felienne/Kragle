@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Kragle;
+using Kragle.Parse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 

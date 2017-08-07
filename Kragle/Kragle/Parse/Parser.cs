@@ -229,7 +229,7 @@ namespace Kragle.Parse
                     procedures.AddRange(
                         from script in scripts.OfType<JArray>()
                         where script[2].First.First.ToString() == "procDef"
-                        select new Tuple<string, string>("null", script[2].ToString())
+                        select new Tuple<string, string>("null", script[2].ToString(Formatting.None))
                     );
                 }
             }
@@ -247,7 +247,8 @@ namespace Kragle.Parse
                 procedures.AddRange(
                     from script in scripts.OfType<JArray>()
                     where script[2].First.First.ToString() == "procDef"
-                    select new Tuple<string, string>(sprite.GetValue("objName").ToString(), script[2].ToString())
+                    select new Tuple<string, string>(sprite.GetValue("objName").ToString(),
+                        script[2].ToString(Formatting.None))
                 );
             }
 
