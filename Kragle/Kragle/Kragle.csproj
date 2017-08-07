@@ -73,7 +73,7 @@
     <Compile Include="Logger.cs" />
     <Compile Include="LoggerHelper.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="Parse\CodeParser.cs" />
+    <Compile Include="Parse\Parser.cs" />
     <Compile Include="Parse\CsvWriter.cs" />
     <Compile Include="Parse\ParseSubOptions.cs" />
     <Compile Include="Preparse\Preparser.cs" />
