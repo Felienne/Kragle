@@ -217,12 +217,12 @@ namespace Kragle.Parse
             JObject code = JObject.Parse(rawCode);
             {
                 JArray scripts = code.GetValue("scripts") as JArray;
+
                 if (scripts != null)
                 {
                     foreach (JArray script in scripts.OfType<JArray>())
                     {
-                        WriteToFile(new Script(script[2] as JArray, "stage", "stage", projectId),
-                            FileStore.GetRootPath());
+                        WriteToFile(new Script(script[2] as JArray, "stage", "stage", projectId));
                     }
                 }
             }
@@ -231,89 +231,80 @@ namespace Kragle.Parse
             JArray sprites = (JArray) code.GetValue("children");
             foreach (JObject sprite in sprites.OfType<JObject>())
             {
+                if (sprite["objName"] == null)
+                {
+                    continue;
+                }
+
+                string spriteName = sprite["objName"].ToString();
                 JArray scripts = sprite.GetValue("scripts") as JArray;
+
                 if (scripts != null)
                 {
                     foreach (JArray script in scripts.OfType<JArray>())
                     {
-                        WriteToFile(new Script(script[2] as JArray, "stage", "stage", projectId),
-                            FileStore.GetRootPath());
+                        WriteToFile(new Script(script[2] as JArray, "sprite", spriteName, projectId));
                     }
                 }
             }
         }
 
 
-        public static void WriteToFile(Script s, string path)
+        public static void WriteToFile(Script script)
         {
-            string saveLocation = path;
-
-            // scripts have a location that is unique so we use that as an ID.
-
-            int indent = 0;
-            string scopeType = s.Scope;
-            string scopeName = s.ScopeName;
             int order = 0;
+            int indent = 0;
+            string scopeType = script.ScopeType;
+            string scopeName = script.ScopeName;
 
             int maxIndent = 0;
 
-            ArrayList allStatements = Flatten(ref order, s.Code, ref scopeType, ref scopeName, ref indent, s.ProgramId,
+            ArrayList allStatements = Flatten(ref order, script.Code, ref scopeType, ref scopeName, ref indent,
                 ref maxIndent);
+
             foreach (object statement in allStatements)
             {
-                using (StreamWriter analysisFile = new StreamWriter(saveLocation + "/NEW_analysis.csv", true))
+                using (StreamWriter analysisFile =
+                    new StreamWriter(FileStore.GetAbsolutePath("NEW_analysis.csv"), true))
                 {
-                    analysisFile.WriteLine(s.ProgramId + "," + statement);
+                    analysisFile.WriteLine(script.ProgramId + "," + statement);
                 }
             }
 
-            //to calculate Long Method smell we need the length of all scripts, which is the number of items in flatten
-            //we also save the number of statements at the top level
-            //and the maximum depth.
-
-            using (StreamWriter scriptsFile = new StreamWriter(saveLocation + "/NEW_scripts.csv", true))
+            using (StreamWriter scriptsFile = new StreamWriter(FileStore.GetAbsolutePath("NEW_scripts.csv"), true))
             {
-                scriptsFile.WriteLine(s.ProgramId + "," + scopeType + "," + scopeName + "," + s.Code.Count + "," +
-                                      allStatements.Count + "," + maxIndent);
+                scriptsFile.WriteLine(script.ProgramId + ",\"" + scopeType + "\",\"" + scopeName + "\"," +
+                                      script.Code.Count + "," + allStatements.Count + "," + maxIndent);
             }
         }
 
         private static ArrayList Flatten(ref int order, JArray scripts, ref string scopeType, ref string scopeName,
-            ref int indent, int id, ref int maxIndent)
+            ref int indent, ref int maxIndent)
         {
             ArrayList result = new ArrayList();
 
-            if (scopeName[0] != '"')
-            {
-                //not in quotes? add them
-                scopeName = "\"" + scopeName + "\"";
-            }
-
-
-            //by default we add the order, type of the scope (scene, sprite, or proc) the name of the scope and the indent
-            string toPrint = scopeType + "," + scopeName + "," + indent;
+            string toPrint = "\"" + scopeType + "\",\"" + scopeName + "\"," + indent;
             bool added = false;
-
             bool addOrder = true;
+
 
             foreach (JToken innerScript in scripts)
             {
-                //if the script is primitive, we just print it.
                 if (innerScript is JValue)
                 {
                     if (addOrder)
                     {
-                        toPrint += "," + order + "," + innerScript;
-                        order = order + 1;
+                        toPrint += "," + order + ",\"" + innerScript + "\"";
+                        
+                        order++;
                         addOrder = false;
                     }
                     else
                     {
-                        toPrint += "," + innerScript;
+                        toPrint += ",\"" + innerScript + "\"";
                     }
 
                     added = true;
-                    //it could be that there will be more primitives (arguments) so we only print at the end
                 }
 
                 JArray array = innerScript as JArray;
@@ -326,11 +317,11 @@ namespace Kragle.Parse
                 {
                     if (!array.Any())
                     {
-                        //this is an empy array
                         if (addOrder)
                         {
                             toPrint += "," + order + ",[]";
-                            order = order + 1;
+                            
+                            order++;
                             addOrder = false;
                         }
                         else
@@ -347,7 +338,7 @@ namespace Kragle.Parse
                         }
                         foreach (
                             object item in
-                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, id, ref maxIndent))
+                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, ref maxIndent))
                         {
                             result.Add(item);
                         }
@@ -355,10 +346,9 @@ namespace Kragle.Parse
                 }
                 else
                 {
-                    if (array.Any() && innerScript[0].ToString() == "\"procDef\"")
+                    if (array.Any() && innerScript[0].ToString() == "procDef")
                     {
-                        toPrint += ",procdef";
-                        //now set the other blocks to the scope of this proc
+                        toPrint += ",\"procdef\"";
                         scopeType = "procDef";
                         scopeName = innerScript[1].ToString();
 
@@ -371,10 +361,10 @@ namespace Kragle.Parse
                         {
                             maxIndent = j;
                         }
-                        
+
                         foreach (
                             object item in
-                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, id, ref maxIndent))
+                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, ref maxIndent))
                         {
                             result.Add(item);
                         }
@@ -400,14 +390,14 @@ namespace Kragle.Parse
         public class Script
         {
             public JArray Code;
-            public string Scope;
+            public string ScopeType;
             public string ScopeName;
             public int ProgramId;
 
-            public Script(JArray code, string scope, string scopeName, int programId)
+            public Script(JArray code, string scopeType, string scopeName, int programId)
             {
                 Code = code;
-                Scope = scope;
+                ScopeType = scopeType;
                 ScopeName = scopeName;
                 ProgramId = programId;
             }
