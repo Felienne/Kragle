@@ -166,11 +166,9 @@ namespace Kragle.Parse
         /// </summary>
         public void WriteCode()
         {
-            using (CsvWriter projectCodeWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectCodeCsv)))
             using (CsvWriter codeProcedureWriter =
                 new CsvWriter(FileStore.GetAbsolutePath(Resources.CodeProceduresCsv)))
             {
-                projectCodeWriter.WriteHeaders("projectId", "date", "code");
                 codeProcedureWriter.WriteHeaders("projectId", "date", "stage", "procedureName", "argumentCount");
 
                 DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
@@ -192,13 +190,7 @@ namespace Kragle.Parse
                         string code = File.ReadAllText(codeFile.FullName);
                         string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
 
-                        projectCodeWriter
-                            .Write(int.Parse(project.Name))
-                            .Write(codeDate)
-                            .Write(code)
-                            .Newline();
-
-                        GetProcedures(projectId, code);
+                        GetProcedures(projectId, DateTime.Parse(codeDate), code);
                     }
                 }
             }
@@ -209,9 +201,10 @@ namespace Kragle.Parse
         ///     Compiles the list of procedures in the given code.
         /// </summary>
         /// <param name="projectId">the id of the code's project</param>
+        /// <param name="date">the date the code was updated</param>
         /// <param name="rawCode">the complete code of a project</param>
         /// <returns>the list of procedures in the given code</returns>
-        private static void GetProcedures(int projectId, string rawCode)
+        private static void GetProcedures(int projectId, DateTime date, string rawCode)
         {
             // Procedure definitions in root
             JObject code = JObject.Parse(rawCode);
@@ -222,7 +215,7 @@ namespace Kragle.Parse
                 {
                     foreach (JArray script in scripts.OfType<JArray>())
                     {
-                        WriteToFile(new Script(script[2] as JArray, "stage", "stage", projectId));
+                        WriteToFile(new Script(projectId, date, script[2] as JArray, ScopeType.Stage, "stage"));
                     }
                 }
             }
@@ -243,7 +236,7 @@ namespace Kragle.Parse
                 {
                     foreach (JArray script in scripts.OfType<JArray>())
                     {
-                        WriteToFile(new Script(script[2] as JArray, "sprite", spriteName, projectId));
+                        WriteToFile(new Script(projectId, date, script[2] as JArray, ScopeType.Sprite, spriteName));
                     }
                 }
             }
@@ -252,121 +245,95 @@ namespace Kragle.Parse
 
         public static void WriteToFile(Script script)
         {
-            int order = 0;
-            int indent = 0;
-            string scopeType = script.ScopeType;
+            ScopeType scopeType = script.ScopeType;
             string scopeName = script.ScopeName;
+            int indent = 0;
 
-            int maxIndent = 0;
+            ArrayList allStatements = Flatten(script, script.Code, ref scopeType, ref scopeName, ref indent);
 
-            ArrayList allStatements = Flatten(ref order, script.Code, ref scopeType, ref scopeName, ref indent,
-                ref maxIndent);
 
-            foreach (object statement in allStatements)
+            using (StreamWriter analysisFile = new StreamWriter(FileStore.GetAbsolutePath("code.csv"), true))
             {
-                using (StreamWriter analysisFile =
-                    new StreamWriter(FileStore.GetAbsolutePath("NEW_analysis.csv"), true))
+                foreach (object statement in allStatements)
                 {
-                    analysisFile.WriteLine(script.ProgramId + "," + statement);
+                    analysisFile.WriteLine(script.ProgramId + ",\"" + script.Date.ToString("yyyy-MM-dd") + "\"," +
+                                           statement);
                 }
             }
 
-            using (StreamWriter scriptsFile = new StreamWriter(FileStore.GetAbsolutePath("NEW_scripts.csv"), true))
+            using (StreamWriter scriptsFile = new StreamWriter(FileStore.GetAbsolutePath("scripts.csv"), true))
             {
-                scriptsFile.WriteLine(script.ProgramId + ",\"" + scopeType + "\",\"" + scopeName + "\"," +
-                                      script.Code.Count + "," + allStatements.Count + "," + maxIndent);
+                scriptsFile.WriteLine(script.ProgramId + ",\"" + script.Date.ToString("yyyy-MM-dd") + "\",\"" +
+                                      scopeType + "\",\"" + scopeName + "\"," + allStatements.Count);
             }
         }
 
-        private static ArrayList Flatten(ref int order, JArray scripts, ref string scopeType, ref string scopeName,
-            ref int indent, ref int maxIndent)
+        private static ArrayList Flatten(Script script, JArray scripts, ref ScopeType scopeType, ref string scopeName,
+            ref int indent)
         {
             ArrayList result = new ArrayList();
 
             string toPrint = "\"" + scopeType + "\",\"" + scopeName + "\"," + indent;
             bool added = false;
-            bool addOrder = true;
 
 
             foreach (JToken innerScript in scripts)
             {
                 if (innerScript is JValue)
                 {
-                    if (addOrder)
-                    {
-                        toPrint += "," + order + ",\"" + innerScript + "\"";
-                        
-                        order++;
-                        addOrder = false;
-                    }
-                    else
-                    {
-                        toPrint += ",\"" + innerScript + "\"";
-                    }
-
+                    toPrint += "," + innerScript;
                     added = true;
                 }
-
-                JArray array = innerScript as JArray;
-                if (array == null)
+                else if (innerScript is JArray)
                 {
-                    continue;
-                }
+                    JArray array = (JArray) innerScript;
 
-                if (AllOneField(array))
-                {
-                    if (!array.Any())
+                    if (AllOneField(array))
                     {
-                        if (addOrder)
-                        {
-                            toPrint += "," + order + ",[]";
-                            
-                            order++;
-                            addOrder = false;
-                        }
-                        else
+                        if (!array.Any())
                         {
                             toPrint += ",[]";
                         }
+                        else
+                        {
+                            int newIndent = indent + 1;
+
+                            foreach (
+                                object item in
+                                Flatten(script, array, ref scopeType, ref scopeName, ref newIndent))
+                            {
+                                result.Add(item);
+                            }
+                        }
                     }
                     else
                     {
-                        int j = indent + 1;
-                        if (j > maxIndent)
+                        if (array.Any() && array[0].ToString() == "procDef")
                         {
-                            maxIndent = j;
-                        }
-                        foreach (
-                            object item in
-                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, ref maxIndent))
-                        {
-                            result.Add(item);
-                        }
-                    }
-                }
-                else
-                {
-                    if (array.Any() && innerScript[0].ToString() == "procDef")
-                    {
-                        toPrint += ",\"procdef\"";
-                        scopeType = "procDef";
-                        scopeName = innerScript[1].ToString();
+                            toPrint += ",\"procdef\"";
+                            scopeType = ScopeType.ProcDef;
 
-                        added = true;
-                    }
-                    else
-                    {
-                        int j = indent + 1;
-                        if (j > maxIndent)
-                        {
-                            maxIndent = j;
-                        }
+                            using (StreamWriter scriptsFile =
+                                new StreamWriter(FileStore.GetAbsolutePath("procedures.csv"), true))
+                            {
+                                scriptsFile.WriteLine(script.ProgramId + ",\"" + script.Date.ToString("yyyy-MM-dd") +
+                                                      "\",\"" + scopeName + "\"," + array[1].ToString(Formatting.None) +
+                                                      "," + array[2].Count());
+                            }
 
-                        foreach (
-                            object item in
-                            Flatten(ref order, array, ref scopeType, ref scopeName, ref j, ref maxIndent))
+                            scopeName = array[1].ToString();
+                            added = true;
+                        }
+                        else
                         {
-                            result.Add(item);
+                            int newIndent = indent + 1;
+
+                            foreach (
+                                object item in
+                                Flatten(script, array, ref scopeType, ref scopeName, ref newIndent))
+                            {
+                                result.Add(item);
+                            }
                         }
                     }
                 }
@@ -389,18 +356,27 @@ namespace Kragle.Parse
 
         public class Script
         {
-            public JArray Code;
-            public string ScopeType;
-            public string ScopeName;
             public int ProgramId;
+            public DateTime Date;
+            public JArray Code;
+            public ScopeType ScopeType;
+            public string ScopeName;
 
-            public Script(JArray code, string scopeType, string scopeName, int programId)
+            public Script(int programId, DateTime date, JArray code, ScopeType scopeType, string scopeName)
             {
+                ProgramId = programId;
+                Date = date;
                 Code = code;
                 ScopeType = scopeType;
                 ScopeName = scopeName;
-                ProgramId = programId;
             }
+        }
+
+        public enum ScopeType
+        {
+            Stage,
+            Sprite,
+            ProcDef
         }
     }
 }
