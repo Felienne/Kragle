@@ -23,14 +23,15 @@ namespace Kragle.Parse
         ///     Constructs a new <code>CsvWriter</code>.
         /// </summary>
         /// <param name="file">the path to the file to write to</param>
+        /// <param name="append">true if the given file should be appended</param>
         /// <param name="lineArguments">
         ///     the number of arguments per line; if this value is non-zero a newline will be appended after this many
         ///     arguments have been written
         /// </param>
-        public CsvWriter(string file, int lineArguments = 0)
+        public CsvWriter(string file, bool append = false, int lineArguments = 0)
         {
             _lineArguments = lineArguments;
-            _writer = new StreamWriter(file);
+            _writer = new StreamWriter(file, append);
 
             _linePosition = 0;
         }
@@ -54,6 +55,16 @@ namespace Kragle.Parse
             Write(string.Join(",", data), false);
             Newline();
             return this;
+        }
+
+        /// <summary>
+        ///     Writes the given data to the CSV. All strings are escaped by surrounding them with ".
+        /// </summary>
+        /// <param name="data">the string data to write</param>
+        /// <returns>this <code>CsvWriter</code></returns>
+        public CsvWriter Write(object data)
+        {
+            return Write(data.ToString());
         }
 
         /// <summary>

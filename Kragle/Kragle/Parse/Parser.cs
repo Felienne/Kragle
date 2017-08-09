@@ -17,7 +17,7 @@ namespace Kragle.Parse
     public sealed class CodeParser
     {
         private static readonly Logger Logger = Logger.GetLogger("CodeParser");
-        private static readonly int ParamCount = 10;
+        private const int ParamCount = 10;
 
 
         /// <summary>
@@ -250,15 +250,23 @@ namespace Kragle.Parse
             string scopeName = script.ScopeName;
             int indent = 0;
 
-            ArrayList allStatements = Flatten(script, script.Code, ref scopeType, ref scopeName, ref indent);
+            List<List<object>> allStatements = Flatten(script, script.Code, ref scopeType, ref scopeName, ref indent);
 
 
-            using (StreamWriter analysisFile = new StreamWriter(FileStore.GetAbsolutePath("code.csv"), true))
+            using (CsvWriter codeWriter = new CsvWriter(FileStore.GetAbsolutePath("code.csv"), true))
             {
-                foreach (object statement in allStatements)
+                foreach (List<object> statement in allStatements)
                 {
-                    analysisFile.WriteLine(script.ProgramId + ",\"" + script.Date.ToString("yyyy-MM-dd") + "\"," +
-                                           statement);
+                    codeWriter
+                        .Write(script.ProgramId)
+                        .Write(script.Date.ToString("yyyy-MM-dd"));
+                    
+                    foreach (object part in statement)
+                    {
+                        codeWriter.Write(part);
+                    }
+                    
+                    codeWriter.Newline();
                 }
             }
 
@@ -269,14 +277,13 @@ namespace Kragle.Parse
             }
         }
 
-        private static ArrayList Flatten(Script script, JArray scripts, ref ScopeType scopeType, ref string scopeName,
-            ref int indent)
+        private static List<List<object>> Flatten(Script script, JArray scripts, ref ScopeType scopeType,
+            ref string scopeName, ref int indent)
         {
-            ArrayList result = new ArrayList();
+            List<List<object>> result = new List<List<object>>();
 
-            string toPrint = indent + ",\"" + scopeType + "\",\"" + scopeName + "\"";
+            List<object> toPrint = new List<object> {indent, scopeType, scopeName};
             bool added = false;
-
 
             int i = 0;
             foreach (JToken innerScript in scripts)
@@ -284,7 +291,7 @@ namespace Kragle.Parse
                 if (innerScript is JValue)
                 {
                     i++;
-                    toPrint += ",\"" + innerScript + "\"";
+                    toPrint.Add(innerScript);
                     added = true;
                 }
                 else if (innerScript is JArray)
@@ -295,7 +302,7 @@ namespace Kragle.Parse
                     {
                         if (!array.Any())
                         {
-                            toPrint += ",[]";
+                            toPrint.Add("[]");
                         }
                         else
                         {
@@ -308,7 +315,7 @@ namespace Kragle.Parse
                         if (array.Any() && array[0].ToString() == "procDef")
                         {
                             i++;
-                            toPrint += ",\"procdef\"";
+                            toPrint.Add("procdef");
                             scopeType = ScopeType.ProcDef;
 
                             using (StreamWriter scriptsFile =
@@ -333,7 +340,7 @@ namespace Kragle.Parse
 
             for (; i < ParamCount + 1; i++)
             {
-                toPrint += ",\"\"";
+                toPrint.Add("");
             }
 
             if (added)
@@ -341,15 +348,14 @@ namespace Kragle.Parse
                 result.Add(toPrint);
             }
 
-
             return result;
         }
+
 
         private static bool AllOneField(JArray script)
         {
             return script.Count <= 1 && script.OfType<JArray>().All(AllOneField);
         }
-
 
         public class Script
         {
