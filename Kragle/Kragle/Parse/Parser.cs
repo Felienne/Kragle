@@ -167,46 +167,48 @@ namespace Kragle.Parse
         /// </summary>
         public void WriteCode()
         {
-            using (CsvWriter codeProcedureWriter =
-                new CsvWriter(FileStore.GetAbsolutePath(Resources.CodeProceduresCsv)))
+            ParsedCode parsedCode = new ParsedCode();
+
+            DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
+            int projectTotal = projects.Length;
+            int projectCurrent = 0;
+
+            Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
+
+            foreach (DirectoryInfo project in projects)
             {
-                codeProcedureWriter.WriteHeaders("projectId", "date", "stage", "procedureName", "argumentCount");
+                int projectId = int.Parse(project.Name);
 
-                DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
-                int projectTotal = projects.Length;
-                int projectCurrent = 0;
+                projectCurrent++;
+                Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
+                    projectCurrent, projectTotal));
 
-                Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
-
-                foreach (DirectoryInfo project in projects)
+                foreach (FileInfo codeFile in project.GetFiles())
                 {
-                    int projectId = int.Parse(project.Name);
+                    string code = File.ReadAllText(codeFile.FullName);
+                    string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
 
-                    projectCurrent++;
-                    Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
-                        projectCurrent, projectTotal));
-
-                    foreach (FileInfo codeFile in project.GetFiles())
-                    {
-                        string code = File.ReadAllText(codeFile.FullName);
-                        string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
-
-                        GetProcedures(projectId, DateTime.Parse(codeDate), code);
-                    }
+                    parsedCode.Join(ParseCode(projectId, DateTime.Parse(codeDate), code));
                 }
             }
+
+            WriteAllToCsv(parsedCode.Commands, "code.csv");
+            WriteAllToCsv(parsedCode.Scripts, "scripts.csv");
+            WriteAllToCsv(parsedCode.Procedures, "procedures.csv");
         }
 
 
         /// <summary>
-        ///     Compiles the list of procedures in the given code.
+        ///     Compiles the lists of commands, scripts, and procedures in the given code.
         /// </summary>
         /// <param name="projectId">the id of the code's project</param>
         /// <param name="date">the date the code was updated</param>
         /// <param name="rawCode">the complete code of a project</param>
         /// <returns>the list of procedures in the given code</returns>
-        private static void GetProcedures(int projectId, DateTime date, string rawCode)
+        private static ParsedCode ParseCode(int projectId, DateTime date, string rawCode)
         {
+            ParsedCode parsedCode = new ParsedCode();
+
             // Procedure definitions in root
             JObject code = JObject.Parse(rawCode);
             {
@@ -214,9 +216,11 @@ namespace Kragle.Parse
 
                 if (scripts != null)
                 {
-                    foreach (JArray script in scripts.OfType<JArray>())
+                    foreach (JArray scriptArray in scripts.OfType<JArray>())
                     {
-                        WriteToFile(new Script(projectId, date, script[2] as JArray, ScopeType.Stage, "stage"));
+                        Script script = new Script(projectId, date, scriptArray[2] as JArray, ScopeType.Stage, "stage");
+
+                        parsedCode.Join(ParseScript(script));
                     }
                 }
             }
@@ -235,54 +239,53 @@ namespace Kragle.Parse
 
                 if (scripts != null)
                 {
-                    foreach (JArray script in scripts.OfType<JArray>())
+                    foreach (JArray scriptArray in scripts.OfType<JArray>())
                     {
-                        WriteToFile(new Script(projectId, date, script[2] as JArray, ScopeType.Sprite, spriteName));
+                        Script script = new Script(projectId, date, scriptArray[2] as JArray, ScopeType.Sprite,
+                            spriteName);
+
+                        parsedCode.Join(ParseScript(script));
                     }
                 }
             }
+
+            return parsedCode;
         }
 
 
-        public static void WriteToFile(Script script)
+        public static ParsedCode ParseScript(Script script)
         {
+            ParsedCode scriptCode = new ParsedCode();
+
             ScopeType scopeType = script.ScopeType;
             string scopeName = script.ScopeName;
             int indent = 0;
 
-            List<List<object>> allStatements = Flatten(script, script.Code, ref scopeType, ref scopeName, ref indent);
-
-
-            using (CsvWriter codeWriter = new CsvWriter(FileStore.GetAbsolutePath("code.csv"), true))
+            scriptCode.Join(ParseCommands(script, script.Code, ref scopeType, ref scopeName, ref indent));
+            scriptCode.Scripts.Add(new List<object>
             {
-                foreach (List<object> statement in allStatements)
-                {
-                    codeWriter
-                        .Write(script.ProgramId)
-                        .Write(script.Date.ToString("yyyy-MM-dd"));
-                    
-                    foreach (object part in statement)
-                    {
-                        codeWriter.Write(part);
-                    }
-                    
-                    codeWriter.Newline();
-                }
-            }
+                script.ProgramId,
+                script.Date.ToString("yyyy-MM-dd"),
+                scopeType,
+                scopeName,
+                scriptCode.Commands.Count
+            });
 
-            using (StreamWriter scriptsFile = new StreamWriter(FileStore.GetAbsolutePath("scripts.csv"), true))
-            {
-                scriptsFile.WriteLine(script.ProgramId + ",\"" + script.Date.ToString("yyyy-MM-dd") + "\",\"" +
-                                      scopeType + "\",\"" + scopeName + "\"," + allStatements.Count);
-            }
+            return scriptCode;
         }
 
-        private static List<List<object>> Flatten(Script script, JArray scripts, ref ScopeType scopeType,
+        private static ParsedCode ParseCommands(Script script, JArray scripts, ref ScopeType scopeType,
             ref string scopeName, ref int indent)
         {
-            List<List<object>> result = new List<List<object>>();
-
-            List<object> toPrint = new List<object> {indent, scopeType, scopeName};
+            ParsedCode parsedCode = new ParsedCode();
+            List<object> command = new List<object>
+            {
+                script.ProgramId,
+                script.Date.ToString("yyyy-MM-dd"),
+                indent,
+                scopeType,
+                scopeName
+            };
             bool added = false;
 
             int i = 0;
@@ -291,8 +294,8 @@ namespace Kragle.Parse
                 if (innerScript is JValue)
                 {
                     i++;
-                    toPrint.Add(innerScript);
                     added = true;
+                    command.Add(innerScript);
                 }
                 else if (innerScript is JArray)
                 {
@@ -302,12 +305,13 @@ namespace Kragle.Parse
                     {
                         if (!array.Any())
                         {
-                            toPrint.Add("[]");
+                            command.Add("[]");
                         }
                         else
                         {
                             int newIndent = indent + 1;
-                            result.AddRange(Flatten(script, array, ref scopeType, ref scopeName, ref newIndent));
+
+                            parsedCode.Join(ParseCommands(script, array, ref scopeType, ref scopeName, ref newIndent));
                         }
                     }
                     else
@@ -315,24 +319,27 @@ namespace Kragle.Parse
                         if (array.Any() && array[0].ToString() == "procDef")
                         {
                             i++;
-                            toPrint.Add("procdef");
-                            scopeType = ScopeType.ProcDef;
-
-                            using (StreamWriter scriptsFile =
-                                new StreamWriter(FileStore.GetAbsolutePath("procedures.csv"), true))
-                            {
-                                scriptsFile.WriteLine(script.ProgramId + ",\"" + script.Date.ToString("yyyy-MM-dd") +
-                                                      "\",\"" + scopeName + "\"," + array[1].ToString(Formatting.None) +
-                                                      "," + array[2].Count());
-                            }
-
-                            scopeName = array[1].ToString();
                             added = true;
+                            command.Add("procdef");
+
+                            parsedCode.Procedures.Add(new List<object>
+                            {
+                                script.ProgramId,
+                                script.Date.ToString("yyyy-MM-dd"),
+                                scopeName,
+                                array[1].ToString(Formatting.None),
+                                array[2].Count()
+                            });
+
+                            scopeType = ScopeType.ProcDef;
+                            scopeName = array[1].ToString();
                         }
                         else
                         {
                             int newIndent = indent + 1;
-                            result.AddRange(Flatten(script, array, ref scopeType, ref scopeName, ref newIndent));
+
+                            parsedCode.Join(
+                                ParseCommands(script, array, ref scopeType, ref scopeName, ref newIndent));
                         }
                     }
                 }
@@ -340,15 +347,31 @@ namespace Kragle.Parse
 
             for (; i < ParamCount + 1; i++)
             {
-                toPrint.Add("");
+                command.Add("");
             }
 
             if (added)
             {
-                result.Add(toPrint);
+                parsedCode.Commands.Add(command);
             }
 
-            return result;
+            return parsedCode;
+        }
+
+        private static void WriteAllToCsv(List<List<object>> data, string filename)
+        {
+            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(filename)))
+            {
+                foreach (List<object> datum in data)
+                {
+                    foreach (object column in datum)
+                    {
+                        writer.Write(column);
+                    }
+
+                    writer.Newline();
+                }
+            }
         }
 
 
@@ -380,6 +403,36 @@ namespace Kragle.Parse
             Stage,
             Sprite,
             ProcDef
+        }
+
+        public class ParsedCode
+        {
+            public List<List<object>> Commands;
+            public List<List<object>> Scripts;
+            public List<List<object>> Procedures;
+
+
+            public ParsedCode()
+            {
+                Commands = new List<List<object>>();
+                Scripts = new List<List<object>>();
+                Procedures = new List<List<object>>();
+            }
+
+            public ParsedCode(List<List<object>> commands, List<List<object>> scripts, List<List<object>> procedures)
+            {
+                Commands = commands;
+                Scripts = scripts;
+                Procedures = procedures;
+            }
+
+
+            public void Join(ParsedCode parsedCode)
+            {
+                Commands.AddRange(parsedCode.Commands);
+                Scripts.AddRange(parsedCode.Scripts);
+                Procedures.AddRange(parsedCode.Procedures);
+            }
         }
     }
 }
