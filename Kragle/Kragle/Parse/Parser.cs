@@ -17,6 +17,7 @@ namespace Kragle.Parse
     public sealed class CodeParser
     {
         private static readonly Logger Logger = Logger.GetLogger("CodeParser");
+        private static readonly int ParamCount = 10;
 
 
         /// <summary>
@@ -273,7 +274,7 @@ namespace Kragle.Parse
         {
             ArrayList result = new ArrayList();
 
-            string toPrint = "\"" + scopeType + "\",\"" + scopeName + "\"," + indent;
+            string toPrint = indent + ",\"" + scopeType + "\",\"" + scopeName + "\"";
             bool added = false;
 
 
@@ -281,7 +282,7 @@ namespace Kragle.Parse
             {
                 if (innerScript is JValue)
                 {
-                    toPrint += "," + innerScript;
+                    toPrint += ",\"" + innerScript + "\"";
                     added = true;
                 }
                 else if (innerScript is JArray)
@@ -297,13 +298,7 @@ namespace Kragle.Parse
                         else
                         {
                             int newIndent = indent + 1;
-
-                            foreach (
-                                object item in
-                                Flatten(script, array, ref scopeType, ref scopeName, ref newIndent))
-                            {
-                                result.Add(item);
-                            }
+                            result.AddRange(Flatten(script, array, ref scopeType, ref scopeName, ref newIndent));
                         }
                     }
                     else
@@ -327,13 +322,7 @@ namespace Kragle.Parse
                         else
                         {
                             int newIndent = indent + 1;
-
-                            foreach (
-                                object item in
-                                Flatten(script, array, ref scopeType, ref scopeName, ref newIndent))
-                            {
-                                result.Add(item);
-                            }
+                            result.AddRange(Flatten(script, array, ref scopeType, ref scopeName, ref newIndent));
                         }
                     }
                 }
