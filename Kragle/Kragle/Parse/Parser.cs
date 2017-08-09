@@ -278,10 +278,12 @@ namespace Kragle.Parse
             bool added = false;
 
 
+            int i = 0;
             foreach (JToken innerScript in scripts)
             {
                 if (innerScript is JValue)
                 {
+                    i++;
                     toPrint += ",\"" + innerScript + "\"";
                     added = true;
                 }
@@ -305,6 +307,7 @@ namespace Kragle.Parse
                     {
                         if (array.Any() && array[0].ToString() == "procDef")
                         {
+                            i++;
                             toPrint += ",\"procdef\"";
                             scopeType = ScopeType.ProcDef;
 
@@ -326,6 +329,11 @@ namespace Kragle.Parse
                         }
                     }
                 }
+            }
+
+            for (; i < ParamCount + 1; i++)
+            {
+                toPrint += ",\"\"";
             }
 
             if (added)
