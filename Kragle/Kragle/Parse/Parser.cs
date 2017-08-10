@@ -172,23 +172,28 @@ namespace Kragle.Parse
 
             Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
-            foreach (DirectoryInfo project in projects)
+            using (CsvWriter codeWriter = new CsvWriter(FileStore.GetAbsolutePath("code.csv"), true))
+            using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath("scripts.csv"), true))
+            using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath("procedures.csv"), true))
             {
-                int projectId = int.Parse(project.Name);
-
-                projectCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
-                    projectCurrent, projectTotal));
-
-                foreach (FileInfo codeFile in project.GetFiles())
+                foreach (DirectoryInfo project in projects)
                 {
-                    string code = File.ReadAllText(codeFile.FullName);
-                    string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
+                    int projectId = int.Parse(project.Name);
 
-                    ParsedCode parsedCode = ParseCode(projectId, DateTime.Parse(codeDate), code);
-                    WriteAllToCsv(parsedCode.Commands, "code.csv", true);
-                    WriteAllToCsv(parsedCode.Scripts, "scripts.csv", true);
-                    WriteAllToCsv(parsedCode.Procedures, "procedures.csv", true);
+                    projectCurrent++;
+                    Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
+                        projectCurrent, projectTotal));
+
+                    foreach (FileInfo codeFile in project.GetFiles())
+                    {
+                        string code = File.ReadAllText(codeFile.FullName);
+                        string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
+
+                        ParsedCode parsedCode = ParseCode(projectId, DateTime.Parse(codeDate), code);
+                        WriteAllToCsv(codeWriter, parsedCode.Commands);
+                        WriteAllToCsv(scriptWriter, parsedCode.Scripts);
+                        WriteAllToCsv(procedureWriter, parsedCode.Procedures);
+                    }
                 }
             }
         }
@@ -200,7 +205,7 @@ namespace Kragle.Parse
         /// <param name="projectId">the id of the code's project</param>
         /// <param name="date">the date the code was updated</param>
         /// <param name="rawCode">the complete code of a project</param>
-        /// <returns>the list of procedures in the given code</returns>
+        /// <returns>the list of commands, scripts, and procedures in the given code</returns>
         private static ParsedCode ParseCode(int projectId, DateTime date, string rawCode)
         {
             ParsedCode parsedCode = new ParsedCode();
@@ -249,7 +254,12 @@ namespace Kragle.Parse
         }
 
 
-        public static ParsedCode ParseScript(Script script)
+        /// <summary>
+        ///     Compiles the given script.
+        /// </summary>
+        /// <param name="script">a script</param>
+        /// <returns>the list of commands and procedures in the given script, and the script itself</returns>
+        private static ParsedCode ParseScript(Script script)
         {
             ParsedCode scriptCode = new ParsedCode();
 
@@ -257,7 +267,7 @@ namespace Kragle.Parse
             string scopeName = script.ScopeName;
             int indent = 0;
 
-            scriptCode.Join(ParseCommands(script, script.Code, ref scopeType, ref scopeName, ref indent));
+            scriptCode.Join(ParseScripts(script, script.Code, ref scopeType, ref scopeName, ref indent));
             scriptCode.Scripts.Add(new List<object>
             {
                 script.ProgramId,
@@ -270,15 +280,24 @@ namespace Kragle.Parse
             return scriptCode;
         }
 
-        private static ParsedCode ParseCommands(Script script, JArray scripts, ref ScopeType scopeType,
-            ref string scopeName, ref int indent)
+        /// <summary>
+        ///     Recursively compiles the lists of commands and procedures in the given script.
+        /// </summary>
+        /// <param name="script">a script</param>
+        /// <param name="scripts">the script's code</param>
+        /// <param name="scopeType">the type of the current scope</param>
+        /// <param name="scopeName">the name of the current scope</param>
+        /// <param name="depth">the current recursive depth</param>
+        /// <returns>the lists of commands and procedures in the given script</returns>
+        private static ParsedCode ParseScripts(Script script, JArray scripts, ref ScopeType scopeType,
+            ref string scopeName, ref int depth)
         {
             ParsedCode parsedCode = new ParsedCode();
             List<object> command = new List<object>
             {
                 script.ProgramId,
                 script.Date.ToString("yyyy-MM-dd"),
-                indent,
+                depth,
                 scopeType,
                 scopeName
             };
@@ -305,9 +324,9 @@ namespace Kragle.Parse
                         }
                         else
                         {
-                            int newIndent = indent + 1;
+                            int newDepth = depth + 1;
 
-                            parsedCode.Join(ParseCommands(script, array, ref scopeType, ref scopeName, ref newIndent));
+                            parsedCode.Join(ParseScripts(script, array, ref scopeType, ref scopeName, ref newDepth));
                         }
                     }
                     else
@@ -332,10 +351,10 @@ namespace Kragle.Parse
                         }
                         else
                         {
-                            int newIndent = indent + 1;
+                            int newDepth = depth + 1;
 
                             parsedCode.Join(
-                                ParseCommands(script, array, ref scopeType, ref scopeName, ref newIndent));
+                                ParseScripts(script, array, ref scopeType, ref scopeName, ref newDepth));
                         }
                     }
                 }
@@ -354,35 +373,42 @@ namespace Kragle.Parse
             return parsedCode;
         }
 
-        private static void WriteAllToCsv(List<List<object>> data, string filename, bool append = false)
+        /// <summary>
+        ///     Writes all given data using the given writer.
+        /// </summary>
+        /// <param name="writer">a <code>CsvWriter</code></param>
+        /// <param name="data">the data to write</param>
+        private static void WriteAllToCsv(CsvWriter writer, IEnumerable<List<object>> data)
         {
-            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(filename), append))
+            foreach (List<object> datum in data)
             {
-                foreach (List<object> datum in data)
+                foreach (object column in datum)
                 {
-                    foreach (object column in datum)
-                    {
-                        writer.Write(column);
-                    }
-
-                    writer.Newline();
+                    writer.Write(column);
                 }
+
+                writer.Newline();
             }
         }
 
 
+        /// <summary>
+        /// Returns true iff. the given script consists of one field, or of one field 
+        /// </summary>
+        /// <param name="script"></param>
+        /// <returns></returns>
         private static bool AllOneField(JArray script)
         {
             return script.Count <= 1 && script.OfType<JArray>().All(AllOneField);
         }
 
-        public class Script
+        private class Script
         {
-            public int ProgramId;
-            public DateTime Date;
-            public JArray Code;
-            public ScopeType ScopeType;
-            public string ScopeName;
+            public readonly int ProgramId;
+            public readonly DateTime Date;
+            public readonly JArray Code;
+            public readonly ScopeType ScopeType;
+            public readonly string ScopeName;
 
             public Script(int programId, DateTime date, JArray code, ScopeType scopeType, string scopeName)
             {
@@ -394,18 +420,18 @@ namespace Kragle.Parse
             }
         }
 
-        public enum ScopeType
+        private enum ScopeType
         {
             Stage,
             Sprite,
             ProcDef
         }
 
-        public class ParsedCode
+        private class ParsedCode
         {
-            public List<List<object>> Commands;
-            public List<List<object>> Scripts;
-            public List<List<object>> Procedures;
+            public readonly List<List<object>> Commands;
+            public readonly List<List<object>> Scripts;
+            public readonly List<List<object>> Procedures;
 
 
             public ParsedCode()
@@ -413,13 +439,6 @@ namespace Kragle.Parse
                 Commands = new List<List<object>>();
                 Scripts = new List<List<object>>();
                 Procedures = new List<List<object>>();
-            }
-
-            public ParsedCode(List<List<object>> commands, List<List<object>> scripts, List<List<object>> procedures)
-            {
-                Commands = commands;
-                Scripts = scripts;
-                Procedures = procedures;
             }
 
 
