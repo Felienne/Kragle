@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -167,8 +166,6 @@ namespace Kragle.Parse
         /// </summary>
         public void WriteCode()
         {
-            ParsedCode parsedCode = new ParsedCode();
-
             DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
             int projectTotal = projects.Length;
             int projectCurrent = 0;
@@ -188,13 +185,12 @@ namespace Kragle.Parse
                     string code = File.ReadAllText(codeFile.FullName);
                     string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
 
-                    parsedCode.Join(ParseCode(projectId, DateTime.Parse(codeDate), code));
+                    ParsedCode parsedCode = ParseCode(projectId, DateTime.Parse(codeDate), code);
+                    WriteAllToCsv(parsedCode.Commands, "code.csv", true);
+                    WriteAllToCsv(parsedCode.Scripts, "scripts.csv", true);
+                    WriteAllToCsv(parsedCode.Procedures, "procedures.csv", true);
                 }
             }
-
-            WriteAllToCsv(parsedCode.Commands, "code.csv");
-            WriteAllToCsv(parsedCode.Scripts, "scripts.csv");
-            WriteAllToCsv(parsedCode.Procedures, "procedures.csv");
         }
 
 
@@ -358,9 +354,9 @@ namespace Kragle.Parse
             return parsedCode;
         }
 
-        private static void WriteAllToCsv(List<List<object>> data, string filename)
+        private static void WriteAllToCsv(List<List<object>> data, string filename, bool append = false)
         {
-            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(filename)))
+            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(filename), append))
             {
                 foreach (List<object> datum in data)
                 {
