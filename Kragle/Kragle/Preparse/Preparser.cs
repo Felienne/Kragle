@@ -14,13 +14,13 @@ namespace Kragle.Preparse
         private static readonly Logger Logger = Logger.GetLogger("Preparser");
 
 
-        public void PreparseCode()
+        public void PreparseCodeDuplicates()
         {
             DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
             int userTotal = userDirs.Length;
             int userCurrent = 0;
 
-            Logger.Log("Preparsing projects of " + userDirs.Length + " users.");
+            Logger.Log("Preparsing code of " + userDirs.Length + " users.");
 
             foreach (DirectoryInfo userDir in userDirs)
             {
@@ -28,7 +28,7 @@ namespace Kragle.Preparse
 
                 userCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
-                    "Preparsing projects of user " + LoggerHelper.ForceLength(username, 10),
+                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
                     userCurrent, userTotal));
 
                 Dictionary<int, DateTime> projectDates = new Dictionary<int, DateTime>();
@@ -65,7 +65,7 @@ namespace Kragle.Preparse
 
                             string codePath = FileStore.GetAbsolutePath(Resources.CodeDirectory,
                                 projectId + "/" + projectList.Name);
-                            
+
                             if (File.Exists(codePath))
                             {
                                 File.Delete(codePath);
@@ -74,6 +74,130 @@ namespace Kragle.Preparse
 
                         projectDates[projectId] = modifyDate;
                     }
+                }
+            }
+        }
+
+        public void RemoveUnchangedProjects()
+        {
+            RemoveUnchangedProjectCode();
+            RemoveUnchangedProjectsFromLists();
+            RemoveUsersWithoutProjects();
+        }
+
+
+        private static void RemoveUnchangedProjectCode()
+        {
+            DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.CodeDirectory);
+            int userTotal = userDirs.Length;
+            int userCurrent = 0;
+
+            Logger.Log("Preparsing projects of " + userDirs.Length + " users.");
+
+            foreach (DirectoryInfo userDir in userDirs)
+            {
+                string username = userDir.Name;
+
+                userCurrent++;
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
+                    userCurrent, userTotal));
+
+                FileInfo[] projectLists = userDir.GetFiles().OrderBy(projectList => projectList.Name).ToArray();
+
+                if (projectLists.Length <= 1)
+                {
+                    userDir.Delete(true);
+                }
+            }
+        }
+
+        private static void RemoveUnchangedProjectsFromLists()
+        {
+            DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
+            int userTotal = userDirs.Length;
+            int userCurrent = 0;
+
+            Logger.Log("Preparsing code of " + userDirs.Length + " users.");
+
+            foreach (DirectoryInfo userDir in userDirs)
+            {
+                string username = userDir.Name;
+
+                userCurrent++;
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
+                    userCurrent, userTotal));
+
+                FileInfo[] projectLists = userDir.GetFiles().OrderBy(projectList => projectList.Name).ToArray();
+
+                foreach (FileInfo projectList in projectLists)
+                {
+                    JArray projects;
+                    try
+                    {
+                        projects = JArray.Parse(File.ReadAllText(projectList.FullName));
+                    }
+                    catch (JsonReaderException e)
+                    {
+                        Logger.Log("The project metadata list of user `" + userDir.Name + "` could not be parsed.", e);
+                        return;
+                    }
+
+                    JArray filteredProjects = new JArray();
+                    foreach (JToken project in projects)
+                    {
+                        if (!(project is JObject))
+                        {
+                            Logger.Log("The metadata of a project of user `" + userDir.Name + "` could not be parsed.");
+                            return;
+                        }
+
+                        JObject metadata = (JObject) project;
+                        int projectId = int.Parse(metadata["id"].ToString());
+
+                        if (FileStore.DirectoryExists(Resources.CodeDirectory + "/" + projectId))
+                        {
+                            filteredProjects.Add(project);
+                        }
+                    }
+
+
+                    if (filteredProjects.Count == 0)
+                    {
+                        File.Delete(projectList.FullName);
+                    }
+                    else
+                    {
+                        File.WriteAllText(projectList.FullName, filteredProjects.ToString(Formatting.None));
+                    }
+                }
+            }
+        }
+
+        private static void RemoveUsersWithoutProjects()
+        {
+            FileInfo[] userDirs = FileStore.GetFiles(Resources.UserDirectory);
+            int userTotal = userDirs.Length;
+            int userCurrent = 0;
+
+            Logger.Log("Preparsing code of " + userDirs.Length + " users.");
+
+            foreach (FileInfo userDir in userDirs)
+            {
+                string username = Path.GetFileNameWithoutExtension(userDir.Name);
+
+                userCurrent++;
+                Logger.Log(LoggerHelper.FormatProgress(
+                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
+                    userCurrent, userTotal));
+
+                string userProjects = Resources.ProjectDirectory + "/" + username;
+                if (!FileStore.DirectoryExists(userProjects) || FileStore.GetFiles(userProjects).Length == 0)
+                {
+                    FileStore.RemoveFile(Resources.UserDirectory, username + ".json");
+                    FileStore.RemoveFile(Resources.ProjectDirectory, username + ".json");
+                    FileStore.RemoveDirectory(Resources.ProjectDirectory + "/" + username);
                 }
             }
         }

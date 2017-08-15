@@ -16,7 +16,7 @@ namespace Kragle.Parse
     public sealed class CodeParser
     {
         private static readonly Logger Logger = Logger.GetLogger("CodeParser");
-        private const int ParamCount = 10;
+        private const int ParamCount = 20;
 
 
         /// <summary>
