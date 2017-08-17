@@ -1,5 +1,7 @@
 ﻿using System;
 using CommandLine;
+using log4net;
+using log4net.Config;
 
 
 namespace Kragle
@@ -15,6 +17,8 @@ namespace Kragle
         /// <param name="args">the command-line arguments</param>
         private static void Main(string[] args)
         {
+            XmlConfigurator.Configure();
+            
             if (args == null || args.Length == 0)
             {
                 Environment.Exit(1);
