@@ -172,10 +172,18 @@ namespace Kragle.Parse
 
             Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
-            using (CsvWriter codeWriter = new CsvWriter(FileStore.GetAbsolutePath("code.csv"), true))
+            using (CsvWriter commandWriter = new CsvWriter(FileStore.GetAbsolutePath("commands.csv"), true))
             using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath("scripts.csv"), true))
             using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath("procedures.csv"), true))
             {
+                commandWriter.WriteHeaders("scriptId", "projectId", "date", "depth", "scopeType", "scopeName",
+                    "command", "param1", "param2", "param3", "param4", "param5", "param6", "param7", "param8", "param9",
+                    "param10", "param11", "param12", "param13", "param14", "param15", "param16", "param17", "param18",
+                    "param19", "param20");
+                scriptWriter.WriteHeaders("scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount");
+                procedureWriter.WriteHeaders("projectId", "date", "spriteName", "name", "argumentCount");
+
+
                 foreach (DirectoryInfo project in projects)
                 {
                     int projectId = int.Parse(project.Name);
@@ -190,7 +198,7 @@ namespace Kragle.Parse
                         string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
 
                         ParsedCode parsedCode = ParseCode(projectId, DateTime.Parse(codeDate), code);
-                        WriteAllToCsv(codeWriter, parsedCode.Commands);
+                        WriteAllToCsv(commandWriter, parsedCode.Commands);
                         WriteAllToCsv(scriptWriter, parsedCode.Scripts);
                         WriteAllToCsv(procedureWriter, parsedCode.Procedures);
                     }
@@ -270,7 +278,8 @@ namespace Kragle.Parse
             scriptCode.Join(ParseScripts(script, script.Code, ref scopeType, ref scopeName, ref indent));
             scriptCode.Scripts.Add(new List<object>
             {
-                script.ProgramId,
+                script.ScriptId,
+                script.ProjectId,
                 script.Date.ToString("yyyy-MM-dd"),
                 scopeType,
                 scopeName,
@@ -295,7 +304,9 @@ namespace Kragle.Parse
             ParsedCode parsedCode = new ParsedCode();
             List<object> command = new List<object>
             {
-                script.ProgramId,
+                0,
+                script.ScriptId,
+                script.ProjectId,
                 script.Date.ToString("yyyy-MM-dd"),
                 depth,
                 scopeType,
@@ -339,7 +350,8 @@ namespace Kragle.Parse
 
                             parsedCode.Procedures.Add(new List<object>
                             {
-                                script.ProgramId,
+                                0,
+                                script.ProjectId,
                                 script.Date.ToString("yyyy-MM-dd"),
                                 scopeName,
                                 array[1].ToString(Formatting.None),
@@ -404,15 +416,19 @@ namespace Kragle.Parse
 
         private class Script
         {
-            public readonly int ProgramId;
+            private static int _scriptCount;
+
+            public readonly int ScriptId;
+            public readonly int ProjectId;
             public readonly DateTime Date;
             public readonly JArray Code;
             public readonly ScopeType ScopeType;
             public readonly string ScopeName;
 
-            public Script(int programId, DateTime date, JArray code, ScopeType scopeType, string scopeName)
+            public Script(int projectId, DateTime date, JArray code, ScopeType scopeType, string scopeName)
             {
-                ProgramId = programId;
+                ScriptId = _scriptCount++;
+                ProjectId = projectId;
                 Date = date;
                 Code = code;
                 ScopeType = scopeType;
