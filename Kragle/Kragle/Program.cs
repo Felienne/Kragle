@@ -1,6 +1,5 @@
 ﻿using System;
 using CommandLine;
-using log4net;
 using log4net.Config;
 
 

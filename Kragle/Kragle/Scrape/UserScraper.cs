@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using Kragle.Properties;
+using log4net;
 using Newtonsoft.Json.Linq;
+using ShellProgressBar;
 
 
 namespace Kragle.Scrape
@@ -13,7 +15,7 @@ namespace Kragle.Scrape
     {
         private const int PageSize = 20;
 
-        private static readonly Logger Logger = Logger.GetLogger("UserScraper");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(UserScraper));
 
         private readonly Downloader _downloader;
         private readonly int _targetUserCount;
@@ -44,46 +46,53 @@ namespace Kragle.Scrape
 
             int userCount = FileStore.GetFiles(Resources.UserDirectory).Length;
 
-            Logger.Log("Scraping list of recent projects.");
+            Logger.Debug("Scraping list of recent projects.");
 
             // Keep downloading projects until the target has been reached
-            while (userCount < _targetUserCount && pageNumber * PageSize < 10000)
+            using (ProgressBar progressBar = new ProgressBar(_targetUserCount, "Initializing"))
             {
-                Logger.Log(string.Format("Downloading page {0}. ({1} / {2} users registered)",
-                    pageNumber, userCount, _targetUserCount));
-
-                // Loop over projects
-                JArray projects = GetRecentProjects(pageNumber, PageSize);
-                foreach (JToken project in projects)
+                while (userCount < _targetUserCount && pageNumber * PageSize < 10000)
                 {
-                    string fileName = project["author"]["username"].ToString();
+                    progressBar.UpdateMessage("Downloading page " + pageNumber);
+                    Logger.DebugFormat("Downloading page {0}. ({1} / {2} users registered)", pageNumber, userCount,
+                        _targetUserCount);
 
-                    // Skip project if user is already known
-                    if (FileStore.FileExists(Resources.UserDirectory, fileName + ".json"))
+                    // Loop over projects
+                    JArray projects = GetRecentProjects(pageNumber, PageSize);
+                    foreach (JToken project in projects)
                     {
-                        continue;
+                        string fileName = project["author"]["username"].ToString();
+
+                        // Skip project if user is already known
+                        if (FileStore.FileExists(Resources.UserDirectory, fileName + ".json"))
+                        {
+                            continue;
+                        }
+
+                        // Add user
+                        FileStore.WriteFile(Resources.UserDirectory, fileName + ".json", "");
+
+                        progressBar.Tick();
+                        userCount++;
+                        if (userCount >= _targetUserCount)
+                        {
+                            break;
+                        }
                     }
 
-                    // Add user
-                    FileStore.WriteFile(Resources.UserDirectory, fileName + ".json", "");
-
-                    userCount++;
-                    if (userCount >= _targetUserCount)
-                    {
-                        break;
-                    }
+                    pageNumber++;
                 }
 
-                pageNumber++;
+                progressBar.UpdateMessage("Finished scraping users");
             }
 
             if (userCount < _targetUserCount)
             {
-                Logger.Log("Kragle was unable to scrape more users because the Scratch API records only the 10,000"
-                           + " latest activities.");
+                Logger.Warn("Kragle was unable to scrape more users because the Scratch API records only the 10,000"
+                            + " latest activities.");
             }
 
-            Logger.Log(string.Format("Successfully registered {0} users.\n", userCount));
+            Logger.DebugFormat("Successfully registered {0} users.", userCount);
         }
 
         /// <summary>
@@ -96,28 +105,33 @@ namespace Kragle.Scrape
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Logger.Log(string.Format("Downloading metadata for {0} users.", userTotal));
+            Logger.DebugFormat("Downloading metadata for {0} users.", userTotal);
 
-            foreach (FileInfo user in users)
+            using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
             {
-                string username = user.Name.Remove(user.Name.Length - 5);
-
-                userCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Downloading metadata for user " + LoggerHelper.ForceLength(username, 10), userCurrent,
-                    userTotal));
-
-                if (user.Length > 0)
+                foreach (FileInfo user in users)
                 {
-                    // Metadata already downloaded
-                    continue;
+                    userCurrent++;
+                    string username = user.Name.Remove(user.Name.Length - 5);
+
+                    string logMessage = "Downloading metadata for user " + LoggerHelper.ForceLength(username, 10);
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                    if (user.Length > 0)
+                    {
+                        // Metadata already downloaded
+                        continue;
+                    }
+
+                    string metadata = GetMetadata(username);
+                    FileStore.WriteFile(Resources.UserDirectory, username + ".json", metadata);
                 }
 
-                string metadata = GetMetadata(username);
-                FileStore.WriteFile(Resources.UserDirectory, username + ".json", metadata);
+                progressBar.UpdateMessage("Finished downloading metadata");
             }
 
-            Logger.Log(string.Format("Successfully downloaded metadata for {0} users.\n", userCurrent));
+            Logger.DebugFormat("Successfully downloaded metadata for {0} users.", userCurrent);
         }
 
 
