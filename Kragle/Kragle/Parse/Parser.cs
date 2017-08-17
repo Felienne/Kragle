@@ -181,7 +181,7 @@ namespace Kragle.Parse
                     "param10", "param11", "param12", "param13", "param14", "param15", "param16", "param17", "param18",
                     "param19", "param20");
                 scriptWriter.WriteHeaders("scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount");
-                procedureWriter.WriteHeaders("projectId", "date", "spriteName", "name", "argumentCount");
+                procedureWriter.WriteHeaders("projectId", "date", "scopeType", "scopeName", "name", "argumentCount");
 
 
                 foreach (DirectoryInfo project in projects)
@@ -353,6 +353,7 @@ namespace Kragle.Parse
                                 0,
                                 script.ProjectId,
                                 script.Date.ToString("yyyy-MM-dd"),
+                                scopeType,
                                 scopeName,
                                 array[1].ToString(Formatting.None),
                                 array[2].Count()
