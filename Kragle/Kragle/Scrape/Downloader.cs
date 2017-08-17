@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using log4net;
 using Newtonsoft.Json.Linq;
 
 
@@ -13,7 +14,7 @@ namespace Kragle.Scrape
     /// </summary>
     public class Downloader
     {
-        private static readonly Logger Logger = Logger.GetLogger("Downloader");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Downloader));
 
         public int MaxDownloadSize = 0;
         public bool Minify = true;
@@ -62,7 +63,7 @@ namespace Kragle.Scrape
                 }
                 catch (WebException e)
                 {
-                    Logger.Log("Failed to get JSON: " + e.Message);
+                    Logger.Fatal("Failed to get JSON: " + e.Message, e);
                     return null;
                 }
             }

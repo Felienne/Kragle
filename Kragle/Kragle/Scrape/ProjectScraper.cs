@@ -1,15 +1,17 @@
 ﻿using System;
 using System.IO;
 using Kragle.Properties;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ShellProgressBar;
 
 
 namespace Kragle.Scrape
 {
     public class ProjectScraper
     {
-        private static readonly Logger Logger = Logger.GetLogger("ProjectScraper");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(ProjectScraper));
 
         private readonly Downloader _downloader;
 
@@ -34,32 +36,37 @@ namespace Kragle.Scrape
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Logger.Log(string.Format("Downloading project lists for {0} users.", userTotal));
+            Logger.DebugFormat("Downloading project lists for {0} users.", userTotal);
 
             // Iterate over users
-            foreach (FileInfo user in users)
+            using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
             {
-                string username = user.Name.Remove(user.Name.Length - 5);
-
-                userCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Downloading project list for user " + LoggerHelper.ForceLength(username, 10), userCurrent,
-                    userTotal));
-
-                // Get list of user projects
-                string projects = GetUserProjects(username);
-                if (projects == null)
+                foreach (FileInfo user in users)
                 {
-                    continue;
+                    userCurrent++;
+                    string username = user.Name.Remove(user.Name.Length - 5);
+
+                    string logMessage = "Downloading project list for user " + LoggerHelper.ForceLength(username, 10);
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                    // Get list of user projects
+                    string projects = GetUserProjects(username);
+                    if (projects == null)
+                    {
+                        continue;
+                    }
+
+                    // Save list of projects
+                    FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects);
+                    FileStore.WriteFile(Resources.ProjectDirectory + "/" + username,
+                        currentDate.ToString("yyyy-MM-dd") + ".json", projects);
                 }
 
-                // Save list of projects
-                FileStore.WriteFile(Resources.ProjectDirectory, username + ".json", projects);
-                FileStore.WriteFile(Resources.ProjectDirectory + "/" + username,
-                    currentDate.ToString("yyyy-MM-dd") + ".json", projects);
+                progressBar.UpdateMessage("Finished downloading project lists");
             }
 
-            Logger.Log(string.Format("Successfully downloaded project lists for {0} users.\n", userCurrent));
+            Logger.DebugFormat("Successfully downloaded project lists for {0} users.", userCurrent);
         }
 
         /// <summary>
@@ -73,68 +80,78 @@ namespace Kragle.Scrape
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Logger.Log(string.Format("Downloading code for {0} users.", userTotal));
+            Logger.DebugFormat("Downloading code for {0} users.", userTotal);
 
             // Iterate over users
-            foreach (FileInfo user in users)
+            using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
             {
-                string username = user.Name.Remove(user.Name.Length - 5);
-
-                userCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Downloading code for user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
-
-                JArray projects;
-                try
+                foreach (FileInfo user in users)
                 {
-                    projects = JArray.Parse(FileStore.ReadFile(Resources.ProjectDirectory, username + ".json"));
+                    userCurrent++;
+                    string username = user.Name.Remove(user.Name.Length - 5);
+
+                    string logMessage = "Downloading code for user " + LoggerHelper.ForceLength(username, 10);
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                    JArray projects;
+                    try
+                    {
+                        projects = JArray.Parse(FileStore.ReadFile(Resources.ProjectDirectory, username + ".json"));
+                    }
+                    catch (JsonReaderException e)
+                    {
+                        Logger.Fatal("Could not parse list of projects of user `" + username + "`", e);
+                        return;
+                    }
+
+                    // Iterate over user projects
+                    for (var i = 0; i < projects.Count; i++)
+                    {
+                        progressBar.UpdateMessage(string.Format("{0} ({1}/{2})", logMessage, i, projects.Count));
+                        
+                        JToken project = projects[i];
+                        DateTime modifyDate = DateTime.Parse(project["history"]["modified"].ToString()).Date;
+
+                        int projectId = Convert.ToInt32(project["id"].ToString());
+                        string codeDir = Resources.CodeDirectory + "/" + projectId;
+                        string yesterdayFileName = currentDate.AddDays(-1).ToString("yyyy-MM-dd") + ".json";
+                        string todayFileName = currentDate.ToString("yyyy-MM-dd") + ".json";
+
+                        if (FileStore.FileExists(codeDir, todayFileName))
+                        {
+                            // Code already downloaded today
+                            continue;
+                        }
+
+                        if (currentDate.Subtract(modifyDate).Days > 0 &&
+                            FileStore.FileExists(codeDir, yesterdayFileName))
+                        {
+                            // No code modifications in last day, copy old file
+                            FileStore.CopyFile(codeDir, yesterdayFileName, codeDir, todayFileName);
+                            continue;
+                        }
+
+                        string projectCode = GetProjectCode(projectId);
+                        if (projectCode == null)
+                        {
+                            // Code not downloaded for whatever reason
+                            continue;
+                        }
+                        if (!Downloader.IsValidJson(projectCode))
+                        {
+                            // Invalid JSON, no need to save it
+                            continue;
+                        }
+
+                        FileStore.WriteFile(codeDir, todayFileName, projectCode);
+                    }
                 }
-                catch (JsonReaderException e)
-                {
-                    Logger.Log("Could not parse list of projects of user `" + username + "`", e);
-                    return;
-                }
-
-                // Iterate over user projects
-                foreach (JToken project in projects)
-                {
-                    DateTime modifyDate = DateTime.Parse(project["history"]["modified"].ToString()).Date;
-
-                    int projectId = Convert.ToInt32(project["id"].ToString());
-                    string codeDir = Resources.CodeDirectory + "/" + projectId;
-                    string yesterdayFileName = currentDate.AddDays(-1).ToString("yyyy-MM-dd") + ".json";
-                    string todayFileName = currentDate.ToString("yyyy-MM-dd") + ".json";
-
-                    if (FileStore.FileExists(codeDir, todayFileName))
-                    {
-                        // Code already downloaded today
-                        continue;
-                    }
-
-                    if (currentDate.Subtract(modifyDate).Days > 0 && FileStore.FileExists(codeDir, yesterdayFileName))
-                    {
-                        // No code modifications in last day, copy old file
-                        FileStore.CopyFile(codeDir, yesterdayFileName, codeDir, todayFileName);
-                        continue;
-                    }
-
-                    string projectCode = GetProjectCode(projectId);
-                    if (projectCode == null)
-                    {
-                        // Code not downloaded for whatever reason
-                        continue;
-                    }
-                    if (!Downloader.IsValidJson(projectCode))
-                    {
-                        // Invalid JSON, no need to save it
-                        continue;
-                    }
-
-                    FileStore.WriteFile(codeDir, todayFileName, projectCode);
-                }
+                
+                progressBar.UpdateMessage("Finished downloading code");
             }
 
-            Logger.Log(string.Format("Successfully downloaded code for {0} users.\n", userCurrent));
+            Logger.DebugFormat("Successfully downloaded code for {0} users.", userCurrent);
         }
 
 

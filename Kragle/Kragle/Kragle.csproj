@@ -77,7 +77,6 @@
     <Compile Include="Archive\ArchiveSubOptions.cs" />
     <Compile Include="Archive\ExtractSubOptions.cs" />
     <Compile Include="FileStore.cs" />
-    <Compile Include="Logger.cs" />
     <Compile Include="LoggerHelper.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Parse\Parser.cs" />

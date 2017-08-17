@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using Kragle.Properties;
+using log4net;
 using Newtonsoft.Json.Linq;
+using ShellProgressBar;
 
 
 namespace Kragle.Validate
@@ -11,7 +13,7 @@ namespace Kragle.Validate
     /// </summary>
     public class Validator
     {
-        private static readonly Logger Logger = Logger.GetLogger("Validator");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Validator));
 
         public int InvalidUsers { get; private set; }
         public int InvalidProjectLists { get; private set; }
@@ -38,22 +40,30 @@ namespace Kragle.Validate
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Logger.Log(string.Format("Validating {0} users.", userTotal));
+            Logger.DebugFormat("Validating {0} users.", userTotal);
 
-            foreach (FileInfo user in users)
+            using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
             {
-                string username = user.Name.Remove(user.Name.Length - 5);
-
-                userCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Validating user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
-
-                if (!IsValidJson(File.ReadAllText(user.FullName)))
+                foreach (FileInfo user in users)
                 {
-                    InvalidUsers++;
-                    Logger.Log("Metadata of user " + username + " is invalid");
+                    userCurrent++;
+                    string username = user.Name.Remove(user.Name.Length - 5);
+
+                    string logMessage = "Validating user " + LoggerHelper.ForceLength(username, 10);
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                    if (!IsValidJson(File.ReadAllText(user.FullName)))
+                    {
+                        InvalidUsers++;
+                        Logger.WarnFormat("Metadata of user {0} is invalid", username);
+                    }
                 }
+
+                progressBar.UpdateMessage("Finished validating user metadata");
             }
+
+            Logger.DebugFormat("Successfully validated {0} users.", userTotal);
         }
 
         /// <summary>
@@ -65,27 +75,35 @@ namespace Kragle.Validate
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            Logger.Log(string.Format("Validating project lists of {0} users.", userTotal));
+            Logger.DebugFormat("Validating project lists of {0} users.", userTotal);
 
-            foreach (DirectoryInfo user in users)
+            using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
             {
-                string username = user.Name;
-
-                userCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Validating project lists of user " + LoggerHelper.ForceLength(username, 10),
-                    userCurrent, userTotal));
-
-                FileInfo[] projectLists = user.GetFiles();
-                foreach (FileInfo projectList in projectLists)
+                foreach (DirectoryInfo user in users)
                 {
-                    if (!IsValidJson(File.ReadAllText(projectList.FullName)))
+                    userCurrent++;
+                    string username = user.Name;
+
+                    string logMessage = "Validating project lists of user " + LoggerHelper.ForceLength(username, 10);
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                    FileInfo[] projectLists = user.GetFiles();
+                    foreach (FileInfo projectList in projectLists)
                     {
-                        InvalidProjectLists++;
-                        Logger.Log("Project list of user " + username + " at date " + projectList.Name + " is invalid");
+                        if (!IsValidJson(File.ReadAllText(projectList.FullName)))
+                        {
+                            InvalidProjectLists++;
+                            Logger.WarnFormat("Project list of user {0} at date {1} is invalid",
+                                username, projectList.Name);
+                        }
                     }
                 }
+                
+                progressBar.UpdateMessage("Finished validating project lists");
             }
+
+            Logger.DebugFormat("Successfully validated project lists of {0} users.", userTotal);
         }
 
         /// <summary>
@@ -97,26 +115,34 @@ namespace Kragle.Validate
             int projectTotal = projects.Length;
             int projectCurrent = 0;
 
-            Logger.Log(string.Format("Validating code of {0} projects.", projectTotal));
+            Logger.DebugFormat("Validating code of {0} projects.", projectTotal);
 
-            foreach (DirectoryInfo project in projects)
+            using (ProgressBar progressBar = new ProgressBar(projectTotal, "Initializing"))
             {
-                string projectId = project.Name;
-
-                projectCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Validating code of project with id " + projectId, projectCurrent, projectTotal));
-
-                FileInfo[] codeFiles = project.GetFiles();
-                foreach (FileInfo codeFile in codeFiles)
+                foreach (DirectoryInfo project in projects)
                 {
-                    if (!IsValidJson(File.ReadAllText(codeFile.FullName)))
+                    projectCurrent++;
+                    string projectId = project.Name;
+
+                    string logMessage = "Validating code of project with id " + projectId;
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, projectCurrent, projectTotal));
+
+                    FileInfo[] codeFiles = project.GetFiles();
+                    foreach (FileInfo codeFile in codeFiles)
                     {
-                        InvalidCodeFiles++;
-                        Logger.Log("Code of project " + projectId + " at date " + codeFile.Name + " is invalid");
+                        if (!IsValidJson(File.ReadAllText(codeFile.FullName)))
+                        {
+                            InvalidCodeFiles++;
+                            Logger.WarnFormat("Code of project {0} at date {1} is invalid", projectId, codeFile.Name);
+                        }
                     }
                 }
+                
+                progressBar.UpdateMessage("Finished validating code");
             }
+
+            Logger.DebugFormat("Successfully validated code of {0} projects.", projectTotal);
         }
 
 
