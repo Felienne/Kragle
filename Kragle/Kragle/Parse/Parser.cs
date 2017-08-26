@@ -355,7 +355,7 @@ namespace Kragle.Parse
                                 script.Date.ToString("yyyy-MM-dd"),
                                 scopeType,
                                 scopeName,
-                                array[1].ToString(Formatting.None),
+                                array[1].ToString(),
                                 array[2].Count()
                             });
 
