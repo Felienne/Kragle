@@ -159,7 +159,7 @@
     <comment>Parser output file for users.</comment>
   </data>
   <data name="ProjectRemixCsv" xml:space="preserve">
-    <value>projectremix.csv</value>
+    <value>remixes.csv</value>
     <comment>Parser output for remix relationships.</comment>
   </data>
   <data name="ProjectMetaCsv" xml:space="preserve">

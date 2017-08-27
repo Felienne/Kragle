@@ -16,6 +16,7 @@ namespace Kragle.Parse
     public sealed class CodeParser
     {
         private static readonly Logger Logger = Logger.GetLogger("CodeParser");
+        private const int ParamCount = 20;
 
 
         /// <summary>
@@ -165,18 +166,23 @@ namespace Kragle.Parse
         /// </summary>
         public void WriteCode()
         {
-            using (CsvWriter projectCodeWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectCodeCsv)))
-            using (CsvWriter codeProcedureWriter =
-                new CsvWriter(FileStore.GetAbsolutePath(Resources.CodeProceduresCsv)))
+            DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
+            int projectTotal = projects.Length;
+            int projectCurrent = 0;
+
+            Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
+
+            using (CsvWriter commandWriter = new CsvWriter(FileStore.GetAbsolutePath("commands.csv"), true))
+            using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath("scripts.csv"), true))
+            using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath("procedures.csv"), true))
             {
-                projectCodeWriter.WriteHeaders("projectId", "date", "code");
-                codeProcedureWriter.WriteHeaders("projectId", "date", "stage", "code");
+                commandWriter.WriteHeaders("scriptId", "projectId", "date", "depth", "scopeType", "scopeName",
+                    "command", "param1", "param2", "param3", "param4", "param5", "param6", "param7", "param8", "param9",
+                    "param10", "param11", "param12", "param13", "param14", "param15", "param16", "param17", "param18",
+                    "param19", "param20");
+                scriptWriter.WriteHeaders("scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount");
+                procedureWriter.WriteHeaders("projectId", "date", "scopeType", "scopeName", "name", "argumentCount");
 
-                DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
-                int projectTotal = projects.Length;
-                int projectCurrent = 0;
-
-                Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
                 foreach (DirectoryInfo project in projects)
                 {
@@ -191,46 +197,40 @@ namespace Kragle.Parse
                         string code = File.ReadAllText(codeFile.FullName);
                         string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
 
-                        projectCodeWriter
-                            .Write(int.Parse(project.Name))
-                            .Write(codeDate)
-                            .Write(code)
-                            .Newline();
-
-                        foreach (Tuple<string, string> procedure in GetProcedures(code))
-                        {
-                            codeProcedureWriter
-                                .Write(int.Parse(project.Name))
-                                .Write(codeDate)
-                                .Write(procedure.Item1 ?? "null")
-                                .Write(procedure.Item2)
-                                .Newline();
-                        }
+                        ParsedCode parsedCode = ParseCode(projectId, DateTime.Parse(codeDate), code);
+                        WriteAllToCsv(commandWriter, parsedCode.Commands);
+                        WriteAllToCsv(scriptWriter, parsedCode.Scripts);
+                        WriteAllToCsv(procedureWriter, parsedCode.Procedures);
                     }
                 }
             }
         }
 
+
         /// <summary>
-        ///     Compiles the list of procedure definitions in the given code.
+        ///     Compiles the lists of commands, scripts, and procedures in the given code.
         /// </summary>
+        /// <param name="projectId">the id of the code's project</param>
+        /// <param name="date">the date the code was updated</param>
         /// <param name="rawCode">the complete code of a project</param>
-        /// <returns>the list of procedure definitions in the given code</returns>
-        public List<Tuple<string, string>> GetProcedures(string rawCode)
+        /// <returns>the list of commands, scripts, and procedures in the given code</returns>
+        private static ParsedCode ParseCode(int projectId, DateTime date, string rawCode)
         {
-            List<Tuple<string, string>> procedures = new List<Tuple<string, string>>();
+            ParsedCode parsedCode = new ParsedCode();
 
             // Procedure definitions in root
             JObject code = JObject.Parse(rawCode);
             {
                 JArray scripts = code.GetValue("scripts") as JArray;
+
                 if (scripts != null)
                 {
-                    procedures.AddRange(
-                        from script in scripts.OfType<JArray>()
-                        where script[2].First.First.ToString() == "procDef"
-                        select new Tuple<string, string>("null", script[2].ToString(Formatting.None))
-                    );
+                    foreach (JArray scriptArray in scripts.OfType<JArray>())
+                    {
+                        Script script = new Script(projectId, date, scriptArray[2] as JArray, ScopeType.Stage, "stage");
+
+                        parsedCode.Join(ParseScript(script));
+                    }
                 }
             }
 
@@ -238,21 +238,233 @@ namespace Kragle.Parse
             JArray sprites = (JArray) code.GetValue("children");
             foreach (JObject sprite in sprites.OfType<JObject>())
             {
-                JArray scripts = sprite.GetValue("scripts") as JArray;
-                if (scripts == null)
+                if (sprite["objName"] == null)
                 {
                     continue;
                 }
 
-                procedures.AddRange(
-                    from script in scripts.OfType<JArray>()
-                    where script[2].First.First.ToString() == "procDef"
-                    select new Tuple<string, string>(sprite.GetValue("objName").ToString(),
-                        script[2].ToString(Formatting.None))
-                );
+                string spriteName = sprite["objName"].ToString();
+                JArray scripts = sprite.GetValue("scripts") as JArray;
+
+                if (scripts != null)
+                {
+                    foreach (JArray scriptArray in scripts.OfType<JArray>())
+                    {
+                        Script script = new Script(projectId, date, scriptArray[2] as JArray, ScopeType.Sprite,
+                            spriteName);
+
+                        parsedCode.Join(ParseScript(script));
+                    }
+                }
             }
 
-            return procedures;
+            return parsedCode;
+        }
+
+
+        /// <summary>
+        ///     Compiles the given script.
+        /// </summary>
+        /// <param name="script">a script</param>
+        /// <returns>the list of commands and procedures in the given script, and the script itself</returns>
+        private static ParsedCode ParseScript(Script script)
+        {
+            ParsedCode scriptCode = new ParsedCode();
+
+            ScopeType scopeType = script.ScopeType;
+            string scopeName = script.ScopeName;
+            int indent = 0;
+
+            scriptCode.Join(ParseScripts(script, script.Code, ref scopeType, ref scopeName, ref indent));
+            scriptCode.Scripts.Add(new List<object>
+            {
+                script.ScriptId,
+                script.ProjectId,
+                script.Date.ToString("yyyy-MM-dd"),
+                scopeType,
+                scopeName,
+                scriptCode.Commands.Count
+            });
+
+            return scriptCode;
+        }
+
+        /// <summary>
+        ///     Recursively compiles the lists of commands and procedures in the given script.
+        /// </summary>
+        /// <param name="script">a script</param>
+        /// <param name="scripts">the script's code</param>
+        /// <param name="scopeType">the type of the current scope</param>
+        /// <param name="scopeName">the name of the current scope</param>
+        /// <param name="depth">the current recursive depth</param>
+        /// <returns>the lists of commands and procedures in the given script</returns>
+        private static ParsedCode ParseScripts(Script script, JArray scripts, ref ScopeType scopeType,
+            ref string scopeName, ref int depth)
+        {
+            ParsedCode parsedCode = new ParsedCode();
+            List<object> command = new List<object>
+            {
+                0,
+                script.ScriptId,
+                script.ProjectId,
+                script.Date.ToString("yyyy-MM-dd"),
+                depth,
+                scopeType,
+                scopeName
+            };
+            bool added = false;
+
+            int i = 0;
+            foreach (JToken innerScript in scripts)
+            {
+                if (innerScript is JValue)
+                {
+                    i++;
+                    added = true;
+                    command.Add(innerScript);
+                }
+                else if (innerScript is JArray)
+                {
+                    JArray array = (JArray) innerScript;
+
+                    if (AllOneField(array))
+                    {
+                        if (!array.Any())
+                        {
+                            command.Add("[]");
+                        }
+                        else
+                        {
+                            int newDepth = depth + 1;
+
+                            parsedCode.Join(ParseScripts(script, array, ref scopeType, ref scopeName, ref newDepth));
+                        }
+                    }
+                    else
+                    {
+                        if (array.Any() && array[0].ToString() == "procDef")
+                        {
+                            i++;
+                            added = true;
+                            command.Add("procdef");
+
+                            parsedCode.Procedures.Add(new List<object>
+                            {
+                                0,
+                                script.ProjectId,
+                                script.Date.ToString("yyyy-MM-dd"),
+                                scopeType,
+                                scopeName,
+                                array[1].ToString(),
+                                array[2].Count()
+                            });
+
+                            scopeType = ScopeType.ProcDef;
+                            scopeName = array[1].ToString();
+                        }
+                        else
+                        {
+                            int newDepth = depth + 1;
+
+                            parsedCode.Join(
+                                ParseScripts(script, array, ref scopeType, ref scopeName, ref newDepth));
+                        }
+                    }
+                }
+            }
+
+            for (; i < ParamCount + 1; i++)
+            {
+                command.Add("");
+            }
+
+            if (added)
+            {
+                parsedCode.Commands.Add(command);
+            }
+
+            return parsedCode;
+        }
+
+        /// <summary>
+        ///     Writes all given data using the given writer.
+        /// </summary>
+        /// <param name="writer">a <code>CsvWriter</code></param>
+        /// <param name="data">the data to write</param>
+        private static void WriteAllToCsv(CsvWriter writer, IEnumerable<List<object>> data)
+        {
+            foreach (List<object> datum in data)
+            {
+                foreach (object column in datum)
+                {
+                    writer.Write(column);
+                }
+
+                writer.Newline();
+            }
+        }
+
+
+        /// <summary>
+        /// Returns true iff. the given script consists of one field, or of one field 
+        /// </summary>
+        /// <param name="script"></param>
+        /// <returns></returns>
+        private static bool AllOneField(JArray script)
+        {
+            return script.Count <= 1 && script.OfType<JArray>().All(AllOneField);
+        }
+
+        private class Script
+        {
+            private static int _scriptCount;
+
+            public readonly int ScriptId;
+            public readonly int ProjectId;
+            public readonly DateTime Date;
+            public readonly JArray Code;
+            public readonly ScopeType ScopeType;
+            public readonly string ScopeName;
+
+            public Script(int projectId, DateTime date, JArray code, ScopeType scopeType, string scopeName)
+            {
+                ScriptId = _scriptCount++;
+                ProjectId = projectId;
+                Date = date;
+                Code = code;
+                ScopeType = scopeType;
+                ScopeName = scopeName;
+            }
+        }
+
+        private enum ScopeType
+        {
+            Stage,
+            Sprite,
+            ProcDef
+        }
+
+        private class ParsedCode
+        {
+            public readonly List<List<object>> Commands;
+            public readonly List<List<object>> Scripts;
+            public readonly List<List<object>> Procedures;
+
+
+            public ParsedCode()
+            {
+                Commands = new List<List<object>>();
+                Scripts = new List<List<object>>();
+                Procedures = new List<List<object>>();
+            }
+
+
+            public void Join(ParsedCode parsedCode)
+            {
+                Commands.AddRange(parsedCode.Commands);
+                Scripts.AddRange(parsedCode.Scripts);
+                Procedures.AddRange(parsedCode.Procedures);
+            }
         }
     }
 }

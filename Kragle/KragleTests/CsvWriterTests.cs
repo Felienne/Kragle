@@ -61,7 +61,7 @@ namespace KragleTests
             string expected = "\"I7VgDhi8n5\",\"62lIH91BgD\"" + _n
                               + "\"pxVAXoWH7n\"";
 
-            CsvWriter writer = new CsvWriter(_filename, 2);
+            CsvWriter writer = new CsvWriter(_filename, false, 2);
             writer.Write(contents[0]).Write(contents[1]).Write(contents[2]);
             writer.Dispose();
 
@@ -103,7 +103,7 @@ namespace KragleTests
             string expected = "8093,-6965" + _n
                               + "7944";
 
-            using (CsvWriter writer = new CsvWriter(_filename, 2))
+            using (CsvWriter writer = new CsvWriter(_filename, false, 2))
             {
                 writer.Write(contents[0]).Write(contents[1]).Write(contents[2]);
             }
@@ -120,7 +120,7 @@ namespace KragleTests
                               + "7060,\"DQW0kwtwOZ\"" + _n
                               + "-3597";
 
-            using (CsvWriter writer = new CsvWriter(_filename, 2))
+            using (CsvWriter writer = new CsvWriter(_filename, false, 2))
             {
                 writer
                     .Write(contentsS[0])
@@ -153,7 +153,7 @@ namespace KragleTests
                               + "\"ewbJqVYdsW\",\"dow4NkCYC8\"" + _n
                               + "\"6HELnIkMIg\"";
 
-            using (CsvWriter writer = new CsvWriter(_filename, 2))
+            using (CsvWriter writer = new CsvWriter(_filename, false, 2))
             {
                 writer
                     .Write(contents[0])
