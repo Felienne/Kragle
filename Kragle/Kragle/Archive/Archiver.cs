@@ -2,8 +2,10 @@
 using System.IO;
 using System.IO.Compression;
 using Kragle.Properties;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ShellProgressBar;
 
 
 namespace Kragle.Archive
@@ -13,7 +15,7 @@ namespace Kragle.Archive
     /// </summary>
     public class Archiver
     {
-        private static readonly Logger Logger = Logger.GetLogger("Archiver");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Archiver));
 
 
         /// <summary>
@@ -26,14 +28,21 @@ namespace Kragle.Archive
             int userTotal = users.Length;
             int userCurrent = 0;
 
-            foreach (FileInfo user in users)
+            using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
             {
-                userCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Archiving user " + LoggerHelper.ForceLength(user.Name, 10), userCurrent, userTotal));
+                foreach (FileInfo user in users)
+                {
+                    userCurrent++;
 
-                string username = user.Name.Remove(user.Name.Length - 5);
-                Archive(username);
+                    string logMessage = "Archiving user " + LoggerHelper.ForceLength(user.Name, 10);
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                    string username = user.Name.Remove(user.Name.Length - 5);
+                    Archive(username);
+                }
+
+                progressBar.UpdateMessage("Finished archiving");
             }
         }
 
@@ -48,13 +57,20 @@ namespace Kragle.Archive
             int archiveTotal = archives.Length;
             int archiveCurrent = 0;
 
-            foreach (FileInfo archive in archives)
+            using (ProgressBar progressBar = new ProgressBar(archiveTotal, "Initializing"))
             {
-                archiveCurrent++;
-                Logger.Log(LoggerHelper.FormatProgress(
-                    "Extracting archive " + LoggerHelper.ForceLength(archive.Name, 10), archiveCurrent, archiveTotal));
+                foreach (FileInfo archive in archives)
+                {
+                    archiveCurrent++;
 
-                Extract(archive, overwrite, append);
+                    string logMessage = "Extracting archive " + LoggerHelper.ForceLength(archive.Name, 10);
+                    progressBar.Tick(logMessage);
+                    Logger.Debug(LoggerHelper.FormatProgress(logMessage, archiveCurrent, archiveTotal));
+
+                    Extract(archive, overwrite, append);
+                }
+                
+                progressBar.UpdateMessage("Finished extracting");
             }
         }
 
@@ -90,6 +106,8 @@ namespace Kragle.Archive
         /// <param name="username">the username</param>
         private static void ArchiveUserData(ZipArchive archive, string username)
         {
+            FileStore.CreateDirectory(Resources.UserDirectory);
+            
             string userDataPath = Resources.UserDirectory + "/" + username + ".json";
             archive.CreateEntryFromFile(FileStore.GetAbsolutePath(userDataPath), userDataPath);
         }
@@ -101,6 +119,8 @@ namespace Kragle.Archive
         /// <param name="username">the username</param>
         private static void ArchiveCurrentProjectList(ZipArchive archive, string username)
         {
+            FileStore.CreateDirectory(Resources.ProjectDirectory);
+            
             string projectListPath = Resources.ProjectDirectory + "/" + username + ".json";
             archive.CreateEntryFromFile(FileStore.GetAbsolutePath(projectListPath), projectListPath);
         }
@@ -112,6 +132,8 @@ namespace Kragle.Archive
         /// <param name="username">the username</param>
         private static void ArchiveOldProjectLists(ZipArchive archive, string username)
         {
+            FileStore.CreateDirectory(Resources.ProjectDirectory + "/" + username);
+            
             string oldProjectListsPath = Resources.ProjectDirectory + "/" + username;
             FileInfo[] oldProjectLists = FileStore.GetFiles(oldProjectListsPath);
             foreach (FileInfo oldProjectList in oldProjectLists)
@@ -128,6 +150,8 @@ namespace Kragle.Archive
         /// <param name="username">the username</param>
         private static void ArchiveProjectCode(ZipArchive archive, string username)
         {
+            FileStore.CreateDirectory(Resources.ProjectDirectory);
+            
             JArray projects;
             try
             {
@@ -135,13 +159,14 @@ namespace Kragle.Archive
             }
             catch (JsonReaderException e)
             {
-                Logger.Log("Could not parse list of projects of user `" + username + "`", e);
+                Logger.Fatal("Could not parse list of projects of user `" + username + "`", e);
                 return;
             }
 
             foreach (JToken project in projects)
             {
                 int projectId = Convert.ToInt32(project["id"]);
+                FileStore.CreateDirectory(Resources.ProjectDirectory + "/" + projectId);
 
                 FileInfo[] projectCodeFiles = FileStore.GetFiles(Resources.CodeDirectory + "/" + projectId);
                 foreach (FileInfo projectCodeFile in projectCodeFiles)

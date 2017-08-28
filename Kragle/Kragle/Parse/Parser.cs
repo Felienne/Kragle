@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Kragle.Properties;
+using log4net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ShellProgressBar;
 
 
 namespace Kragle.Parse
@@ -15,7 +17,7 @@ namespace Kragle.Parse
     /// </summary>
     public sealed class CodeParser
     {
-        private static readonly Logger Logger = Logger.GetLogger("CodeParser");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(CodeParser));
         private const int ParamCount = 20;
 
 
@@ -32,47 +34,55 @@ namespace Kragle.Parse
                 int userTotal = userFiles.Length;
                 int userCurrent = 0;
 
-                Logger.Log("Parsing " + userTotal + " users to CSV.");
+                Logger.DebugFormat("Parsing {0} users to CSV.", userTotal);
 
                 if (userFiles.Length > 0 && File.ReadAllText(userFiles[0].FullName).Length == 0)
                 {
-                    Logger.Log("Missing metadata for users.");
+                    Logger.Fatal("Missing metadata for users.");
                     return;
                 }
 
-                foreach (FileInfo userFile in userFiles)
+                using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
                 {
-                    string username = userFile.Name.Remove(userFile.Name.Length - 5);
-
-                    userCurrent++;
-                    Logger.Log(LoggerHelper.FormatProgress(
-                        "Parsing user " + LoggerHelper.ForceLength(username, 10), userCurrent, userTotal));
-
-                    string contents = File.ReadAllText(userFile.FullName);
-                    if (contents.Length == 0)
+                    foreach (FileInfo userFile in userFiles)
                     {
-                        Logger.Log("Missing metadata for user " + userFile.Name);
-                        return;
+                        userCurrent++;
+                        string username = userFile.Name.Remove(userFile.Name.Length - 5);
+
+                        string logMessage = "Parsing user " + LoggerHelper.ForceLength(username, 10);
+                        progressBar.Tick(logMessage);
+                        Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                        string contents = File.ReadAllText(userFile.FullName);
+                        if (contents.Length == 0)
+                        {
+                            Logger.Fatal("Missing metadata for user " + userFile.Name);
+                            return;
+                        }
+
+                        JObject user;
+                        try
+                        {
+                            user = JObject.Parse(File.ReadAllText(userFile.FullName));
+                        }
+                        catch (JsonReaderException e)
+                        {
+                            Logger.Fatal("The metadata for user `" + userFile.Name + "` could not be parsed.", e);
+                            return;
+                        }
+
+                        writer
+                            .Write(int.Parse(user["id"].ToString()))
+                            .Write(user["username"].ToString())
+                            .Write(user["history"]["joined"].ToString())
+                            .Write(user["profile"]["country"].ToString())
+                            .Newline();
                     }
 
-                    JObject user;
-                    try
-                    {
-                        user = JObject.Parse(File.ReadAllText(userFile.FullName));
-                    }
-                    catch (JsonReaderException e)
-                    {
-                        Logger.Log("The metadata for user `" + userFile.Name + "` could not be parsed.", e);
-                        return;
-                    }
-
-                    writer
-                        .Write(int.Parse(user["id"].ToString()))
-                        .Write(user["username"].ToString())
-                        .Write(user["history"]["joined"].ToString())
-                        .Write(user["profile"]["country"].ToString())
-                        .Newline();
+                    progressBar.UpdateMessage("Finished parsing users");
                 }
+
+                Logger.DebugFormat("Successfully parsed {0} users to CSV.", userTotal);
             }
         }
 
@@ -92,72 +102,79 @@ namespace Kragle.Parse
                 int userTotal = userDirs.Length;
                 int userCurrent = 0;
 
-                Logger.Log("Parsing metadata for " + userDirs.Length + " users to CSV.");
+                Logger.DebugFormat("Parsing metadata for {0} users to CSV.", userDirs.Length);
 
                 ISet<int> projectHistory = new HashSet<int>();
 
-                foreach (DirectoryInfo userDir in userDirs)
+                using (ProgressBar progressBar = new ProgressBar(userTotal, "Initializing"))
                 {
-                    string username = userDir.Name;
-
-                    userCurrent++;
-                    Logger.Log(LoggerHelper.FormatProgress(
-                        "Parsing project lists of user " + LoggerHelper.ForceLength(username, 10),
-                        userCurrent, userTotal));
-
-                    foreach (FileInfo projectListFile in userDir.GetFiles())
+                    foreach (DirectoryInfo userDir in userDirs)
                     {
-                        JArray projectList;
-                        try
-                        {
-                            projectList = JArray.Parse(File.ReadAllText(projectListFile.FullName));
-                        }
-                        catch (JsonReaderException e)
-                        {
-                            Logger.Log("The project list for user `" + username + "` could not be parsed.", e);
-                            return;
-                        }
+                        userCurrent++;
+                        string username = userDir.Name;
 
-                        foreach (JToken projectFile in projectList)
+                        string logMessage = "Parsing project lists of user " + LoggerHelper.ForceLength(username, 10);
+                        progressBar.Tick(logMessage);
+                        Logger.Debug(LoggerHelper.FormatProgress(logMessage, userCurrent, userTotal));
+
+                        foreach (FileInfo projectListFile in userDir.GetFiles())
                         {
-                            if (!(projectFile is JObject))
+                            JArray projectList;
+                            try
                             {
-                                Logger.Log("A project of user `" + username + "` could not be parsed.");
+                                projectList = JArray.Parse(File.ReadAllText(projectListFile.FullName));
+                            }
+                            catch (JsonReaderException e)
+                            {
+                                Logger.Fatal("The project list for user `" + username + "` could not be parsed.", e);
                                 return;
                             }
 
-                            JObject project = (JObject) projectFile;
-                            int authorId = int.Parse(project["author"]["id"].ToString());
-                            int projectId = int.Parse(project["id"].ToString());
-                            string remixParentId = project["remix"]["parent"].ToString();
-                            string dataDate = projectListFile.Name.Substring(0, projectListFile.Name.Length - 5);
-
-                            projectWriter
-                                .Write(authorId)
-                                .Write(dataDate)
-                                .Write(projectId)
-                                .Write(project["title"].ToString())
-                                .Write(project["history"]["modified"].ToString())
-                                .Write(project["history"]["created"].ToString())
-                                .Write(project["history"]["shared"].ToString())
-                                .Write(int.Parse(project["stats"]["views"].ToString()))
-                                .Write(int.Parse(project["stats"]["loves"].ToString()))
-                                .Write(int.Parse(project["stats"]["favorites"].ToString()))
-                                .Write(int.Parse(project["stats"]["comments"].ToString()))
-                                .Newline();
-
-                            if (remixParentId != "" && !projectHistory.Contains(projectId))
+                            foreach (JToken projectFile in projectList)
                             {
-                                projectRemixWriter
-                                    .Write(projectId)
-                                    .Write(int.Parse(remixParentId))
-                                    .Newline();
-                            }
+                                if (!(projectFile is JObject))
+                                {
+                                    Logger.Fatal("A project of user `" + username + "` could not be parsed.");
+                                    return;
+                                }
 
-                            projectHistory.Add(projectId);
+                                JObject project = (JObject) projectFile;
+                                int authorId = int.Parse(project["author"]["id"].ToString());
+                                int projectId = int.Parse(project["id"].ToString());
+                                string remixParentId = project["remix"]["parent"].ToString();
+                                string dataDate = projectListFile.Name.Substring(0, projectListFile.Name.Length - 5);
+
+                                projectWriter
+                                    .Write(authorId)
+                                    .Write(dataDate)
+                                    .Write(projectId)
+                                    .Write(project["title"].ToString())
+                                    .Write(project["history"]["modified"].ToString())
+                                    .Write(project["history"]["created"].ToString())
+                                    .Write(project["history"]["shared"].ToString())
+                                    .Write(int.Parse(project["stats"]["views"].ToString()))
+                                    .Write(int.Parse(project["stats"]["loves"].ToString()))
+                                    .Write(int.Parse(project["stats"]["favorites"].ToString()))
+                                    .Write(int.Parse(project["stats"]["comments"].ToString()))
+                                    .Newline();
+
+                                if (remixParentId != "" && !projectHistory.Contains(projectId))
+                                {
+                                    projectRemixWriter
+                                        .Write(projectId)
+                                        .Write(int.Parse(remixParentId))
+                                        .Newline();
+                                }
+
+                                projectHistory.Add(projectId);
+                            }
                         }
                     }
+
+                    progressBar.UpdateMessage("Finished parsing metadata");
                 }
+
+                Logger.DebugFormat("Successfully parsed metadata for {0} users to CSV.", userDirs.Length);
             }
         }
 
@@ -170,7 +187,7 @@ namespace Kragle.Parse
             int projectTotal = projects.Length;
             int projectCurrent = 0;
 
-            Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
+            Logger.DebugFormat("Parsing code of {0} projects to CSV.", projectTotal);
 
             using (CsvWriter commandWriter = new CsvWriter(FileStore.GetAbsolutePath("commands.csv"), true))
             using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath("scripts.csv"), true))
@@ -184,26 +201,32 @@ namespace Kragle.Parse
                 procedureWriter.WriteHeaders("projectId", "date", "scopeType", "scopeName", "name", "argumentCount");
 
 
-                foreach (DirectoryInfo project in projects)
+                using (ProgressBar progressBar = new ProgressBar(projectTotal, "Initializing"))
                 {
-                    int projectId = int.Parse(project.Name);
-
-                    projectCurrent++;
-                    Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
-                        projectCurrent, projectTotal));
-
-                    foreach (FileInfo codeFile in project.GetFiles())
+                    foreach (DirectoryInfo project in projects)
                     {
-                        string code = File.ReadAllText(codeFile.FullName);
-                        string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
+                        projectCurrent++;
+                        int projectId = int.Parse(project.Name);
 
-                        ParsedCode parsedCode = ParseCode(projectId, DateTime.Parse(codeDate), code);
-                        WriteAllToCsv(commandWriter, parsedCode.Commands);
-                        WriteAllToCsv(scriptWriter, parsedCode.Scripts);
-                        WriteAllToCsv(procedureWriter, parsedCode.Procedures);
+                        string logMessage = "Parsing code of project " + projectId;
+                        progressBar.Tick(logMessage);
+                        Logger.Debug(LoggerHelper.FormatProgress(logMessage, projectCurrent, projectTotal));
+
+                        foreach (FileInfo codeFile in project.GetFiles())
+                        {
+                            string code = File.ReadAllText(codeFile.FullName);
+                            string codeDate = codeFile.Name.Substring(0, codeFile.Name.Length - 5);
+
+                            ParsedCode parsedCode = ParseCode(projectId, DateTime.Parse(codeDate), code);
+                            WriteAllToCsv(commandWriter, parsedCode.Commands);
+                            WriteAllToCsv(scriptWriter, parsedCode.Scripts);
+                            WriteAllToCsv(procedureWriter, parsedCode.Procedures);
+                        }
                     }
                 }
             }
+
+            Logger.DebugFormat("Successfully parsed code of {0} projects to CSV.", projectTotal);
         }
 
 

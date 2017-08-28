@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using log4net;
 
 
 namespace Kragle.Validate
@@ -8,6 +9,9 @@ namespace Kragle.Validate
     /// </summary>
     public class ValidateSubOptions : SubOptions
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(ValidateSubOptions));
+
+
         [Option('u', "users", HelpText = "Validate user data")]
         public bool Users { get; set; }
 
@@ -24,8 +28,7 @@ namespace Kragle.Validate
         public override void Run()
         {
             FileStore.Init(Path);
-            Logger logger = Logger.GetLogger("ValidateSubOptions");
-            
+
             Validator validator = new Validator();
 
             if (Users)
@@ -40,20 +43,18 @@ namespace Kragle.Validate
             {
                 validator.ValidateCode();
             }
-            
-            logger.Log("");
 
             if (Users)
             {
-                logger.Log("Found " + validator.InvalidUsers + " invalid users.");
+                Logger.InfoFormat("Found {0} invalid users.", validator.InvalidUsers);
             }
             if (Projects)
             {
-                logger.Log("Found " + validator.InvalidProjectLists + " invalid project lists.");
+                Logger.InfoFormat("Found {0} invalid project lists.", validator.InvalidProjectLists);
             }
             if (Code)
             {
-                logger.Log("Found " + validator.InvalidCodeFiles + " invalid code files.");
+                Logger.InfoFormat("Found {0} invalid code files.", validator.InvalidCodeFiles);
             }
         }
     }
