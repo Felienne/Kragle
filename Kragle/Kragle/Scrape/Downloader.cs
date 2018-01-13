@@ -20,6 +20,14 @@ namespace Kragle.Scrape
         public bool UseCache = false;
 
 
+        static Downloader()
+        {
+            // Allow older SSL/TLS protocols
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+        }
+
+
         /// <summary>
         ///     Validates JSON.
         /// </summary>
