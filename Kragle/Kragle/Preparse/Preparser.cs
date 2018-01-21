@@ -20,7 +20,7 @@ namespace Kragle.Preparse
             int userTotal = userDirs.Length;
             int userCurrent = 0;
 
-            Logger.Log("Preparsing code of " + userDirs.Length + " users.");
+            Logger.Log("Removing code duplicates of " + userDirs.Length + " users.");
 
             foreach (DirectoryInfo userDir in userDirs)
             {
@@ -28,7 +28,7 @@ namespace Kragle.Preparse
 
                 userCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
-                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
+                    "Removing code duplicates of " + LoggerHelper.ForceLength(username, 10),
                     userCurrent, userTotal));
 
                 Dictionary<int, DateTime> projectDates = new Dictionary<int, DateTime>();
@@ -92,7 +92,7 @@ namespace Kragle.Preparse
             int userTotal = userDirs.Length;
             int userCurrent = 0;
 
-            Logger.Log("Preparsing projects of " + userDirs.Length + " users.");
+            Logger.Log("Removing unchanged projects of " + userDirs.Length + " users.");
 
             foreach (DirectoryInfo userDir in userDirs)
             {
@@ -100,7 +100,7 @@ namespace Kragle.Preparse
 
                 userCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
-                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
+                    "Removing unchanged projects of user " + LoggerHelper.ForceLength(username, 10),
                     userCurrent, userTotal));
 
                 FileInfo[] projectLists = userDir.GetFiles().OrderBy(projectList => projectList.Name).ToArray();
@@ -118,7 +118,7 @@ namespace Kragle.Preparse
             int userTotal = userDirs.Length;
             int userCurrent = 0;
 
-            Logger.Log("Preparsing code of " + userDirs.Length + " users.");
+            Logger.Log("Updating project lists of " + userDirs.Length + " users.");
 
             foreach (DirectoryInfo userDir in userDirs)
             {
@@ -126,7 +126,7 @@ namespace Kragle.Preparse
 
                 userCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
-                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
+                    "Updating project lists of " + LoggerHelper.ForceLength(username, 10),
                     userCurrent, userTotal));
 
                 FileInfo[] projectLists = userDir.GetFiles().OrderBy(projectList => projectList.Name).ToArray();
@@ -181,7 +181,7 @@ namespace Kragle.Preparse
             int userTotal = userDirs.Length;
             int userCurrent = 0;
 
-            Logger.Log("Preparsing code of " + userDirs.Length + " users.");
+            Logger.Log("Checking  " + userDirs.Length + " users if they have projects.");
 
             foreach (FileInfo userDir in userDirs)
             {
@@ -189,7 +189,7 @@ namespace Kragle.Preparse
 
                 userCurrent++;
                 Logger.Log(LoggerHelper.FormatProgress(
-                    "Preparsing code of user " + LoggerHelper.ForceLength(username, 10),
+                    "Checking if user " + LoggerHelper.ForceLength(username, 10) + " has projects",
                     userCurrent, userTotal));
 
                 string userProjects = Resources.ProjectDirectory + "/" + username;

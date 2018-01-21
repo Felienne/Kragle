@@ -7,7 +7,7 @@
             FileStore.Init(Path);
             
             Preparser preparser = new Preparser();
-//            preparser.PreparseCodeDuplicates();
+            preparser.PreparseCodeDuplicates();
             preparser.RemoveUnchangedProjects();
         }
     }
