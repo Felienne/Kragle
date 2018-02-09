@@ -151,15 +151,15 @@
     <comment>Parser output file for project-code.</comment>
   </data>
   <data name="ProjectsCsv" xml:space="preserve">
-    <value>projects.csv</value>
+    <value>projects</value>
     <comment>Parser output file for projects.</comment>
   </data>
   <data name="UsersCsv" xml:space="preserve">
-    <value>users.csv</value>
+    <value>users</value>
     <comment>Parser output file for users.</comment>
   </data>
   <data name="ProjectRemixCsv" xml:space="preserve">
-    <value>remixes.csv</value>
+    <value>remixes</value>
     <comment>Parser output for remix relationships.</comment>
   </data>
   <data name="ProjectMetaCsv" xml:space="preserve">

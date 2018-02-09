@@ -24,10 +24,9 @@ namespace Kragle.Parse
         /// </summary>
         public void WriteUsers()
         {
-            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv)))
+            using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv),
+                new[] {"id", "username", "joinDate", "country"}))
             {
-                writer.WriteHeaders("id", "username", "joinDate", "country");
-
                 FileInfo[] userFiles = FileStore.GetFiles(Resources.UserDirectory);
                 int userTotal = userFiles.Length;
                 int userCurrent = 0;
@@ -81,13 +80,14 @@ namespace Kragle.Parse
         /// </summary>
         public void WriteProjects()
         {
-            using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv)))
-            using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv)))
+            using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv),
+                new[] {"childId", "parentId"}))
+            using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv), new[]
             {
-                projectRemixWriter.WriteHeaders("childId", "parentId");
-                projectWriter.WriteHeaders("authorId", "date", "projectId", "title", "modifyDate", "createDate",
-                    "shareDate", "viewCount", "loveCount", "favoriteCount", "commentCount");
-
+                "authorId", "date", "projectId", "title", "modifyDate", "createDate", "shareDate", "viewCount",
+                "loveCount", "favoriteCount", "commentCount"
+            }, 1000000))
+            {
                 DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
                 int userTotal = userDirs.Length;
                 int userCurrent = 0;
@@ -172,18 +172,17 @@ namespace Kragle.Parse
 
             Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
-            using (CsvWriter commandWriter = new CsvWriter(FileStore.GetAbsolutePath("commands.csv"), true))
-            using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath("scripts.csv"), true))
-            using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath("procedures.csv"), true))
+            using (CsvWriter commandWriter = new CsvWriter(FileStore.GetAbsolutePath("commands"), new[]
             {
-                commandWriter.WriteHeaders("scriptId", "projectId", "date", "depth", "scopeType", "scopeName",
-                    "command", "param1", "param2", "param3", "param4", "param5", "param6", "param7", "param8", "param9",
-                    "param10", "param11", "param12", "param13", "param14", "param15", "param16", "param17", "param18",
-                    "param19", "param20");
-                scriptWriter.WriteHeaders("scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount");
-                procedureWriter.WriteHeaders("projectId", "date", "scopeType", "scopeName", "name", "argumentCount");
-
-
+                "scriptId", "projectId", "date", "depth", "scopeType", "scopeName", "command", "param1", "param2",
+                "param3", "param4", "param5", "param6", "param7", "param8", "param9", "param10", "param11", "param12",
+                "param13", "param14", "param15", "param16", "param17", "param18", "param19", "param20"
+            }, 10000000))
+            using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath("scripts"),
+                new[] {"scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount"}, 10000000))
+            using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath("procedures"),
+                new[] {"projectId", "date", "scopeType", "scopeName", "name", "argumentCount"}))
+            {
                 foreach (DirectoryInfo project in projects)
                 {
                     int projectId = int.Parse(project.Name);

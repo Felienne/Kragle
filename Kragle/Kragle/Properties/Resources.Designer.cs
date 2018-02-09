@@ -124,7 +124,7 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to projectremix.csv.
+        ///   Looks up a localized string similar to remixes.
         /// </summary>
         internal static string ProjectRemixCsv {
             get {
@@ -133,7 +133,7 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to projects.csv.
+        ///   Looks up a localized string similar to projects.
         /// </summary>
         internal static string ProjectsCsv {
             get {
@@ -178,7 +178,7 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to users.csv.
+        ///   Looks up a localized string similar to users.
         /// </summary>
         internal static string UsersCsv {
             get {
