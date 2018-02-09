@@ -25,7 +25,7 @@ namespace Kragle.Parse
         public void WriteUsers()
         {
             using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv),
-                new[] {"id", "username", "joinDate", "country"}))
+                new[] { "id", "username", "joinDate", "country" }, int.Parse(Resources.UsersCsvLinesPerFile)))
             {
                 FileInfo[] userFiles = FileStore.GetFiles(Resources.UserDirectory);
                 int userTotal = userFiles.Length;
@@ -81,12 +81,12 @@ namespace Kragle.Parse
         public void WriteProjects()
         {
             using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv),
-                new[] {"childId", "parentId"}))
+                new[] { "childId", "parentId" }, int.Parse(Resources.ProjectRemixCsvLinesPerFile)))
             using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv), new[]
             {
                 "authorId", "date", "projectId", "title", "modifyDate", "createDate", "shareDate", "viewCount",
                 "loveCount", "favoriteCount", "commentCount"
-            }, 1000000))
+            }, int.Parse(Resources.ProjectsCsvLinesPerFile)))
             {
                 DirectoryInfo[] userDirs = FileStore.GetDirectories(Resources.ProjectDirectory);
                 int userTotal = userDirs.Length;
@@ -126,7 +126,7 @@ namespace Kragle.Parse
                                 return;
                             }
 
-                            JObject project = (JObject) projectFile;
+                            JObject project = (JObject)projectFile;
                             int authorId = int.Parse(project["author"]["id"].ToString());
                             int projectId = int.Parse(project["id"].ToString());
                             string remixParentId = project["remix"]["parent"].ToString();
@@ -172,16 +172,16 @@ namespace Kragle.Parse
 
             Logger.Log("Parsing code of " + projectTotal + " projects to CSV.");
 
-            using (CsvWriter commandWriter = new CsvWriter(FileStore.GetAbsolutePath("commands"), new[]
+            using (CsvWriter commandWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.CommandsCsv), new[]
             {
                 "scriptId", "projectId", "date", "depth", "scopeType", "scopeName", "command", "param1", "param2",
                 "param3", "param4", "param5", "param6", "param7", "param8", "param9", "param10", "param11", "param12",
                 "param13", "param14", "param15", "param16", "param17", "param18", "param19", "param20"
-            }, 10000000))
-            using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath("scripts"),
-                new[] {"scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount"}, 10000000))
-            using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath("procedures"),
-                new[] {"projectId", "date", "scopeType", "scopeName", "name", "argumentCount"}))
+            }, int.Parse(Resources.CommandsCsvLinesPerFile)))
+            using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ScriptsCsv),
+                new[] {"scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount"}, int.Parse(Resources.ScriptsCsvLinesPerFile)))
+            using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProceduresCsv),
+                new[] {"projectId", "date", "scopeType", "scopeName", "name", "argumentCount"}, int.Parse(Resources.ProceduresCsvLinesPerFile)))
             {
                 foreach (DirectoryInfo project in projects)
                 {

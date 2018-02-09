@@ -19,7 +19,7 @@ namespace Kragle.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -79,11 +79,20 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to codeprocedures.csv.
+        ///   Looks up a localized string similar to commands.
         /// </summary>
-        internal static string CodeProceduresCsv {
+        internal static string CommandsCsv {
             get {
-                return ResourceManager.GetString("CodeProceduresCsv", resourceCulture);
+                return ResourceManager.GetString("CommandsCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 10000000.
+        /// </summary>
+        internal static string CommandsCsvLinesPerFile {
+            get {
+                return ResourceManager.GetString("CommandsCsvLinesPerFile", resourceCulture);
             }
         }
         
@@ -97,11 +106,20 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to projectcode.csv.
+        ///   Looks up a localized string similar to procedures.
         /// </summary>
-        internal static string ProjectCodeCsv {
+        internal static string ProceduresCsv {
             get {
-                return ResourceManager.GetString("ProjectCodeCsv", resourceCulture);
+                return ResourceManager.GetString("ProceduresCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0.
+        /// </summary>
+        internal static string ProceduresCsvLinesPerFile {
+            get {
+                return ResourceManager.GetString("ProceduresCsvLinesPerFile", resourceCulture);
             }
         }
         
@@ -115,15 +133,6 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to projectmeta.csv.
-        /// </summary>
-        internal static string ProjectMetaCsv {
-            get {
-                return ResourceManager.GetString("ProjectMetaCsv", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to remixes.
         /// </summary>
         internal static string ProjectRemixCsv {
@@ -133,11 +142,29 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 0.
+        /// </summary>
+        internal static string ProjectRemixCsvLinesPerFile {
+            get {
+                return ResourceManager.GetString("ProjectRemixCsvLinesPerFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to projects.
         /// </summary>
         internal static string ProjectsCsv {
             get {
                 return ResourceManager.GetString("ProjectsCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 10000000.
+        /// </summary>
+        internal static string ProjectsCsvLinesPerFile {
+            get {
+                return ResourceManager.GetString("ProjectsCsvLinesPerFile", resourceCulture);
             }
         }
         
@@ -169,6 +196,24 @@ namespace Kragle.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to scripts.
+        /// </summary>
+        internal static string ScriptsCsv {
+            get {
+                return ResourceManager.GetString("ScriptsCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 10000000.
+        /// </summary>
+        internal static string ScriptsCsvLinesPerFile {
+            get {
+                return ResourceManager.GetString("ScriptsCsvLinesPerFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to users.
         /// </summary>
         internal static string UserDirectory {
@@ -183,6 +228,15 @@ namespace Kragle.Properties {
         internal static string UsersCsv {
             get {
                 return ResourceManager.GetString("UsersCsv", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 0.
+        /// </summary>
+        internal static string UsersCsvLinesPerFile {
+            get {
+                return ResourceManager.GetString("UsersCsvLinesPerFile", resourceCulture);
             }
         }
     }

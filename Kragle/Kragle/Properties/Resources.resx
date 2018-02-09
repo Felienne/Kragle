@@ -142,14 +142,6 @@
   <data name="ResetConfirmCancel" xml:space="preserve">
     <value>Cancelled.</value>
   </data>
-  <data name="CodeProceduresCsv" xml:space="preserve">
-    <value>codeprocedures.csv</value>
-    <comment>Parser output file for code-procedures.</comment>
-  </data>
-  <data name="ProjectCodeCsv" xml:space="preserve">
-    <value>projectcode.csv</value>
-    <comment>Parser output file for project-code.</comment>
-  </data>
   <data name="ProjectsCsv" xml:space="preserve">
     <value>projects</value>
     <comment>Parser output file for projects.</comment>
@@ -162,12 +154,44 @@
     <value>remixes</value>
     <comment>Parser output for remix relationships.</comment>
   </data>
-  <data name="ProjectMetaCsv" xml:space="preserve">
-    <value>projectmeta.csv</value>
-    <comment>Parser output for project metadata.</comment>
-  </data>
   <data name="ArchiveDirectory" xml:space="preserve">
     <value>archives</value>
     <comment>Subdirectory to store archives.</comment>
+  </data>
+  <data name="CommandsCsv" xml:space="preserve">
+    <value>commands</value>
+    <comment>Parser outut for commands.</comment>
+  </data>
+  <data name="CommandsCsvLinesPerFile" xml:space="preserve">
+    <value>10000000</value>
+    <comment>Lines per file for commands CSV.</comment>
+  </data>
+  <data name="ProceduresCsv" xml:space="preserve">
+    <value>procedures</value>
+    <comment>Parser output for procedures.</comment>
+  </data>
+  <data name="ProceduresCsvLinesPerFile" xml:space="preserve">
+    <value>0</value>
+    <comment>Lines per file for procedures CSV.</comment>
+  </data>
+  <data name="ProjectRemixCsvLinesPerFile" xml:space="preserve">
+    <value>0</value>
+    <comment>Lines per file for remix relationships CSV.</comment>
+  </data>
+  <data name="ProjectsCsvLinesPerFile" xml:space="preserve">
+    <value>10000000</value>
+    <comment>Lines per file for projects CSV.</comment>
+  </data>
+  <data name="ScriptsCsv" xml:space="preserve">
+    <value>scripts</value>
+    <comment>Parser output for scripts.</comment>
+  </data>
+  <data name="ScriptsCsvLinesPerFile" xml:space="preserve">
+    <value>10000000</value>
+    <comment>Lines per file for scripts CSV.</comment>
+  </data>
+  <data name="UsersCsvLinesPerFile" xml:space="preserve">
+    <value>0</value>
+    <comment>Lines per file for users CSV.</comment>
   </data>
 </root>
