@@ -104,6 +104,16 @@ namespace Kragle.Parse
         }
 
         /// <summary>
+        ///  Writes the string "NULL" to the CSV, without quotation marks.
+        /// </summary>
+        /// <returns>this <code>CsvWriter</code></returns>
+        public CsvWriter WriteNull()
+        {
+            Write("NULL", false);
+            return this;
+        }
+
+        /// <summary>
         ///     Writes the given data to the CSV.
         /// </summary>
         /// <param name="data">the data to write</param>
@@ -129,10 +139,11 @@ namespace Kragle.Parse
             _linePosition = 0;
             _linesWritten++;
 
-            if (_linesPerFile > 0 && _linesWritten >= _linesPerFile)
+            if (_linesPerFile > 0 && _linesWritten % _linesPerFile == 0)
             {
                 _writer.Dispose();
                 _writer = new StreamWriter(FormatFileName(), false);
+                WriteHeaders();
             }
 
             return this;
@@ -174,7 +185,7 @@ namespace Kragle.Parse
                 return _file + "_000.csv";
             }
 
-            return _file + "_" + (_linesPerFile % _linesWritten).ToString("D3") + ".csv";
+            return _file + "_" + (_linesWritten / _linesPerFile).ToString("D3") + ".csv";
         }
     }
 }

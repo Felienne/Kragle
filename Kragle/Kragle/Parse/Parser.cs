@@ -396,7 +396,14 @@ namespace Kragle.Parse
             {
                 foreach (object column in datum)
                 {
-                    writer.Write(column);
+                    if (column.ToString() == "")
+                    {
+                        writer.WriteNull();
+                    }
+                    else
+                    {
+                        writer.Write(column);
+                    }
                 }
 
                 writer.Newline();
