@@ -55,14 +55,11 @@ namespace Kragle.Parse
                     }
 
                     JObject user;
-                    try
+                    using (JsonReader jsonReader =
+                        new JsonTextReader(new StringReader(File.ReadAllText(userFile.FullName))))
                     {
-                        user = JObject.Parse(File.ReadAllText(userFile.FullName));
-                    }
-                    catch (JsonReaderException e)
-                    {
-                        Logger.Log("The metadata for user `" + userFile.Name + "` could not be parsed.", e);
-                        return;
+                        jsonReader.DateParseHandling = DateParseHandling.None;
+                        user = JObject.Load(jsonReader);
                     }
 
                     writer
