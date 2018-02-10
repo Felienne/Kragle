@@ -55,17 +55,20 @@ namespace Kragle.Parse
                     }
 
                     JObject user;
-                    using (JsonReader jsonReader =
-                        new JsonTextReader(new StringReader(File.ReadAllText(userFile.FullName))))
+                    try
                     {
-                        jsonReader.DateParseHandling = DateParseHandling.None;
-                        user = JObject.Load(jsonReader);
+                        user = JObject.Parse(File.ReadAllText(userFile.FullName));
+                    }
+                    catch (JsonReaderException e)
+                    {
+                        Logger.Log("The metadata for user `" + userFile.Name + "` could not be parsed.", e);
+                        return;
                     }
 
                     writer
                         .Write(int.Parse(user["id"].ToString()))
                         .Write(user["username"].ToString())
-                        .Write(user["history"]["joined"].ToString())
+                        .Write(((DateTime) user["history"]["joined"]).ToString("yyyy-MM-ddTHH:mm:ss"))
                         .Write(user["profile"]["country"].ToString())
                         .Newline();
                 }
