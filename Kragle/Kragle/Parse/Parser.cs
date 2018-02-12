@@ -25,7 +25,7 @@ namespace Kragle.Parse
         public void WriteUsers()
         {
             using (CsvWriter writer = new CsvWriter(FileStore.GetAbsolutePath(Resources.UsersCsv),
-                new[] { "id", "username", "joinDate", "country" }, int.Parse(Resources.UsersCsvLinesPerFile)))
+                new[] {"id", "username", "joinDate", "country"}, int.Parse(Resources.UsersCsvLinesPerFile)))
             {
                 FileInfo[] userFiles = FileStore.GetFiles(Resources.UserDirectory);
                 int userTotal = userFiles.Length;
@@ -81,7 +81,7 @@ namespace Kragle.Parse
         public void WriteProjects()
         {
             using (CsvWriter projectRemixWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectRemixCsv),
-                new[] { "childId", "parentId" }, int.Parse(Resources.ProjectRemixCsvLinesPerFile)))
+                new[] {"childId", "parentId"}, int.Parse(Resources.ProjectRemixCsvLinesPerFile)))
             using (CsvWriter projectWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProjectsCsv), new[]
             {
                 "authorId", "date", "projectId", "title", "modifyDate", "createDate", "shareDate", "viewCount",
@@ -126,7 +126,7 @@ namespace Kragle.Parse
                                 return;
                             }
 
-                            JObject project = (JObject)projectFile;
+                            JObject project = (JObject) projectFile;
                             int authorId = int.Parse(project["author"]["id"].ToString());
                             int projectId = int.Parse(project["id"].ToString());
                             string remixParentId = project["remix"]["parent"].ToString();
@@ -164,7 +164,9 @@ namespace Kragle.Parse
         /// <summary>
         ///     Writes all code and their relations to projects to CSV files.
         /// </summary>
-        public void WriteCode()
+        /// <param name="skip">the number of projects to skip before parsing</param>
+        /// <param name="limit">the number of projects to parse code for</param>
+        public void WriteCode(int skip, int limit)
         {
             DirectoryInfo[] projects = FileStore.GetDirectories(Resources.CodeDirectory);
             int projectTotal = projects.Length;
@@ -179,15 +181,28 @@ namespace Kragle.Parse
                 "param13", "param14", "param15", "param16", "param17", "param18", "param19", "param20"
             }, int.Parse(Resources.CommandsCsvLinesPerFile)))
             using (CsvWriter scriptWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ScriptsCsv),
-                new[] {"scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount"}, int.Parse(Resources.ScriptsCsvLinesPerFile)))
+                new[] {"scriptId", "projectId", "date", "scopeType", "scopeName", "lineCount"},
+                int.Parse(Resources.ScriptsCsvLinesPerFile)))
             using (CsvWriter procedureWriter = new CsvWriter(FileStore.GetAbsolutePath(Resources.ProceduresCsv),
-                new[] {"projectId", "date", "scopeType", "scopeName", "name", "argumentCount"}, int.Parse(Resources.ProceduresCsvLinesPerFile)))
+                new[] {"projectId", "date", "scopeType", "scopeName", "name", "argumentCount"},
+                int.Parse(Resources.ProceduresCsvLinesPerFile)))
             {
                 foreach (DirectoryInfo project in projects)
                 {
+                    projectCurrent++;
+
+                    if (projectCurrent <= skip)
+                    {
+                        continue;
+                    }
+
+                    if (limit > 0 && projectCurrent > skip + limit)
+                    {
+                        break;
+                    }
+
                     int projectId = int.Parse(project.Name);
 
-                    projectCurrent++;
                     Logger.Log(LoggerHelper.FormatProgress("Parsing code of project " + projectId,
                         projectCurrent, projectTotal));
 

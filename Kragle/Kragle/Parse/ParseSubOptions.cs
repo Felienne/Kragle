@@ -16,6 +16,12 @@ namespace Kragle.Parse
 
         [Option('c', "code", HelpText = "Parse project code")]
         public bool Code { get; set; }
+        
+        [Option("cskip", HelpText = "The number of projects to skip while parsing code")]
+        public int CSkip { get; set; }
+        
+        [Option("climit", HelpText = "The number of projects to parse code for")]
+        public int CLimit { get; set; }
 
 
         /// <summary>
@@ -36,7 +42,7 @@ namespace Kragle.Parse
             }
             if (Code)
             {
-                parser.WriteCode();
+                parser.WriteCode(CSkip, CLimit);
             }
         }
     }
